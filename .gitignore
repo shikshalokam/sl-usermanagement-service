@@ -59,3 +59,14 @@ typings/
 
 # next.js build output
 .next
+
+# Custom directories
+doc
+.vscode
+uploadedFiles
+uploads
+public
+
+# Ignore Mac DS_Store files
+.DS_Store
+**/.DS_Store
