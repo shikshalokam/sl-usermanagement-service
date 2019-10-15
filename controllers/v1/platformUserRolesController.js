@@ -48,35 +48,49 @@ module.exports = class PlatformUserRoles extends Abstract {
   * }
   */
 
-  // getProfile(req) {
-  //   return new Promise(async (resolve, reject) => {
+  getProfile(req) {
+    return new Promise(async (resolve, reject) => {
 
-  //     try {
+      try {
 
-  //       let result = await platformUserRolesHelper.profileWithEntityDetails({
-  //         userId: (req.params._id && req.params._id != "") ? req.params._id : req.userDetails.userId,
-  //         status: "active",
-  //         isDeleted: false
-  //       });
+        // let result = await platformUserRolesHelper.profileWithEntityDetails({
+          
+        let queryObject = {
+          userId: (req.params._id && req.params._id != "") ? req.params._id : req.userDetails.userId,
+          status: "active",
+          isDeleted: false
+          }
+        // });
 
-  //       return resolve({
-  //         message: "User profile fetched successfully.",
-  //         result: result
-  //       });
+        let platformUserRolesDocument = await database.models.platformUserRolesExt.findOne(
+          queryObject
+        ).lean();
 
-  //     } catch (error) {
+        if(!platformUserRolesDocument){
+          return resolve({
+            message:"No platform user for given params",
+            status:400
+          })
+        }
 
-  //       return reject({
-  //         status: error.status || 500,
-  //         message: error.message || "Oops! something went wrong.",
-  //         errorObject: error
-  //       })
+        return resolve({
+          message: "Platform user profile fetched successfully.",
+          result: platformUserRolesDocument
+        });
 
-  //     }
+      } catch (error) {
+
+        return reject({
+          status: error.status || 500,
+          message: error.message || "Oops! something went wrong.",
+          errorObject: error
+        })
+
+      }
 
 
-  //   })
-  // }
+    })
+  }
 
   /**
   * @api {post} /assessment/api/v1/platformUserRoles/bulkUpload Bulk Upload User Roles

@@ -4,7 +4,7 @@ module.exports = {
     roles: Array,
     createdBy : String,
     updatedBy : String,
-    userId : "ObjectId",
+    userId : String,
     username : String,
     status : String,
     isDeleted: Boolean
