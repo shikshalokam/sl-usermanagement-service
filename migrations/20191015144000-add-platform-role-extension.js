@@ -3,6 +3,8 @@ module.exports = {
     global.migrationMsg = global.migrationMsg = "Add platform role extension"
     // return await db.collection('albums').updateOne({artist: 'The Beatles'}, {$set: {blacklisted: true}});
   
+    await db.collection('platformRolesExt').createIndex( { code: 1}, { unique: true , background : 1} )
+   
     let obsDesigner = {
       "code" : "OBS_DESIGNER",
       "title" : "Observation Designer",

@@ -6,7 +6,9 @@ module.exports = {
 
     await db.collection('platformUserRolesExt').createIndex( { userId: 1}, { unique: true , background : 1} )
 
-    return await db.collection('platformUserRolesExt').createIndex( { status: 1 }, { background : 1} )
+    await db.collection('platformUserRolesExt').createIndex( { status: 1 }, { background : 1} )
+    
+    return 
 
   },
 

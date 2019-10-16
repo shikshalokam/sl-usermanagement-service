@@ -12,12 +12,12 @@ module.exports = class PlatformUserRoles extends Abstract {
   }
 
   /**
-  * @api {get} /assessment/api/v1/platformUserRoles/getProfile/{{userId}} Get user profile
+  * @api {get} /user-management/api/v1/platformUserRoles/getProfile/{{userId}} Get user profile
   * @apiVersion 1.0.0
   * @apiName Get user profile
   * @apiGroup User Extension
   * @apiHeader {String} X-authenticated-user-token Authenticity token
-  * @apiSampleRequest /assessment/api/v1/platformUserRoles/getProfile/e97b5582-471c-4649-8401-3cc4249359bb
+  * @apiSampleRequest /user-management/api/v1/platformUserRoles/getProfile/e97b5582-471c-4649-8401-3cc4249359bb
   * @apiUse successBody
   * @apiUse errorBody
   * @apiParamExample {json} Response:
@@ -52,15 +52,12 @@ module.exports = class PlatformUserRoles extends Abstract {
     return new Promise(async (resolve, reject) => {
 
       try {
-
-        // let result = await platformUserRolesHelper.profileWithEntityDetails({
           
         let queryObject = {
           userId: (req.params._id && req.params._id != "") ? req.params._id : req.userDetails.userId,
           status: "active",
           isDeleted: false
           }
-        // });
 
         let platformUserRolesDocument = await database.models.platformUserRolesExt.findOne(
           queryObject
@@ -88,17 +85,16 @@ module.exports = class PlatformUserRoles extends Abstract {
 
       }
 
-
     })
   }
 
   /**
-  * @api {post} /assessment/api/v1/platformUserRoles/bulkUpload Bulk Upload User Roles
+  * @api {post} /user-management/api/v1/platformUserRoles/bulkUpload Bulk Upload User Roles
   * @apiVersion 1.0.0
   * @apiName Bulk Upload User Roles
   * @apiGroup User Extension
   * @apiParam {File} userRoles Mandatory user roles file of type CSV.
-  * @apiSampleRequest /assessment/api/v1/platformUserRoles/bulkUpload
+  * @apiSampleRequest /user-management/api/v1/platformUserRoles/bulkUpload
   * @apiUse successBody
   * @apiUse errorBody
   */
