@@ -15,7 +15,7 @@ module.exports = class PlatformUserRoles extends Abstract {
   * @api {get} /user-management/api/v1/platformUserRoles/getProfile/{{userId}} Get user profile
   * @apiVersion 1.0.0
   * @apiName Get user profile
-  * @apiGroup User Extension
+  * @apiGroup Platform User Extension
   * @apiHeader {String} X-authenticated-user-token Authenticity token
   * @apiSampleRequest /user-management/api/v1/platformUserRoles/getProfile/e97b5582-471c-4649-8401-3cc4249359bb
   * @apiUse successBody
