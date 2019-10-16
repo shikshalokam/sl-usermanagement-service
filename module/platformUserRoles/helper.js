@@ -1,3 +1,5 @@
+const platformRolesHelper = require(ROOT_PATH + "/module/platformRoles/helper")
+
 module.exports = class platformUserRolesHelper {
 
     static list(filterQueryObject, projectionQueryObject) {
@@ -21,7 +23,7 @@ module.exports = class platformUserRolesHelper {
         return new Promise(async (resolve, reject) => {
             try {
 
-                let platformUsers = this.buildCSVToDocument(userRolesCSVData)
+                let platformUsers = await this.buildCSVToDocument(userRolesCSVData)
 
                 const userRolesUploadedData = await Promise.all(
                     platformUsers.map(async userRole => {
@@ -77,6 +79,10 @@ module.exports = class platformUserRolesHelper {
         return new Promise(async (resolve, reject) => {
             try {
 
+                let codes = userRolesCSVData.map(userRole=> userRole.code)
+                
+                let codeWithIdMapping = await platformRolesHelper.getRolesId(codes)
+
                 const userRolesUploadedData = await Promise.all(
                     userRolesCSVData.map(async userRole => {
 
@@ -86,7 +92,7 @@ module.exports = class platformUserRolesHelper {
                             if (userRole.action == "APPEND") {
                                 updateObject["$addToSet"] = {
                                     roles: {
-                                        roleId: ObjectId(userRole.roleId),
+                                        roleId: codeWithIdMapping[userRole.code],
                                         code: userRole.code
                                     }
                                 }
@@ -96,7 +102,7 @@ module.exports = class platformUserRolesHelper {
                                 }
                             } else if (userRole.action == "OVERRIDE") {
                                 updateObject["$set"] = {
-                                    "roles.$.roleId": ObjectId(userRole.roleId),
+                                    "roles.$.roleId": codeWithIdMapping[userRole.code],
                                     "roles.$.code": userRole.code,
                                     "updatedBy": userDetails.id,
                                     "updatedAt": new Date()
@@ -104,7 +110,7 @@ module.exports = class platformUserRolesHelper {
                             } else if (userRole.action == "REMOVE") {
                                 updateObject["$pull"] = {
                                     roles: {
-                                        roleId: ObjectId(userRole.roleId)
+                                        roleId: codeWithIdMapping[userRole.code]
                                     }
                                 }
                                 updateObject["$set"] = {
@@ -116,8 +122,8 @@ module.exports = class platformUserRolesHelper {
 
                             let updateRole = await database.models.platformUserRolesExt.findOneAndUpdate(
                                 {
-                                    "userId": userRole.userId,
-                                    "roles.roleId": ObjectId(userRole.roleId)
+                                    "userId": userRole["keycloak-userId"],
+                                    "roles.roleId": codeWithIdMapping[userRole.code]
                                 },
                                 updateObject
                             );
@@ -157,44 +163,60 @@ module.exports = class platformUserRolesHelper {
     }
 
     static buildCSVToDocument(userRolesCSVData) {
+        
+        return new Promise(async (resolve, reject) => {
+            try {
 
-        let userRoles = {}
+                let userRoles = {}
 
-        userRolesCSVData.forEach(userRole => {
+                let codes = userRolesCSVData.map(userRole=> userRole.code)
+                
+                let codeWithIdMapping = await platformRolesHelper.getRolesId(codes)
+        
+                userRolesCSVData.forEach(userRole => {
+        
+                    if (userRoles[userRole["keycloak-userId"]]) {
+        
+                        let roleExists = false
+                        userRoles[userRole["keycloak-userId"]].roles.find(role => {
+                            if (role.roleId.toString() == codeWithIdMapping[userRole.code].toString()) roleExists = true
+                        })
+        
+                        if (!roleExists) {
+        
+                            userRoles[userRole["keycloak-userId"]].roles.push({
+                                "roleId": codeWithIdMapping[userRole.code],
+                                "code": userRole.code
+                            })
+        
+                        }
+        
+                    } else {
+        
+                        userRoles[userRole["keycloak-userId"]] = {
+                            "roles": [{
+                                "roleId": codeWithIdMapping[userRole.code],
+                                "code": userRole.code
+                            }],
+                            "status": "active",
+                            "userId": userRole["keycloak-userId"],
+                            "username": userRole.user,
+                        }
 
-            if (userRoles[userRole.userId]) {
+                        console.log(userRoles)
+        
+                    }
+        
+                });
+        
+                return resolve(Object.values(userRoles))
 
-                let roleExists = false
-                userRoles[userRole.userId].roles.find(role => {
-                    if (role.roleId.toString() == userRole.roleId.toString()) roleExists = true
-                })
+            }catch(error){
 
-                if (!roleExists) {
-
-                    userRoles[userRole.userId].roles.push({
-                        "roleId": ObjectId(userRole.roleId),
-                        "code": userRole.code
-                    })
-
-                }
-
-            } else {
-
-                userRoles[userRole.userId] = {
-                    "roles": [{
-                        "roleId": ObjectId(userRole.roleId),
-                        "code": userRole.code
-                    }],
-                    "status": "active",
-                    "userId": userRole.userId,
-                    "username": userRole.username,
-                }
+                return reject(error)
 
             }
-
-        });
-
-        return Object.values(userRoles)
+        })
 
     }
 

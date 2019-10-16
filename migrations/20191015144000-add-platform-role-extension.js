@@ -1,7 +1,6 @@
 module.exports = {
   async up(db) {
     global.migrationMsg = global.migrationMsg = "Add platform role extension"
-    // return await db.collection('albums').updateOne({artist: 'The Beatles'}, {$set: {blacklisted: true}});
   
     await db.collection('platformRolesExt').createIndex( { code: 1}, { unique: true , background : 1} )
    
