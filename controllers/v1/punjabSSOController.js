@@ -1,6 +1,6 @@
 const punjabSSOHelper = require(ROOT_PATH + "/module/punjabSSO/helper")
 
-module.exports = class PunjabSSO extends Abstract {
+module.exports = class PunjabSSO {
   
   /**
    * @apiDefine errorBody
