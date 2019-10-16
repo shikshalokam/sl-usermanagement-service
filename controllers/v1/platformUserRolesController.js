@@ -1,5 +1,5 @@
 const csv = require("csvtojson");
-// const platformUserRolesHelper = require(ROOT_PATH + "/module/platformUserRoles/helper")
+const platformUserRolesHelper = require(ROOT_PATH + "/module/platformUserRoles/helper")
 const FileStream = require(ROOT_PATH + "/generics/fileStream");
 
 module.exports = class PlatformUserRoles extends Abstract {
@@ -89,63 +89,123 @@ module.exports = class PlatformUserRoles extends Abstract {
   }
 
   /**
-  * @api {post} /user-management/api/v1/platformUserRoles/bulkUpload Bulk Upload User Roles
+  * @api {post} /user-management/api/v1/platformUserRoles/bulkCreate Bulk Upload User Roles
   * @apiVersion 1.0.0
   * @apiName Bulk Upload User Roles
   * @apiGroup User Extension
   * @apiParam {File} userRoles Mandatory user roles file of type CSV.
-  * @apiSampleRequest /user-management/api/v1/platformUserRoles/bulkUpload
+  * @apiSampleRequest /user-management/api/v1/platformUserRoles/bulkCreate
   * @apiUse successBody
   * @apiUse errorBody
   */
 
-  // bulkUpload(req) {
-  //   return new Promise(async (resolve, reject) => {
+  bulkCreate(req) {
+    return new Promise(async (resolve, reject) => {
 
-  //     try {
+      try {
 
-  //       let userRolesCSVData = await csv().fromString(req.files.userRoles.data.toString());
+        let userRolesCSVData = await csv().fromString(req.files.platformUserRoles.data.toString());
 
-  //       if (!userRolesCSVData || userRolesCSVData.length < 1) throw "File or data is missing."
+        if (!userRolesCSVData || userRolesCSVData.length < 1) throw "File or data is missing."
 
-  //       let newUserRoleData = await platformUserRolesHelper.bulkCreateOrUpdate(userRolesCSVData, req.userDetails);
+        let newUserRoleData = await platformUserRolesHelper.bulkCreate(userRolesCSVData, req.userDetails);
 
-  //       if (newUserRoleData.length > 0) {
+        if (newUserRoleData.length > 0) {
 
-  //         const fileName = `UserRole-Upload`;
-  //         let fileStream = new FileStream(fileName);
-  //         let input = fileStream.initStream();
+          const fileName = `UserRole-Upload`;
+          let fileStream = new FileStream(fileName);
+          let input = fileStream.initStream();
 
-  //         (async function () {
-  //           await fileStream.getProcessorPromise();
-  //           return resolve({
-  //             isResponseAStream: true,
-  //             fileNameWithPath: fileStream.fileNameWithPath()
-  //           });
-  //         }());
+          (async function () {
+            await fileStream.getProcessorPromise();
+            return resolve({
+              isResponseAStream: true,
+              fileNameWithPath: fileStream.fileNameWithPath()
+            });
+          }());
 
-  //         await Promise.all(newUserRoleData.map(async userRole => {
-  //           input.push(userRole)
-  //         }))
+          await Promise.all(newUserRoleData.map(async userRole => {
+            input.push(userRole)
+          }))
 
-  //         input.push(null)
+          input.push(null)
 
-  //       } else {
-  //         throw "Something went wrong!"
-  //       }
+        } else {
+          throw "Something went wrong!"
+        }
 
-  //     } catch (error) {
+      } catch (error) {
 
-  //       return reject({
-  //         status: error.status || 500,
-  //         message: error.message || "Oops! something went wrong.",
-  //         errorObject: error
-  //       })
+        return reject({
+          status: error.status || 500,
+          message: error.message || "Oops! something went wrong.",
+          errorObject: error
+        })
 
-  //     }
+      }
 
 
-  //   })
-  // }
+    })
+  }
+
+  /**
+  * @api {post} /user-management/api/v1/platformUserRoles/bulkUpdate Bulk Upload User Roles
+  * @apiVersion 1.0.0
+  * @apiName Bulk Upload User Roles
+  * @apiGroup User Extension
+  * @apiParam {File} userRoles Mandatory user roles file of type CSV.
+  * @apiSampleRequest /user-management/api/v1/platformUserRoles/bulkUpdate
+  * @apiUse successBody
+  * @apiUse errorBody
+  */
+
+  bulkUpdate(req) {
+    return new Promise(async (resolve, reject) => {
+
+      try {
+
+        let userRolesCSVData = await csv().fromString(req.files.platformUserRoles.data.toString());
+
+        if (!userRolesCSVData || userRolesCSVData.length < 1) throw "File or data is missing."
+
+        let newUserRoleData = await platformUserRolesHelper.bulkUpdate(userRolesCSVData, req.userDetails);
+
+        if (newUserRoleData.length > 0) {
+
+          const fileName = `UserRole-Upload`;
+          let fileStream = new FileStream(fileName);
+          let input = fileStream.initStream();
+
+          (async function () {
+            await fileStream.getProcessorPromise();
+            return resolve({
+              isResponseAStream: true,
+              fileNameWithPath: fileStream.fileNameWithPath()
+            });
+          }());
+
+          await Promise.all(newUserRoleData.map(async userRole => {
+            input.push(userRole)
+          }))
+
+          input.push(null)
+
+        } else {
+          throw "Something went wrong!"
+        }
+
+      } catch (error) {
+
+        return reject({
+          status: error.status || 500,
+          message: error.message || "Oops! something went wrong.",
+          errorObject: error
+        })
+
+      }
+
+
+    })
+  }
 
 };

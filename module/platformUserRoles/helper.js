@@ -4,7 +4,7 @@ module.exports = class platformUserRolesHelper {
         return new Promise(async (resolve, reject) => {
             try {
 
-                let platformUserRolesData = await database.models.platformRolesExt.find(filterQueryObject,projectionQueryObject).lean();
+                let platformUserRolesData = await database.models.platformUserRolesExt.find(filterQueryObject, projectionQueryObject).lean();
 
                 return resolve(platformUserRolesData);
 
@@ -16,49 +16,31 @@ module.exports = class platformUserRolesHelper {
 
     }
 
-    static bulkCreate(userRolesCSVData,userDetails) {
+    static bulkCreate(userRolesCSVData, userDetails) {
 
         return new Promise(async (resolve, reject) => {
             try {
 
-                // let entityTypeNameToEntityTypeMap = await this.getEntityTypeToIdMap()
+                let platformUsers = this.buildCSVToDocument(userRolesCSVData)
 
                 const userRolesUploadedData = await Promise.all(
-                    userRolesCSVData.map(async userRole => {
+                    platformUsers.map(async userRole => {
 
                         try {
-                            
-                            userRole = gen.utils.valueParser(userRole)
 
-                            if(userRole.entityTypes != "") {
-                                let roleEntityTypes = userRole.entityTypes.split(",")
-                                roleEntityTypes = _.uniq(roleEntityTypes)
-
-                                // userRole.entityTypes = new Array
-
-                                // roleEntityTypes.forEach(entityType => {
-                                //     if(entityTypeNameToEntityTypeMap[entityType]) {
-                                //         userRole.entityTypes.push(entityTypeNameToEntityTypeMap[entityType])
-                                //     } else {
-                                //         throw "Invalid entity type"
-                                //     }
-                                // })
-                            } else {
-                                delete userRole.entityTypes
-                            }
-
-                            let newRole = await database.models.userRoles.create(
+                            let newRole = await database.models.platformUserRolesExt.create(
                                 _.merge({
-                                    "status" : "active",
+                                    "status": "active",
                                     "updatedBy": userDetails.id,
                                     "createdBy": userDetails.id
-                                },userRole)
+                                }, userRole)
                             );
 
                             delete userRole.entityTypes
 
+                            userRole["action"] = "add"
                             if (newRole._id) {
-                                userRole["_SYSTEM_ID"] = newRole._id 
+                                userRole["_SYSTEM_ID"] = newRole._id
                                 userRole.status = "Success"
                             } else {
                                 userRole["_SYSTEM_ID"] = ""
@@ -67,7 +49,11 @@ module.exports = class platformUserRolesHelper {
 
                         } catch (error) {
                             userRole["_SYSTEM_ID"] = ""
-                            userRole.status = (error && error.message) ? error.message : error
+                            if (error.message && error.message.includes("duplicate key")) {
+                                userRole.status = "Failed. Duplication occured"
+                            } else {
+                                userRole.status = (error && error.message) ? error.message : error
+                            }
                         }
 
 
@@ -86,50 +72,60 @@ module.exports = class platformUserRolesHelper {
     }
 
 
-    static bulkUpdate(userRolesCSVData,userDetails) {
+    static bulkUpdate(userRolesCSVData, userDetails) {
 
         return new Promise(async (resolve, reject) => {
             try {
-
-                // let entityTypeNameToEntityTypeMap = await this.getEntityTypeToIdMap()
 
                 const userRolesUploadedData = await Promise.all(
                     userRolesCSVData.map(async userRole => {
 
                         try {
-                            
-                            userRole = gen.utils.valueParser(userRole)
 
-                            if(userRole.entityTypes != "") {
-                                let roleEntityTypes = userRole.entityTypes.split(",")
-                                roleEntityTypes = _.uniq(roleEntityTypes)
-    
-                                // userRole.entityTypes = new Array
-    
-                                // roleEntityTypes.forEach(entityType => {
-                                //     if(entityTypeNameToEntityTypeMap[entityType]) {
-                                //         userRole.entityTypes.push(entityTypeNameToEntityTypeMap[entityType])
-                                //     } else {
-                                //         throw "Invalid entity type"
-                                //     }
-                                // })
-                            } else {
-                                delete userRole.entityTypes
+                            let updateObject = {}
+                            if (userRole.action == "add") {
+                                updateObject["$addToSet"] = {
+                                    roles: {
+                                        roleId: ObjectId(userRole.roleId),
+                                        code: userRole.code
+                                    }
+                                }
+                                updateObject["$set"] = {
+                                    "updatedBy": userDetails.id,
+                                    "updatedAt": new Date()
+                                }
+                            } else if (userRole.action == "update") {
+                                updateObject["$set"] = {
+                                    "roles.$.roleId": ObjectId(userRole.roleId),
+                                    "roles.$.code": userRole.code,
+                                    "updatedBy": userDetails.id,
+                                    "updatedAt": new Date()
+                                }
+                            } else if (userRole.action == "remove") {
+                                updateObject["$pull"] = {
+                                    roles: {
+                                        roleId: ObjectId(userRole.roleId)
+                                    }
+                                }
+                                updateObject["$set"] = {
+                                    "updatedBy": userDetails.id,
+                                    "updatedAt": new Date()
+                                }
                             }
 
-                            let updateRole = await database.models.userRoles.findOneAndUpdate(
+
+                            let updateRole = await database.models.platformUserRolesExt.findOneAndUpdate(
                                 {
-                                    code : userRole.code
+                                    "userId": userRole.userId,
+                                    "roles.roleId": ObjectId(userRole.roleId)
                                 },
-                                _.merge({
-                                    "updatedBy": userDetails.id
-                                },userRole)
+                                updateObject
                             );
 
                             delete userRole.entityTypes
-                            
+
                             if (updateRole._id) {
-                                userRole["_SYSTEM_ID"] = updateRole._id 
+                                userRole["_SYSTEM_ID"] = updateRole._id
                                 userRole.status = "Success"
                             } else {
                                 userRole["_SYSTEM_ID"] = ""
@@ -138,7 +134,11 @@ module.exports = class platformUserRolesHelper {
 
                         } catch (error) {
                             userRole["_SYSTEM_ID"] = ""
-                            userRole.status = (error && error.message) ? error.message : error
+                            if(error.message && error.message.includes("Cannot read property '_id' of null")){
+                                userRole.status = "Role not found to modify"  
+                            }else{
+                                userRole.status = (error && error.message) ? error.message : error
+                            }
                         }
 
 
@@ -156,30 +156,47 @@ module.exports = class platformUserRolesHelper {
 
     }
 
-    // static getEntityTypeToIdMap() {
+    static buildCSVToDocument(userRolesCSVData) {
 
-    //     return new Promise(async (resolve, reject) => {
-    //         try {
+        let userRoles = {}
 
-    //             let entityTypeList = await entityTypesHelper.list({},{name:1})
-            
-    //             let entityTypeNameToEntityTypeMap = {}
-            
-    //             entityTypeList.forEach(entityType => {
-    //                 entityTypeNameToEntityTypeMap[entityType.name] = {
-    //                     entityTypeId: entityType._id,
-    //                     entityType:entityType.name
-    //                 }
-    //             });
-                
-    //             return resolve(entityTypeNameToEntityTypeMap);
+        userRolesCSVData.forEach(userRole => {
 
-    //         } catch (error) {
-    //             return reject(error)
-    //         }
-    //     })
+            if (userRoles[userRole.userId]) {
 
-    // }
+                let roleExists = false
+                userRoles[userRole.userId].roles.find(role => {
+                    if (role.roleId.toString() == userRole.roleId.toString()) roleExists = true
+                })
+
+                if (!roleExists) {
+
+                    userRoles[userRole.userId].roles.push({
+                        "roleId": ObjectId(userRole.roleId),
+                        "code": userRole.code
+                    })
+
+                }
+
+            } else {
+
+                userRoles[userRole.userId] = {
+                    "roles": [{
+                        "roleId": ObjectId(userRole.roleId),
+                        "code": userRole.code
+                    }],
+                    "status": "active",
+                    "userId": userRole.userId,
+                    "username": userRole.username,
+                }
+
+            }
+
+        });
+
+        return Object.values(userRoles)
+
+    }
 
 
 };
