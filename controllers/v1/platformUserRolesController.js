@@ -52,7 +52,15 @@ module.exports = class PlatformUserRoles extends Abstract {
           }
 
         let platformUserRolesDocument = await database.models.platformUserRolesExt.findOne(
-          queryObject
+          queryObject,
+          {
+            updatedBy:0,
+            createdBy:0,
+            createdAt:0,
+            updatedAt:0,
+            status:0,
+            "__v":0
+          }
         ).lean();
 
         if(!platformUserRolesDocument){

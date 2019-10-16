@@ -38,7 +38,7 @@ module.exports = class platformUserRolesHelper {
 
                             delete userRole.entityTypes
 
-                            userRole["action"] = "add"
+                            userRole["action"] = "APPEND"
                             if (newRole._id) {
                                 userRole["_SYSTEM_ID"] = newRole._id
                                 userRole.status = "Success"
@@ -83,7 +83,7 @@ module.exports = class platformUserRolesHelper {
                         try {
 
                             let updateObject = {}
-                            if (userRole.action == "add") {
+                            if (userRole.action == "APPEND") {
                                 updateObject["$addToSet"] = {
                                     roles: {
                                         roleId: ObjectId(userRole.roleId),
@@ -94,14 +94,14 @@ module.exports = class platformUserRolesHelper {
                                     "updatedBy": userDetails.id,
                                     "updatedAt": new Date()
                                 }
-                            } else if (userRole.action == "update") {
+                            } else if (userRole.action == "OVERRIDE") {
                                 updateObject["$set"] = {
                                     "roles.$.roleId": ObjectId(userRole.roleId),
                                     "roles.$.code": userRole.code,
                                     "updatedBy": userDetails.id,
                                     "updatedAt": new Date()
                                 }
-                            } else if (userRole.action == "remove") {
+                            } else if (userRole.action == "REMOVE") {
                                 updateObject["$pull"] = {
                                     roles: {
                                         roleId: ObjectId(userRole.roleId)
