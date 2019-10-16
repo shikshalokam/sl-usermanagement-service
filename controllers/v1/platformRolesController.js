@@ -36,8 +36,7 @@ module.exports = class PlatformRoles extends Abstract {
       try {
 
         let result = await platformRolesHelper.list({
-          status: "active",
-          isDeleted: false
+          status: "active"
         }, {
             code: 1,
             title: 1
