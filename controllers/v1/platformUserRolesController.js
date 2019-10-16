@@ -89,10 +89,10 @@ module.exports = class PlatformUserRoles extends Abstract {
   }
 
   /**
-  * @api {post} /user-management/api/v1/platformUserRoles/bulkCreate Bulk Upload User Roles
+  * @api {post} /user-management/api/v1/platformUserRoles/bulkCreate Bulk Create Platform User Roles
   * @apiVersion 1.0.0
-  * @apiName Bulk Upload User Roles
-  * @apiGroup User Extension
+  * @apiName Bulk Create Platform User Roles
+  * @apiGroup Platform User Extension
   * @apiParam {File} platformUserRoles Mandatory user roles file of type CSV.
   * @apiSampleRequest /user-management/api/v1/platformUserRoles/bulkCreate
   * @apiUse successBody
@@ -149,10 +149,10 @@ module.exports = class PlatformUserRoles extends Abstract {
   }
 
   /**
-  * @api {post} /user-management/api/v1/platformUserRoles/bulkUpdate Bulk Upload User Roles
+  * @api {post} /user-management/api/v1/platformUserRoles/bulkUpdate Bulk Update Platform User Roles
   * @apiVersion 1.0.0
-  * @apiName Bulk Upload User Roles
-  * @apiGroup User Extension
+  * @apiName Bulk Update Platform User Roles
+  * @apiGroup Platform User Extension
   * @apiParam {File} platformUserRoles Mandatory user roles file of type CSV.
   * @apiSampleRequest /user-management/api/v1/platformUserRoles/bulkUpdate
   * @apiUse successBody
