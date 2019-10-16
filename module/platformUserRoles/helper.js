@@ -89,7 +89,7 @@ module.exports = class platformUserRolesHelper {
                         try {
 
                             let updateObject = {}
-                            if (userRole.action == "APPEND") {
+                            if (userRole.action == "APPEND" || userRole.action == "ADD") {
                                 updateObject["$addToSet"] = {
                                     roles: {
                                         roleId: codeWithIdMapping[userRole.code],
