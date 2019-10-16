@@ -12,12 +12,12 @@ module.exports = class PlatformRoles extends Abstract {
   }
 
   /**
-  * @api {get} /assessment/api/v1/platformRoles/list User Roles list
+  * @api {get} /user-management/api/v1/platformRoles/list User Roles list
   * @apiVersion 1.0.0
   * @apiName User Roles list
   * @apiGroup User Roles
   * @apiHeader {String} X-authenticated-user-token Authenticity token
-  * @apiSampleRequest /assessment/api/v1/platformRoles/list
+  * @apiSampleRequest /user-management/api/v1/platformRoles/list
   * @apiUse successBody
   * @apiUse errorBody
   * @apiParamExample {json} Response:
@@ -36,8 +36,7 @@ module.exports = class PlatformRoles extends Abstract {
       try {
 
         let result = await platformRolesHelper.list({
-          status: "active",
-          isDeleted: false
+          status: "active"
         }, {
             code: 1,
             title: 1
@@ -58,17 +57,16 @@ module.exports = class PlatformRoles extends Abstract {
 
       }
 
-
     })
   }
 
   /**
-  * @api {post} /assessment/api/v1/platformRoles/bulkCreate Bulk Create User Roles
+  * @api {post} /user-management/api/v1/platformRoles/bulkCreate Bulk Create User Roles
   * @apiVersion 1.0.0
   * @apiName Bulk Create User Roles
   * @apiGroup User Roles
-  * @apiParam {File} platformRoles Mandatory user roles file of type CSV.
-  * @apiSampleRequest /assessment/api/v1/platformRoles/bulkCreate
+  * @apiParam {File} platformRoles Mandatory platform roles file of type CSV.
+  * @apiSampleRequest /user-management/api/v1/platformRoles/bulkCreate
   * @apiUse successBody
   * @apiUse errorBody
   */
@@ -123,12 +121,12 @@ module.exports = class PlatformRoles extends Abstract {
   }
 
   /**
-  * @api {post} /assessment/api/v1/platformRoles/bulkUpdate Bulk Update User Roles
+  * @api {post} /user-management/api/v1/platformRoles/bulkUpdate Bulk Update User Roles
   * @apiVersion 1.0.0
   * @apiName Bulk Update User Roles
   * @apiGroup User Roles
-  * @apiParam {File} platformRoles Mandatory user roles file of type CSV.
-  * @apiSampleRequest /assessment/api/v1/platformRoles/bulkUpdate
+  * @apiParam {File} platformRoles Mandatory platform roles file of type CSV.
+  * @apiSampleRequest /user-management/api/v1/platformRoles/bulkUpdate
   * @apiUse successBody
   * @apiUse errorBody
   */

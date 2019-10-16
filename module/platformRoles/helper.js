@@ -4,7 +4,7 @@ module.exports = class platformUserRolesHelper {
         return new Promise(async (resolve, reject) => {
             try {
 
-                let platformUserRolesData = await database.models.platformRolesExt.find(filterQueryObject,projectionQueryObject).lean();
+                let platformUserRolesData = await database.models.platformRolesExt.find(filterQueryObject, projectionQueryObject).lean();
 
                 return resolve(platformUserRolesData);
 
@@ -16,49 +16,28 @@ module.exports = class platformUserRolesHelper {
 
     }
 
-    static bulkCreate(userRolesCSVData,userDetails) {
+    static bulkCreate(userRolesCSVData, userDetails) {
 
         return new Promise(async (resolve, reject) => {
             try {
-
-                // let entityTypeNameToEntityTypeMap = await this.getEntityTypeToIdMap()
 
                 const userRolesUploadedData = await Promise.all(
                     userRolesCSVData.map(async userRole => {
 
                         try {
-                            
+
                             userRole = gen.utils.valueParser(userRole)
 
-                            if(userRole.entityTypes != "") {
-                                let roleEntityTypes = userRole.entityTypes.split(",")
-                                roleEntityTypes = _.uniq(roleEntityTypes)
-
-                                // userRole.entityTypes = new Array
-
-                                // roleEntityTypes.forEach(entityType => {
-                                //     if(entityTypeNameToEntityTypeMap[entityType]) {
-                                //         userRole.entityTypes.push(entityTypeNameToEntityTypeMap[entityType])
-                                //     } else {
-                                //         throw "Invalid entity type"
-                                //     }
-                                // })
-                            } else {
-                                delete userRole.entityTypes
-                            }
-
-                            let newRole = await database.models.userRoles.create(
+                            let newRole = await database.models.platformRolesExt.create(
                                 _.merge({
-                                    "status" : "active",
+                                    "status": "active",
                                     "updatedBy": userDetails.id,
                                     "createdBy": userDetails.id
-                                },userRole)
+                                }, userRole)
                             );
 
-                            delete userRole.entityTypes
-
                             if (newRole._id) {
-                                userRole["_SYSTEM_ID"] = newRole._id 
+                                userRole["_SYSTEM_ID"] = newRole._id
                                 userRole.status = "Success"
                             } else {
                                 userRole["_SYSTEM_ID"] = ""
@@ -67,14 +46,16 @@ module.exports = class platformUserRolesHelper {
 
                         } catch (error) {
                             userRole["_SYSTEM_ID"] = ""
-                            userRole.status = (error && error.message) ? error.message : error
+                            if (error.message && error.message.includes("duplicate key")) {
+                                userRole.status = "code already exists"
+                            } else {
+                                userRole.status = (error && error.message) ? error.message : error
+                            }
                         }
-
 
                         return userRole
                     })
                 )
-
 
                 return resolve(userRolesUploadedData);
 
@@ -86,50 +67,27 @@ module.exports = class platformUserRolesHelper {
     }
 
 
-    static bulkUpdate(userRolesCSVData,userDetails) {
+    static bulkUpdate(userRolesCSVData, userDetails) {
 
         return new Promise(async (resolve, reject) => {
             try {
-
-                // let entityTypeNameToEntityTypeMap = await this.getEntityTypeToIdMap()
 
                 const userRolesUploadedData = await Promise.all(
                     userRolesCSVData.map(async userRole => {
 
                         try {
-                            
-                            userRole = gen.utils.valueParser(userRole)
 
-                            if(userRole.entityTypes != "") {
-                                let roleEntityTypes = userRole.entityTypes.split(",")
-                                roleEntityTypes = _.uniq(roleEntityTypes)
-    
-                                // userRole.entityTypes = new Array
-    
-                                // roleEntityTypes.forEach(entityType => {
-                                //     if(entityTypeNameToEntityTypeMap[entityType]) {
-                                //         userRole.entityTypes.push(entityTypeNameToEntityTypeMap[entityType])
-                                //     } else {
-                                //         throw "Invalid entity type"
-                                //     }
-                                // })
-                            } else {
-                                delete userRole.entityTypes
-                            }
-
-                            let updateRole = await database.models.userRoles.findOneAndUpdate(
+                            let updateRole = await database.models.platformRolesExt.findOneAndUpdate(
                                 {
-                                    code : userRole.code
+                                    code: userRole.code
                                 },
                                 _.merge({
                                     "updatedBy": userDetails.id
-                                },userRole)
+                                }, userRole)
                             );
 
-                            delete userRole.entityTypes
-                            
                             if (updateRole._id) {
-                                userRole["_SYSTEM_ID"] = updateRole._id 
+                                userRole["_SYSTEM_ID"] = updateRole._id
                                 userRole.status = "Success"
                             } else {
                                 userRole["_SYSTEM_ID"] = ""
@@ -146,7 +104,6 @@ module.exports = class platformUserRolesHelper {
                     })
                 )
 
-
                 return resolve(userRolesUploadedData);
 
             } catch (error) {
@@ -156,30 +113,35 @@ module.exports = class platformUserRolesHelper {
 
     }
 
-    // static getEntityTypeToIdMap() {
+    static getRolesId(userCodes) {
 
-    //     return new Promise(async (resolve, reject) => {
-    //         try {
+        return new Promise(async (resolve, reject) => {
+            try {
+                let roles = await database.models.platformRolesExt.find(
+                    {
+                        code: {
+                            $in: userCodes
+                        }
+                    },
+                    {
+                        _id:1,
+                        code:1
+                    }
+                );
 
-    //             let entityTypeList = await entityTypesHelper.list({},{name:1})
-            
-    //             let entityTypeNameToEntityTypeMap = {}
-            
-    //             entityTypeList.forEach(entityType => {
-    //                 entityTypeNameToEntityTypeMap[entityType.name] = {
-    //                     entityTypeId: entityType._id,
-    //                     entityType:entityType.name
-    //                 }
-    //             });
+                let result = {}
                 
-    //             return resolve(entityTypeNameToEntityTypeMap);
+                roles.forEach(role=>{
+                    result[role.code] = role._id
+                })
 
-    //         } catch (error) {
-    //             return reject(error)
-    //         }
-    //     })
+                return resolve(result)
+                    
+            } catch (error) {
+                return reject(error)
+            }
+        })
 
-    // }
-
+    }
 
 };
