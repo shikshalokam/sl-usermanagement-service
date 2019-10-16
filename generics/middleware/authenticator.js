@@ -61,47 +61,6 @@ async function getAllRoles(obj) {
 
 module.exports = async function (req, res, next) {
 
-  if (req.path.includes("/sharedLinks/verify")) return next();
-
-  if (req.path.includes("/gotenberg/fileUpload")) {
-    req.headers["internal-access-token"] = req.query["internal-access-token"]
-  }
-
-  if (req.headers && req.headers.linkid) {
-
-    let isShareable = await database.models.sharedLink.findOne({ linkId: req.headers.linkid, isActive: true });
-
-    let requestURL = req.url.includes("?") ? req.url.split("?")[0] : req.url;
-
-    if (isShareable && requestURL.includes(isShareable.reportName)) {
-
-      req.url = (isShareable.queryParams) ? requestURL + "?" + isShareable.queryParams : requestURL;
-
-      req.userDetails = isShareable.userDetails;
-
-      return next();
-
-    } else {
-
-      let msg = "Bad request.";
-
-      const slackMessageForBadRequest = { userIP: req.headers["x-real-ip"], method: req.method, url: req.url, headers: req.headers, body: req.body, errorMsg: msg, customFields: null };
-
-      slackClient.badSharedLinkAccessAttemptAlert(slackMessageForBadRequest);
-
-      let rspObj = {};
-
-      rspObj.errCode = 400;
-
-      rspObj.errMsg = msg;
-
-      rspObj.responseCode = 400;
-
-      return res.status(400).send(respUtil(rspObj));
-
-    }
-  }
-
   removedHeaders.forEach(function (e) {
     delete req.headers[e];
   });
@@ -110,57 +69,12 @@ module.exports = async function (req, res, next) {
   if (!req.rspObj) req.rspObj = {};
   var rspObj = req.rspObj;
 
-  if (req.path.includes("solutionDetails") && (req.headers["internal-access-token"] !== process.env.INTERNAL_ACCESS_TOKEN)) {
-    rspObj.errCode = reqMsg.TOKEN.MISSING_CODE;
-    rspObj.errMsg = reqMsg.TOKEN.MISSING_MESSAGE;
-    rspObj.responseCode = responseCode.unauthorized;
-    return res.status(401).send(respUtil(rspObj));
-  }
-  
-  if ((req.path.includes("reports") || req.path.includes("gotenberg") || req.path.includes("solutionDetails") || (req.query.csv && req.query.csv == true)) && req.headers["internal-access-token"] === process.env.INTERNAL_ACCESS_TOKEN) {
-    req.setTimeout(parseInt(REQUEST_TIMEOUT_FOR_REPORTS));
+  if (req.path.includes("punjabSSO")) {
     next();
     return
   }
 
-  let tokenCheckByPassAllowedForURL = false
-  let tokenCheckByPassAllowedForUser = false
-  let tokenCheckByPassAllowedUserDetails = {}
-  if (process.env.DISABLE_TOKEN_ON_OFF && process.env.DISABLE_TOKEN_ON_OFF === "ON" && process.env.DISABLE_TOKEN_CHECK_FOR_API && process.env.DISABLE_TOKEN_CHECK_FOR_API != "") {
-    process.env.DISABLE_TOKEN_CHECK_FOR_API.split(',').forEach(allowedEndpoints => {
-      if (req.path.includes(allowedEndpoints)) {
-        tokenCheckByPassAllowedForURL = true
-        let allowedUsersPath = "DISABLE_TOKEN_" + allowedEndpoints + "_USERS"
-        if (process.env[allowedUsersPath] && process.env[allowedUsersPath] == "ALL") {
-          tokenCheckByPassAllowedForUser = true
-          tokenCheckByPassAllowedUserDetails = {
-            id: process.env.DISABLE_TOKEN_DEFAULT_USERID,
-            userId: process.env.DISABLE_TOKEN_DEFAULT_USERID,
-            roles: [process.env.DISABLE_TOKEN_DEFAULT_USER_ROLE],
-            name: process.env.DISABLE_TOKEN_DEFAULT_USER_NAME,
-            email: process.env.DISABLE_TOKEN_DEFAULT_USER_EMAIL,
-          }
-        } else if (process.env[allowedUsersPath]) {
-          let jwtInfo = jwtDecode(token)
-          process.env[allowedUsersPath].split(',').forEach(allowedUser => {
-            if (allowedUser == jwtInfo.sub) {
-              tokenCheckByPassAllowedForUser = true
-              tokenCheckByPassAllowedUserDetails = {
-                id: jwtInfo.sub,
-                userId: jwtInfo.sub,
-                roles: [process.env.DISABLE_TOKEN_DEFAULT_USER_ROLE],
-                name: jwtInfo.name,
-                email: jwtInfo.email,
-              }
-            }
-          })
-        }
-      }
-    })
-  }
-
   if (!token) {
-    console.error("Token Not Found!!");
     rspObj.errCode = reqMsg.TOKEN.MISSING_CODE;
     rspObj.errMsg = reqMsg.TOKEN.MISSING_MESSAGE;
     rspObj.responseCode = responseCode.unauthorized;
@@ -168,23 +82,6 @@ module.exports = async function (req, res, next) {
   }
 
   apiInterceptor.validateToken(token, function (err, tokenData) {
-    // console.error(err, tokenData, rspObj);
-
-    if (err && tokenCheckByPassAllowedForURL && tokenCheckByPassAllowedForUser) {
-      req.rspObj.userId = tokenCheckByPassAllowedUserDetails.userId;
-      req.rspObj.userToken = req.headers["x-authenticated-user-token"];
-      delete req.headers["x-authenticated-userid"];
-      delete req.headers["x-authenticated-user-token"];
-      req.headers["x-authenticated-userid"] = tokenCheckByPassAllowedUserDetails.userId;
-      req.rspObj = rspObj;
-      req.userDetails = tokenCheckByPassAllowedUserDetails;
-      req.userDetails.userToken = req.rspObj.userToken
-      req.userDetails.allRoles = tokenCheckByPassAllowedUserDetails.roles;
-
-      tokenAuthenticationFailureMessageToSlack(req, token, "TOKEN BYPASS ALLOWED")
-      next();
-      return
-    }
 
     if (err) {
       rspObj.errCode = reqMsg.TOKEN.INVALID_CODE;
