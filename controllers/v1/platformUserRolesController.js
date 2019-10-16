@@ -22,29 +22,22 @@ module.exports = class PlatformUserRoles extends Abstract {
   * @apiUse errorBody
   * @apiParamExample {json} Response:
   * {
-  *  "_id": "5d5e4758f89df53a1d26b454",
-     "externalId": "a1",
-     "roles": [
-        {
-         "_id": "5d5e47051f5a363a0a187029",
-         "code": "HM",
-         "title": "Headmaster",
-         "immediateSubEntityType": "school",
-         "entities": [
+      "_id": "5da6e08f436f9f3cd80b57b9",
+      "roles": [
           {
-            "_id": "5bfe53ea1d0c350d61b78d0f",
-            "externalId": "1208138",
-            "name": "Shri Shiv Middle School, Shiv Kutti, Teliwara, Delhi",
-            "childrenCount": 0,
-             "entityType": "school",
-             "entityTypeId": "5ce23d633c330302e720e65f",
-             "subEntityGroups": [
-              "parent"
-              ]
-            }
-          ]
-       }
-     ]
+              "roleId": "5da580c746b88419104d8728",
+              "code": "OBS_DESIGNER"
+          },
+          {
+              "roleId": "5da580dc46b88419104d8737",
+              "code": "OBS_REVIEWERS"
+          }
+      ],
+      "status": "active",
+      "updatedBy": "e97b5582-471c-4649-8401-3cc4249359bb",
+      "createdBy": "e97b5582-471c-4649-8401-3cc4249359bb",
+      "userId": "e97b5582-471c-4649-8401-3cc4249359bb",
+      "username": "a1",
   * }
   */
 
@@ -55,8 +48,7 @@ module.exports = class PlatformUserRoles extends Abstract {
           
         let queryObject = {
           userId: (req.params._id && req.params._id != "") ? req.params._id : req.userDetails.userId,
-          status: "active",
-          isDeleted: false
+          status: "active"
           }
 
         let platformUserRolesDocument = await database.models.platformUserRolesExt.findOne(
@@ -93,7 +85,7 @@ module.exports = class PlatformUserRoles extends Abstract {
   * @apiVersion 1.0.0
   * @apiName Bulk Upload User Roles
   * @apiGroup User Extension
-  * @apiParam {File} userRoles Mandatory user roles file of type CSV.
+  * @apiParam {File} platformUserRoles Mandatory user roles file of type CSV.
   * @apiSampleRequest /user-management/api/v1/platformUserRoles/bulkCreate
   * @apiUse successBody
   * @apiUse errorBody
@@ -153,7 +145,7 @@ module.exports = class PlatformUserRoles extends Abstract {
   * @apiVersion 1.0.0
   * @apiName Bulk Upload User Roles
   * @apiGroup User Extension
-  * @apiParam {File} userRoles Mandatory user roles file of type CSV.
+  * @apiParam {File} platformUserRoles Mandatory user roles file of type CSV.
   * @apiSampleRequest /user-management/api/v1/platformUserRoles/bulkUpdate
   * @apiUse successBody
   * @apiUse errorBody
