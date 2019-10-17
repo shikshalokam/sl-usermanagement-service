@@ -77,6 +77,8 @@ module.exports = class platformUserRolesHelper {
 
                         try {
 
+                            userRole = gen.utils.valueParser(userRole)
+
                             let updateRole = await database.models.platformRolesExt.findOneAndUpdate(
                                 {
                                     code: userRole.code
