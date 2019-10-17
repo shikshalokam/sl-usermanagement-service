@@ -4,7 +4,7 @@ const fs = require("fs");
 const moment = require("moment-timezone");
 
 let FileStream = class FileStream {
-  
+
   constructor(fileName) {
     const currentDate = new Date();
     const fileExtensionWithTime = moment(currentDate).tz("Asia/Kolkata").format("YYYY_MM_DD_HH_mm") + ".csv";
@@ -33,15 +33,15 @@ let FileStream = class FileStream {
     });
   }
 
-  fileNameWithPath(){
+  fileNameWithPath() {
     return this.fileName;
   }
 
-  ensureDirectoryPath () {
+  ensureDirectoryPath() {
     try {
-      fs.mkdirSync("./public/reports", { recursive: true })
+      fs.mkdirSync(`${ROOT_PATH}/public/reports/`, { recursive: true })
     } catch (err) {
-      console.log(dirpath, err)
+      console.log(err)
       if (err.code !== 'EEXIST') throw err
     }
   }
