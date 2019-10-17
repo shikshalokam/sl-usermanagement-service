@@ -2,6 +2,7 @@ const json2csvTransform = require('json2csv').Transform;
 const stream = require("stream");
 const fs = require("fs");
 const moment = require("moment-timezone");
+const DEFAULT_REPORTS_PATH = "./public/reports"
 
 let FileStream = class FileStream {
 
@@ -9,7 +10,7 @@ let FileStream = class FileStream {
     const currentDate = new Date();
     const fileExtensionWithTime = moment(currentDate).tz("Asia/Kolkata").format("YYYY_MM_DD_HH_mm") + ".csv";
     if(!process.env.CSV_REPORTS_PATH){
-      process.env.CSV_REPORTS_PATH = "./public/reports"
+      process.env.CSV_REPORTS_PATH = DEFAULT_REPORTS_PATH
     }
     const filePath = `${process.env.CSV_REPORTS_PATH}/${moment(currentDate).tz("Asia/Kolkata").format("YYYY_MM_DD")}/`;
     this.ensureDirectoryPath(filePath)
