@@ -44,30 +44,13 @@ module.exports = class PlatformUserRoles extends Abstract {
     return new Promise(async (resolve, reject) => {
 
       try {
-          
+
         let queryObject = {
           userId: (req.params._id && req.params._id != "") ? req.params._id : req.userDetails.userId,
           status: "active"
-          }
+      }
 
-        let platformUserRolesDocument = await database.models.platformUserRolesExt.findOne(
-          queryObject,
-          {
-            updatedBy:0,
-            createdBy:0,
-            createdAt:0,
-            updatedAt:0,
-            status:0,
-            "__v":0
-          }
-        ).lean();
-
-        if(!platformUserRolesDocument){
-          return resolve({
-            message:"No platform user for given params",
-            status:400
-          })
-        }
+        let platformUserRolesDocument = await platformUserRolesHelper.getProfile(queryObject);
 
         return resolve({
           message: "Platform user profile fetched successfully.",
@@ -107,7 +90,7 @@ module.exports = class PlatformUserRoles extends Abstract {
 
         if (!userRolesCSVData || userRolesCSVData.length < 1) throw "File or data is missing."
 
-        let newUserRoleData = await platformUserRolesHelper.bulkCreate(userRolesCSVData, req.userDetails);
+        let newUserRoleData = await platformUserRolesHelper.bulkCreateOrUpdate(userRolesCSVData, req.userDetails);
 
         if (newUserRoleData.length > 0) {
 
@@ -167,7 +150,7 @@ module.exports = class PlatformUserRoles extends Abstract {
 
         if (!userRolesCSVData || userRolesCSVData.length < 1) throw "File or data is missing."
 
-        let newUserRoleData = await platformUserRolesHelper.bulkUpdate(userRolesCSVData, req.userDetails);
+        let newUserRoleData = await platformUserRolesHelper.bulkCreateOrUpdate(userRolesCSVData, req.userDetails);
 
         if (newUserRoleData.length > 0) {
 
