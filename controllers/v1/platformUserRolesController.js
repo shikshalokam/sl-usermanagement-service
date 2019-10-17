@@ -12,12 +12,12 @@ module.exports = class PlatformUserRoles extends Abstract {
   }
 
   /**
-  * @api {get} /user-management/api/v1/platformUserRoles/getProfile/{{userId}} Get user profile
+  * @api {get} /user-management-service/api/v1/platformUserRoles/getProfile/{{userId}} Get user profile
   * @apiVersion 1.0.0
   * @apiName Get user profile
   * @apiGroup Platform User Extension
   * @apiHeader {String} X-authenticated-user-token Authenticity token
-  * @apiSampleRequest /user-management/api/v1/platformUserRoles/getProfile/e97b5582-471c-4649-8401-3cc4249359bb
+  * @apiSampleRequest /user-management-service/api/v1/platformUserRoles/getProfile/e97b5582-471c-4649-8401-3cc4249359bb
   * @apiUse successBody
   * @apiUse errorBody
   * @apiParamExample {json} Response:
@@ -33,7 +33,6 @@ module.exports = class PlatformUserRoles extends Abstract {
               "code": "OBS_REVIEWERS"
           }
       ],
-      "status": "active",
       "updatedBy": "e97b5582-471c-4649-8401-3cc4249359bb",
       "createdBy": "e97b5582-471c-4649-8401-3cc4249359bb",
       "userId": "e97b5582-471c-4649-8401-3cc4249359bb",
@@ -89,12 +88,12 @@ module.exports = class PlatformUserRoles extends Abstract {
   }
 
   /**
-  * @api {post} /user-management/api/v1/platformUserRoles/bulkCreate Bulk Create Platform User Roles
+  * @api {post} /user-management-service/api/v1/platformUserRoles/bulkCreate Bulk Create Platform User Roles
   * @apiVersion 1.0.0
   * @apiName Bulk Create Platform User Roles
   * @apiGroup Platform User Extension
   * @apiParam {File} platformUserRoles Mandatory user roles file of type CSV.
-  * @apiSampleRequest /user-management/api/v1/platformUserRoles/bulkCreate
+  * @apiSampleRequest /user-management-service/api/v1/platformUserRoles/bulkCreate
   * @apiUse successBody
   * @apiUse errorBody
   */
@@ -149,12 +148,12 @@ module.exports = class PlatformUserRoles extends Abstract {
   }
 
   /**
-  * @api {post} /user-management/api/v1/platformUserRoles/bulkUpdate Bulk Update Platform User Roles
+  * @api {post} /user-management-service/api/v1/platformUserRoles/bulkUpdate Bulk Update Platform User Roles
   * @apiVersion 1.0.0
   * @apiName Bulk Update Platform User Roles
   * @apiGroup Platform User Extension
   * @apiParam {File} platformUserRoles Mandatory user roles file of type CSV.
-  * @apiSampleRequest /user-management/api/v1/platformUserRoles/bulkUpdate
+  * @apiSampleRequest /user-management-service/api/v1/platformUserRoles/bulkUpdate
   * @apiUse successBody
   * @apiUse errorBody
   */
