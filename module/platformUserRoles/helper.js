@@ -15,7 +15,6 @@ module.exports = class platformUserRolesHelper {
             }
         })
 
-
     }
 
     static bulkCreate(userRolesCSVData, userDetails) {
