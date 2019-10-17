@@ -1,5 +1,5 @@
 const csv = require("csvtojson");
-// const platformUserRolesHelper = require(ROOT_PATH + "/module/platformUserRoles/helper")
+const platformUserRolesHelper = require(ROOT_PATH + "/module/platformUserRoles/helper")
 const FileStream = require(ROOT_PATH + "/generics/fileStream");
 
 module.exports = class PlatformUserRoles extends Abstract {
@@ -12,130 +12,200 @@ module.exports = class PlatformUserRoles extends Abstract {
   }
 
   /**
-  * @api {get} /assessment/api/v1/platformUserRoles/getProfile/{{userId}} Get user profile
+  * @api {get} /user-management/api/v1/platformUserRoles/getProfile/{{userId}} Get user profile
   * @apiVersion 1.0.0
   * @apiName Get user profile
-  * @apiGroup User Extension
+  * @apiGroup Platform User Extension
   * @apiHeader {String} X-authenticated-user-token Authenticity token
-  * @apiSampleRequest /assessment/api/v1/platformUserRoles/getProfile/e97b5582-471c-4649-8401-3cc4249359bb
+  * @apiSampleRequest /user-management/api/v1/platformUserRoles/getProfile/e97b5582-471c-4649-8401-3cc4249359bb
   * @apiUse successBody
   * @apiUse errorBody
   * @apiParamExample {json} Response:
   * {
-  *  "_id": "5d5e4758f89df53a1d26b454",
-     "externalId": "a1",
-     "roles": [
-        {
-         "_id": "5d5e47051f5a363a0a187029",
-         "code": "HM",
-         "title": "Headmaster",
-         "immediateSubEntityType": "school",
-         "entities": [
+      "_id": "5da6e08f436f9f3cd80b57b9",
+      "roles": [
           {
-            "_id": "5bfe53ea1d0c350d61b78d0f",
-            "externalId": "1208138",
-            "name": "Shri Shiv Middle School, Shiv Kutti, Teliwara, Delhi",
-            "childrenCount": 0,
-             "entityType": "school",
-             "entityTypeId": "5ce23d633c330302e720e65f",
-             "subEntityGroups": [
-              "parent"
-              ]
-            }
-          ]
-       }
-     ]
+              "roleId": "5da580c746b88419104d8728",
+              "code": "OBS_DESIGNER"
+          },
+          {
+              "roleId": "5da580dc46b88419104d8737",
+              "code": "OBS_REVIEWERS"
+          }
+      ],
+      "status": "active",
+      "updatedBy": "e97b5582-471c-4649-8401-3cc4249359bb",
+      "createdBy": "e97b5582-471c-4649-8401-3cc4249359bb",
+      "userId": "e97b5582-471c-4649-8401-3cc4249359bb",
+      "username": "a1",
   * }
   */
 
-  // getProfile(req) {
-  //   return new Promise(async (resolve, reject) => {
+  getProfile(req) {
+    return new Promise(async (resolve, reject) => {
 
-  //     try {
+      try {
+          
+        let queryObject = {
+          userId: (req.params._id && req.params._id != "") ? req.params._id : req.userDetails.userId,
+          status: "active"
+          }
 
-  //       let result = await platformUserRolesHelper.profileWithEntityDetails({
-  //         userId: (req.params._id && req.params._id != "") ? req.params._id : req.userDetails.userId,
-  //         status: "active",
-  //         isDeleted: false
-  //       });
+        let platformUserRolesDocument = await database.models.platformUserRolesExt.findOne(
+          queryObject,
+          {
+            updatedBy:0,
+            createdBy:0,
+            createdAt:0,
+            updatedAt:0,
+            status:0,
+            "__v":0
+          }
+        ).lean();
 
-  //       return resolve({
-  //         message: "User profile fetched successfully.",
-  //         result: result
-  //       });
+        if(!platformUserRolesDocument){
+          return resolve({
+            message:"No platform user for given params",
+            status:400
+          })
+        }
 
-  //     } catch (error) {
+        return resolve({
+          message: "Platform user profile fetched successfully.",
+          result: platformUserRolesDocument
+        });
 
-  //       return reject({
-  //         status: error.status || 500,
-  //         message: error.message || "Oops! something went wrong.",
-  //         errorObject: error
-  //       })
+      } catch (error) {
 
-  //     }
+        return reject({
+          status: error.status || 500,
+          message: error.message || "Oops! something went wrong.",
+          errorObject: error
+        })
 
+      }
 
-  //   })
-  // }
+    })
+  }
 
   /**
-  * @api {post} /assessment/api/v1/platformUserRoles/bulkUpload Bulk Upload User Roles
+  * @api {post} /user-management/api/v1/platformUserRoles/bulkCreate Bulk Create Platform User Roles
   * @apiVersion 1.0.0
-  * @apiName Bulk Upload User Roles
-  * @apiGroup User Extension
-  * @apiParam {File} userRoles Mandatory user roles file of type CSV.
-  * @apiSampleRequest /assessment/api/v1/platformUserRoles/bulkUpload
+  * @apiName Bulk Create Platform User Roles
+  * @apiGroup Platform User Extension
+  * @apiParam {File} platformUserRoles Mandatory user roles file of type CSV.
+  * @apiSampleRequest /user-management/api/v1/platformUserRoles/bulkCreate
   * @apiUse successBody
   * @apiUse errorBody
   */
 
-  // bulkUpload(req) {
-  //   return new Promise(async (resolve, reject) => {
+  bulkCreate(req) {
+    return new Promise(async (resolve, reject) => {
 
-  //     try {
+      try {
 
-  //       let userRolesCSVData = await csv().fromString(req.files.userRoles.data.toString());
+        let userRolesCSVData = await csv().fromString(req.files.platformUserRoles.data.toString());
 
-  //       if (!userRolesCSVData || userRolesCSVData.length < 1) throw "File or data is missing."
+        if (!userRolesCSVData || userRolesCSVData.length < 1) throw "File or data is missing."
 
-  //       let newUserRoleData = await platformUserRolesHelper.bulkCreateOrUpdate(userRolesCSVData, req.userDetails);
+        let newUserRoleData = await platformUserRolesHelper.bulkCreate(userRolesCSVData, req.userDetails);
 
-  //       if (newUserRoleData.length > 0) {
+        if (newUserRoleData.length > 0) {
 
-  //         const fileName = `UserRole-Upload`;
-  //         let fileStream = new FileStream(fileName);
-  //         let input = fileStream.initStream();
+          const fileName = `UserRole-Upload`;
+          let fileStream = new FileStream(fileName);
+          let input = fileStream.initStream();
 
-  //         (async function () {
-  //           await fileStream.getProcessorPromise();
-  //           return resolve({
-  //             isResponseAStream: true,
-  //             fileNameWithPath: fileStream.fileNameWithPath()
-  //           });
-  //         }());
+          (async function () {
+            await fileStream.getProcessorPromise();
+            return resolve({
+              isResponseAStream: true,
+              fileNameWithPath: fileStream.fileNameWithPath()
+            });
+          }());
 
-  //         await Promise.all(newUserRoleData.map(async userRole => {
-  //           input.push(userRole)
-  //         }))
+          await Promise.all(newUserRoleData.map(async userRole => {
+            input.push(userRole)
+          }))
 
-  //         input.push(null)
+          input.push(null)
 
-  //       } else {
-  //         throw "Something went wrong!"
-  //       }
+        } else {
+          throw "Something went wrong!"
+        }
 
-  //     } catch (error) {
+      } catch (error) {
 
-  //       return reject({
-  //         status: error.status || 500,
-  //         message: error.message || "Oops! something went wrong.",
-  //         errorObject: error
-  //       })
+        return reject({
+          status: error.status || 500,
+          message: error.message || "Oops! something went wrong.",
+          errorObject: error
+        })
 
-  //     }
+      }
 
 
-  //   })
-  // }
+    })
+  }
+
+  /**
+  * @api {post} /user-management/api/v1/platformUserRoles/bulkUpdate Bulk Update Platform User Roles
+  * @apiVersion 1.0.0
+  * @apiName Bulk Update Platform User Roles
+  * @apiGroup Platform User Extension
+  * @apiParam {File} platformUserRoles Mandatory user roles file of type CSV.
+  * @apiSampleRequest /user-management/api/v1/platformUserRoles/bulkUpdate
+  * @apiUse successBody
+  * @apiUse errorBody
+  */
+
+  bulkUpdate(req) {
+    return new Promise(async (resolve, reject) => {
+
+      try {
+
+        let userRolesCSVData = await csv().fromString(req.files.platformUserRoles.data.toString());
+
+        if (!userRolesCSVData || userRolesCSVData.length < 1) throw "File or data is missing."
+
+        let newUserRoleData = await platformUserRolesHelper.bulkUpdate(userRolesCSVData, req.userDetails);
+
+        if (newUserRoleData.length > 0) {
+
+          const fileName = `UserRole-Upload`;
+          let fileStream = new FileStream(fileName);
+          let input = fileStream.initStream();
+
+          (async function () {
+            await fileStream.getProcessorPromise();
+            return resolve({
+              isResponseAStream: true,
+              fileNameWithPath: fileStream.fileNameWithPath()
+            });
+          }());
+
+          await Promise.all(newUserRoleData.map(async userRole => {
+            input.push(userRole)
+          }))
+
+          input.push(null)
+
+        } else {
+          throw "Something went wrong!"
+        }
+
+      } catch (error) {
+
+        return reject({
+          status: error.status || 500,
+          message: error.message || "Oops! something went wrong.",
+          errorObject: error
+        })
+
+      }
+
+
+    })
+  }
 
 };

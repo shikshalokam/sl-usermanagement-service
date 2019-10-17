@@ -1,10 +1,12 @@
+const platformRolesHelper = require(ROOT_PATH + "/module/platformRoles/helper")
+
 module.exports = class platformUserRolesHelper {
 
     static list(filterQueryObject, projectionQueryObject) {
         return new Promise(async (resolve, reject) => {
             try {
 
-                let platformUserRolesData = await database.models.platformRolesExt.find(filterQueryObject,projectionQueryObject).lean();
+                let platformUserRolesData = await database.models.platformUserRolesExt.find(filterQueryObject, projectionQueryObject).lean();
 
                 return resolve(platformUserRolesData);
 
@@ -16,49 +18,31 @@ module.exports = class platformUserRolesHelper {
 
     }
 
-    static bulkCreate(userRolesCSVData,userDetails) {
+    static bulkCreate(userRolesCSVData, userDetails) {
 
         return new Promise(async (resolve, reject) => {
             try {
 
-                // let entityTypeNameToEntityTypeMap = await this.getEntityTypeToIdMap()
+                let platformUsers = await this.buildCSVToDocument(userRolesCSVData)
 
                 const userRolesUploadedData = await Promise.all(
-                    userRolesCSVData.map(async userRole => {
+                    platformUsers.map(async userRole => {
 
                         try {
-                            
-                            userRole = gen.utils.valueParser(userRole)
 
-                            if(userRole.entityTypes != "") {
-                                let roleEntityTypes = userRole.entityTypes.split(",")
-                                roleEntityTypes = _.uniq(roleEntityTypes)
-
-                                // userRole.entityTypes = new Array
-
-                                // roleEntityTypes.forEach(entityType => {
-                                //     if(entityTypeNameToEntityTypeMap[entityType]) {
-                                //         userRole.entityTypes.push(entityTypeNameToEntityTypeMap[entityType])
-                                //     } else {
-                                //         throw "Invalid entity type"
-                                //     }
-                                // })
-                            } else {
-                                delete userRole.entityTypes
-                            }
-
-                            let newRole = await database.models.userRoles.create(
+                            let newRole = await database.models.platformUserRolesExt.create(
                                 _.merge({
-                                    "status" : "active",
+                                    "status": "active",
                                     "updatedBy": userDetails.id,
                                     "createdBy": userDetails.id
-                                },userRole)
+                                }, userRole)
                             );
 
                             delete userRole.entityTypes
 
+                            userRole["action"] = "APPEND"
                             if (newRole._id) {
-                                userRole["_SYSTEM_ID"] = newRole._id 
+                                userRole["_SYSTEM_ID"] = newRole._id
                                 userRole.status = "Success"
                             } else {
                                 userRole["_SYSTEM_ID"] = ""
@@ -67,7 +51,11 @@ module.exports = class platformUserRolesHelper {
 
                         } catch (error) {
                             userRole["_SYSTEM_ID"] = ""
-                            userRole.status = (error && error.message) ? error.message : error
+                            if (error.message && error.message.includes("duplicate key")) {
+                                userRole.status = "Failed. Duplication occured"
+                            } else {
+                                userRole.status = (error && error.message) ? error.message : error
+                            }
                         }
 
 
@@ -86,50 +74,64 @@ module.exports = class platformUserRolesHelper {
     }
 
 
-    static bulkUpdate(userRolesCSVData,userDetails) {
+    static bulkUpdate(userRolesCSVData, userDetails) {
 
         return new Promise(async (resolve, reject) => {
             try {
 
-                // let entityTypeNameToEntityTypeMap = await this.getEntityTypeToIdMap()
+                let codes = userRolesCSVData.map(userRole=> userRole.code)
+                
+                let codeWithIdMapping = await platformRolesHelper.getRolesId(codes)
 
                 const userRolesUploadedData = await Promise.all(
                     userRolesCSVData.map(async userRole => {
 
                         try {
-                            
-                            userRole = gen.utils.valueParser(userRole)
 
-                            if(userRole.entityTypes != "") {
-                                let roleEntityTypes = userRole.entityTypes.split(",")
-                                roleEntityTypes = _.uniq(roleEntityTypes)
-    
-                                // userRole.entityTypes = new Array
-    
-                                // roleEntityTypes.forEach(entityType => {
-                                //     if(entityTypeNameToEntityTypeMap[entityType]) {
-                                //         userRole.entityTypes.push(entityTypeNameToEntityTypeMap[entityType])
-                                //     } else {
-                                //         throw "Invalid entity type"
-                                //     }
-                                // })
-                            } else {
-                                delete userRole.entityTypes
+                            let updateObject = {}
+                            if (userRole.action == "APPEND" || userRole.action == "ADD") {
+                                updateObject["$addToSet"] = {
+                                    roles: {
+                                        roleId: codeWithIdMapping[userRole.code],
+                                        code: userRole.code
+                                    }
+                                }
+                                updateObject["$set"] = {
+                                    "updatedBy": userDetails.id,
+                                    "updatedAt": new Date()
+                                }
+                            } else if (userRole.action == "OVERRIDE") {
+                                updateObject["$set"] = {
+                                    "roles.$.roleId": codeWithIdMapping[userRole.code],
+                                    "roles.$.code": userRole.code,
+                                    "updatedBy": userDetails.id,
+                                    "updatedAt": new Date()
+                                }
+                            } else if (userRole.action == "REMOVE") {
+                                updateObject["$pull"] = {
+                                    roles: {
+                                        roleId: codeWithIdMapping[userRole.code]
+                                    }
+                                }
+                                updateObject["$set"] = {
+                                    "updatedBy": userDetails.id,
+                                    "updatedAt": new Date()
+                                }
                             }
 
-                            let updateRole = await database.models.userRoles.findOneAndUpdate(
+
+                            let updateRole = await database.models.platformUserRolesExt.findOneAndUpdate(
                                 {
-                                    code : userRole.code
+                                    "userId": userRole["keycloak-userId"],
+                                    "roles.roleId": codeWithIdMapping[userRole.code]
                                 },
-                                _.merge({
-                                    "updatedBy": userDetails.id
-                                },userRole)
+                                updateObject
                             );
 
                             delete userRole.entityTypes
-                            
+
                             if (updateRole._id) {
-                                userRole["_SYSTEM_ID"] = updateRole._id 
+                                userRole["_SYSTEM_ID"] = updateRole._id
                                 userRole.status = "Success"
                             } else {
                                 userRole["_SYSTEM_ID"] = ""
@@ -138,7 +140,11 @@ module.exports = class platformUserRolesHelper {
 
                         } catch (error) {
                             userRole["_SYSTEM_ID"] = ""
-                            userRole.status = (error && error.message) ? error.message : error
+                            if(error.message && error.message.includes("Cannot read property '_id' of null")){
+                                userRole.status = "Role not found to modify"  
+                            }else{
+                                userRole.status = (error && error.message) ? error.message : error
+                            }
                         }
 
 
@@ -156,30 +162,63 @@ module.exports = class platformUserRolesHelper {
 
     }
 
-    // static getEntityTypeToIdMap() {
+    static buildCSVToDocument(userRolesCSVData) {
+        
+        return new Promise(async (resolve, reject) => {
+            try {
 
-    //     return new Promise(async (resolve, reject) => {
-    //         try {
+                let userRoles = {}
 
-    //             let entityTypeList = await entityTypesHelper.list({},{name:1})
-            
-    //             let entityTypeNameToEntityTypeMap = {}
-            
-    //             entityTypeList.forEach(entityType => {
-    //                 entityTypeNameToEntityTypeMap[entityType.name] = {
-    //                     entityTypeId: entityType._id,
-    //                     entityType:entityType.name
-    //                 }
-    //             });
+                let codes = userRolesCSVData.map(userRole=> userRole.code)
                 
-    //             return resolve(entityTypeNameToEntityTypeMap);
+                let codeWithIdMapping = await platformRolesHelper.getRolesId(codes)
+        
+                userRolesCSVData.forEach(userRole => {
+        
+                    if (userRoles[userRole["keycloak-userId"]]) {
+        
+                        let roleExists = false
+                        userRoles[userRole["keycloak-userId"]].roles.find(role => {
+                            if (role.roleId.toString() == codeWithIdMapping[userRole.code].toString()) roleExists = true
+                        })
+        
+                        if (!roleExists) {
+        
+                            userRoles[userRole["keycloak-userId"]].roles.push({
+                                "roleId": codeWithIdMapping[userRole.code],
+                                "code": userRole.code
+                            })
+        
+                        }
+        
+                    } else {
+        
+                        userRoles[userRole["keycloak-userId"]] = {
+                            "roles": [{
+                                "roleId": codeWithIdMapping[userRole.code],
+                                "code": userRole.code
+                            }],
+                            "status": "active",
+                            "userId": userRole["keycloak-userId"],
+                            "username": userRole.user,
+                        }
 
-    //         } catch (error) {
-    //             return reject(error)
-    //         }
-    //     })
+                        console.log(userRoles)
+        
+                    }
+        
+                });
+        
+                return resolve(Object.values(userRoles))
 
-    // }
+            }catch(error){
+
+                return reject(error)
+
+            }
+        })
+
+    }
 
 
 };
