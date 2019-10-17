@@ -8,7 +8,7 @@ let FileStream = class FileStream {
   constructor(fileName) {
     const currentDate = new Date();
     const fileExtensionWithTime = moment(currentDate).tz("Asia/Kolkata").format("YYYY_MM_DD_HH_mm") + ".csv";
-    this.ensureDirectoryPath(process.env.CSV_REPORTS_PATH)
+    this.ensureDirectoryPath()
     const filePath = `${process.env.CSV_REPORTS_PATH}/${moment(currentDate).tz("Asia/Kolkata").format("YYYY_MM_DD")}/`;
     if (!fs.existsSync(filePath)) fs.mkdirSync(filePath);
     this.input = new stream.Readable({ objectMode: true });
@@ -37,10 +37,11 @@ let FileStream = class FileStream {
     return this.fileName;
   }
 
-  ensureDirectoryPath (dirpath) {
+  ensureDirectoryPath () {
     try {
-      fs.mkdirSync(dirpath, { recursive: true })
+      fs.mkdirSync("./public/reports", { recursive: true })
     } catch (err) {
+      console.log(dirpath, err)
       if (err.code !== 'EEXIST') throw err
     }
   }
