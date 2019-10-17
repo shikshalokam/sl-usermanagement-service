@@ -79,10 +79,6 @@ module.exports = class platformUserRolesHelper {
         return new Promise(async (resolve, reject) => {
             try {
 
-                let codes = userRolesCSVData.map(userRole=> userRole.code)
-                
-                let codeWithIdMapping = await platformRolesHelper.getRolesId(codes)
-
                 const userRolesUploadedData = await Promise.all(
                     userRolesCSVData.map(async userRole => {
 
@@ -91,10 +87,7 @@ module.exports = class platformUserRolesHelper {
                             let updateObject = {}
                             if (userRole.action == "APPEND" || userRole.action == "ADD") {
                                 updateObject["$addToSet"] = {
-                                    roles: {
-                                        roleId: codeWithIdMapping[userRole.code],
-                                        code: userRole.code
-                                    }
+                                    roles: userRole.code
                                 }
                                 updateObject["$set"] = {
                                     "updatedBy": userDetails.id,
@@ -102,16 +95,13 @@ module.exports = class platformUserRolesHelper {
                                 }
                             } else if (userRole.action == "OVERRIDE") {
                                 updateObject["$set"] = {
-                                    "roles.$.roleId": codeWithIdMapping[userRole.code],
-                                    "roles.$.code": userRole.code,
+                                    "roles": [userRole.code],
                                     "updatedBy": userDetails.id,
                                     "updatedAt": new Date()
                                 }
                             } else if (userRole.action == "REMOVE") {
                                 updateObject["$pull"] = {
-                                    roles: {
-                                        roleId: codeWithIdMapping[userRole.code]
-                                    }
+                                    roles: userRole.code
                                 }
                                 updateObject["$set"] = {
                                     "updatedBy": userDetails.id,
@@ -123,7 +113,7 @@ module.exports = class platformUserRolesHelper {
                             let updateRole = await database.models.platformUserRolesExt.findOneAndUpdate(
                                 {
                                     "userId": userRole["keycloak-userId"],
-                                    "roles.roleId": codeWithIdMapping[userRole.code]
+                                    "roles": userRole.code
                                 },
                                 updateObject
                             );
@@ -140,9 +130,9 @@ module.exports = class platformUserRolesHelper {
 
                         } catch (error) {
                             userRole["_SYSTEM_ID"] = ""
-                            if(error.message && error.message.includes("Cannot read property '_id' of null")){
-                                userRole.status = "Role not found to modify"  
-                            }else{
+                            if (error.message && error.message.includes("Cannot read property '_id' of null")) {
+                                userRole.status = "Role not found to modify"
+                            } else {
                                 userRole.status = (error && error.message) ? error.message : error
                             }
                         }
@@ -163,55 +153,34 @@ module.exports = class platformUserRolesHelper {
     }
 
     static buildCSVToDocument(userRolesCSVData) {
-        
+
         return new Promise(async (resolve, reject) => {
             try {
 
                 let userRoles = {}
 
-                let codes = userRolesCSVData.map(userRole=> userRole.code)
-                
-                let codeWithIdMapping = await platformRolesHelper.getRolesId(codes)
-        
                 userRolesCSVData.forEach(userRole => {
-        
+
                     if (userRoles[userRole["keycloak-userId"]]) {
-        
-                        let roleExists = false
-                        userRoles[userRole["keycloak-userId"]].roles.find(role => {
-                            if (role.roleId.toString() == codeWithIdMapping[userRole.code].toString()) roleExists = true
-                        })
-        
-                        if (!roleExists) {
-        
-                            userRoles[userRole["keycloak-userId"]].roles.push({
-                                "roleId": codeWithIdMapping[userRole.code],
-                                "code": userRole.code
-                            })
-        
-                        }
-        
+
+                        if (!userRoles[userRole["keycloak-userId"]].roles.includes(userRole.code)) userRoles[userRole["keycloak-userId"]].roles.push(userRole.code)
+
                     } else {
-        
+
                         userRoles[userRole["keycloak-userId"]] = {
-                            "roles": [{
-                                "roleId": codeWithIdMapping[userRole.code],
-                                "code": userRole.code
-                            }],
+                            "roles": [userRole.code],
                             "status": "active",
                             "userId": userRole["keycloak-userId"],
                             "username": userRole.user,
                         }
 
-                        console.log(userRoles)
-        
                     }
-        
+
                 });
-        
+
                 return resolve(Object.values(userRoles))
 
-            }catch(error){
+            } catch (error) {
 
                 return reject(error)
 

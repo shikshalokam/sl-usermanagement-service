@@ -113,35 +113,4 @@ module.exports = class platformUserRolesHelper {
 
     }
 
-    static getRolesId(userCodes) {
-
-        return new Promise(async (resolve, reject) => {
-            try {
-                let roles = await database.models.platformRolesExt.find(
-                    {
-                        code: {
-                            $in: userCodes
-                        }
-                    },
-                    {
-                        _id:1,
-                        code:1
-                    }
-                );
-
-                let result = {}
-                
-                roles.forEach(role=>{
-                    result[role.code] = role._id
-                })
-
-                return resolve(result)
-                    
-            } catch (error) {
-                return reject(error)
-            }
-        })
-
-    }
-
 };
