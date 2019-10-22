@@ -7,6 +7,9 @@ const encryptionEndpoint = "encryptedMethod"
 const validateStaffLoginCredentialsEndpoint = "staffLogin"
 const resendStaffCredentialsEndpoint = "forgetPassword"
 const resetPasswordEndpoint = "resetPassword"
+const shikshalokamHelper = require(ROOT_PATH + "/module/shikshalokam/helper")
+const punjabServiceDefaultPassword = (process.env.PUNJAB_SERVICE_DEFAULT_PASSWORD && process.env.PUNJAB_SERVICE_DEFAULT_PASSWORD != "") ? process.env.PUNJAB_SERVICE_DEFAULT_PASSWORD : ""
+const punjabServiceDefaultMailDomain = (process.env.PUNJAB_SERVICE_DEFAULT_MAIL_DOMAIN && process.env.PUNJAB_SERVICE_DEFAULT_MAIL_DOMAIN != "") ? process.env.PUNJAB_SERVICE_DEFAULT_MAIL_DOMAIN : "@punjab.sl"
 
 module.exports = class punjabSSOHelper {
 
@@ -111,7 +114,7 @@ module.exports = class punjabSSOHelper {
                 if(response && response.status && response.status == 200 && response.message && response.message == "Success" && response.data && response.data.string) {
                     return resolve(response.data.string._text);
                 } else {
-                    return resolve("");
+                    throw response;
                 }
                 
 
@@ -145,6 +148,55 @@ module.exports = class punjabSSOHelper {
                 )
 
                 return resolve(response)
+
+            } catch (error) {
+                return reject(error);
+            }
+        })
+    }
+
+
+    static getKeyCloakAuthToken(staffID = "", staffDetails = {}) {
+        return new Promise(async (resolve, reject) => {
+            try {
+
+                if(staffID == "") throw "StaffID cannot be blank."
+
+                if(punjabServiceDefaultPassword == "") throw "Default Password not available."
+
+                let keyCloakData = await shikshalokamHelper.getKeyCloakToken("17-"+staffID + punjabServiceDefaultMailDomain,punjabServiceDefaultPassword)
+
+                if(keyCloakData.success == true && keyCloakData.status == 200 && keyCloakData.tokenDetails) {
+                    return resolve(keyCloakData.tokenDetails);
+                }
+
+                if(keyCloakData.success == false && keyCloakData.status == 401) {
+                    
+                    let userCreationResponse =  await shikshalokamHelper.createUser({
+                        "firstName": staffDetails.staffName,
+                        "lastName": "",
+                        "userName": staffID,
+                        "email": staffID + punjabServiceDefaultMailDomain,
+                        "password":punjabServiceDefaultPassword
+                    })
+
+                    if(userCreationResponse.success && userCreationResponse.userId) {
+                        
+                        keyCloakData = await shikshalokamHelper.getKeyCloakToken("17-"+staffID + punjabServiceDefaultMailDomain,punjabServiceDefaultPassword)
+
+                        if(keyCloakData.success == true && keyCloakData.status == 200 && keyCloakData.tokenDetails) {
+                            return resolve(keyCloakData.tokenDetails);
+                        } else {
+                            throw keyCloakData
+                        }
+
+                    } else {
+                        throw userCreationResponse
+                    }
+
+                } else {
+                    throw keyCloakData
+                }
 
             } catch (error) {
                 return reject(error);

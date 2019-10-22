@@ -59,6 +59,8 @@ module.exports = class PunjabSSO {
 
         let loginResponse = await punjabSSOHelper.validateStaffLoginCredentials(encryptedStaffID, encryptedPassword);
 
+        loginResponse["tokenDetails"] = await punjabSSOHelper.getKeyCloakAuthToken(loginResponse.staffID,loginResponse);
+        
         return resolve({
           message: "Login credentials verified successfully.",
           result: loginResponse

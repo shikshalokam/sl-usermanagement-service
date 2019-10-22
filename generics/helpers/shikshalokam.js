@@ -178,7 +178,7 @@ var getKeycloakUserIdByLoginId = function (token, userName) {
     }
   }
 
-  let url = "https://" + process.env.SHIKSHALOKAM_BASE_HOST + "/api/user/v1/search"
+  let url = process.env.SHIKSHALOKAM_BASE_HOST + "/api/user/v1/search"
   let options = {
     headers: {
       "content-type": "application/json",

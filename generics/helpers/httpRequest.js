@@ -49,6 +49,8 @@ var Request = class Request {
                 res.on('end', function (content) {
                     if(res.headers["content-type"] == 'text/xml; charset=utf-8') {
                         responseData = JSON.parse(convert.xml2json(responseData, {compact: true, spaces: 4}))
+                    } else if (res.headers["content-type"] == 'application/json' || res.headers["content-type"] == "application/json; charset=utf-8") {
+                        responseData = JSON.parse(responseData)
                     }
                     resolve({ data: responseData, message: 'Success', status: (res.status) ? res.status : (res.statusCode) ? res.statusCode: "" , headers: res.headers });
                 });
