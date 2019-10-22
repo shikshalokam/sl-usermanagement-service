@@ -8,6 +8,7 @@ module.exports = function () {
   
   global.async = require("async");
   global.ROOT_PATH = path.join(__dirname, '..')
+  global.GENERIC_HELPERS_PATH = ROOT_PATH + "/generics/helpers"
   global._ = require("lodash");
   gen.utils = require(ROOT_PATH + "/generics/helpers/utils");
   global.config = require(".");

@@ -23,8 +23,9 @@
 var https = require('https');
 var http = require('http');
 var url = require('url');
-var formUrlencoded = require('form-urlencoded');
+var formurlencoded = require('form-urlencoded');
 var fs = require("fs");
+var convert = require('xml-js');
 
 var Request = class Request {
     constructor() {
@@ -46,7 +47,10 @@ var Request = class Request {
                 });
 
                 res.on('end', function (content) {
-                    resolve({ data: responseData, message: 'Success', status: res.status, headers: res.headers });
+                    if(res.headers["content-type"] == 'text/xml; charset=utf-8') {
+                        responseData = JSON.parse(convert.xml2json(responseData, {compact: true, spaces: 4}))
+                    }
+                    resolve({ data: responseData, message: 'Success', status: (res.status) ? res.status : (res.statusCode) ? res.statusCode: "" , headers: res.headers });
                 });
             });
 
@@ -119,11 +123,16 @@ var Request = class Request {
         return new Promise(function (resolve, reject) {
             try {
                 if (options.form) {
-                    data = formUrlencoded.encode(options.form);
-                    options.headers = {
-                        'content-type': 'application/x-www-form-urlencoded',
-                        'content-length': Buffer.byteLength(data)
-                    };
+                    data = formurlencoded.default(options.form);
+                    if(!options.headers) {
+                        options.headers = {
+                            'content-type': 'application/x-www-form-urlencoded',
+                            'content-length': Buffer.byteLength(data)
+                        };
+                    } else {
+                        options.headers['content-type'] = "application/x-www-form-urlencoded"
+                        options.headers['content-length'] = Buffer.byteLength(data)
+                    }
                 } else if (options.json) {
                     data = JSON.stringify(options.json);
                     if (!options.headers)
