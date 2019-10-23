@@ -156,8 +156,8 @@ module.exports = class shikshalokamHelper {
 
                 let requestheaders = await this.getUserCreationHeaders()
                 
-                userDetails["userName"] = userDetails["userName"]+"-17"
-                userDetails["email"] = "17-"+userDetails["email"]
+                userDetails["userName"] = userDetails["userName"]
+                userDetails["email"] = userDetails["email"]
 
                 let userCreationResponse = await reqObj.post(
                     requestURL,

@@ -47,7 +47,17 @@ module.exports = class punjabSSOHelper {
                 let responseExtract = await this.validateWetherResponseIsSuccess(staffLoginData)
 
                 if(responseExtract != "") {
-                    responseExtract = JSON.parse(responseExtract)
+                    try {
+                        responseExtract = JSON.parse(responseExtract)
+                    } catch (error) {
+                        if(_.includes(responseExtract.toLowerCase(), 'message')) {
+                            const invalidCharacters = new Array('[',']',':','message','Message','{','}')
+                            invalidCharacters.forEach(charToReplace => {
+                                responseExtract = _.replace(responseExtract, charToReplace, '');
+                            })
+                            throw new Error(_.trim(responseExtract))
+                        }
+                    }
                     return resolve(responseExtract[0]);
                 } else {
                     throw staffLoginData
@@ -164,7 +174,7 @@ module.exports = class punjabSSOHelper {
 
                 if(punjabServiceDefaultPassword == "") throw "Default Password not available."
 
-                let keyCloakData = await shikshalokamHelper.getKeyCloakToken("17-"+staffID + punjabServiceDefaultMailDomain,punjabServiceDefaultPassword)
+                let keyCloakData = await shikshalokamHelper.getKeyCloakToken(staffID + punjabServiceDefaultMailDomain,punjabServiceDefaultPassword)
 
                 if(keyCloakData.success == true && keyCloakData.status == 200 && keyCloakData.tokenDetails) {
                     return resolve(keyCloakData.tokenDetails);
@@ -182,7 +192,7 @@ module.exports = class punjabSSOHelper {
 
                     if(userCreationResponse.success && userCreationResponse.userId) {
                         
-                        keyCloakData = await shikshalokamHelper.getKeyCloakToken("17-"+staffID + punjabServiceDefaultMailDomain,punjabServiceDefaultPassword)
+                        keyCloakData = await shikshalokamHelper.getKeyCloakToken(staffID + punjabServiceDefaultMailDomain,punjabServiceDefaultPassword)
 
                         if(keyCloakData.success == true && keyCloakData.status == 200 && keyCloakData.tokenDetails) {
                             return resolve(keyCloakData.tokenDetails);
