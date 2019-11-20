@@ -69,7 +69,7 @@ module.exports = async function (req, res, next) {
   if (!req.rspObj) req.rspObj = {};
   var rspObj = req.rspObj;
 
-  if (req.path.includes("punjabSSO")) {
+  if (req.path.includes("punjabSSO") || req.path.includes("SSO")) {
     next();
     return
   }
