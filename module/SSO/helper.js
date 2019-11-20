@@ -1,4 +1,4 @@
-module.exports = class notificationsHelper {
+module.exports = class SSOHelper {
 
     static login(ssoData) {
         return new Promise(async (resolve, reject) => {
