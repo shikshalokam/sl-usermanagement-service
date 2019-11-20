@@ -13,12 +13,13 @@ module.exports = (req) => {
             req.checkBody('staffID').exists().withMessage("required staffID");
             req.checkBody('staffName').exists().withMessage("required staffName");
             req.checkBody('staffType').exists().withMessage("required staffType");
-            req.checkBody('staffType').exists().withMessage("required staffType");
             req.checkBody('subject').exists().withMessage("required subject");
         }
 
     }
 
-    if (ssoValidator[req.params.method]) ssoValidator[req.params.method]();
+    if (ssoValidator[req.params.method]) {
+        ssoValidator[req.params.method]();
+    }
 
 };
