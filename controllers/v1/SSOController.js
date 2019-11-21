@@ -27,8 +27,7 @@ module.exports = class SSO {
     * @apiVersion 1.0.0
     * @apiName language SSO Login
     * @apiGroup SSO
-    * @apiHeader {String} X-authenticated-user-token Authenticity token
-    * @apiSampleRequest /user-management/api/v1/SSO/login
+    * @apiSampleRequest /user-management/api/v1/SSO/login/punjab
     * @apiUse successBody
     * @apiUse errorBody
     *  @apiParamExample {json} Request-Body:
@@ -43,8 +42,7 @@ module.exports = class SSO {
         "staffID":"staffId",
         "staffName":"staffname",
         "staffType":"0",
-        "subject":"eg:computer science",
-        "punjabSSO":true
+        "subject":"eg:computer science"
     }
     * @apiParamExample {json} Response:
     * {
@@ -81,7 +79,7 @@ module.exports = class SSO {
 
             try {
 
-                let ssoLoginToken = await ssoHelpers.login(req.body)
+                let ssoLoginToken = await ssoHelpers.login(req.params._id,req.body)
 
                 let ssoLoginResponse = { ...req.body };
                 ssoLoginResponse["tokenDetails"] = ssoLoginToken

@@ -3,6 +3,7 @@ module.exports = (req) => {
     let ssoValidator = {
 
         login: function () {
+            req.checkParams('_id').exists().withMessage("required state code");
             req.checkBody('dbo').exists().withMessage("required dob");
             req.checkBody('designation').exists().withMessage("required designation");
             req.checkBody('district/office').exists().withMessage("required district/office");
