@@ -16,7 +16,7 @@ module.exports = class shikshalokamHelper {
         return new Promise(async (resolve, reject) => {
             try {
 
-                if (username == "" || password == "") throw "Invalid Credentials."
+                if (username == "" || password == "") throw new Error("Invalid Credentials.")
 
                 let keyCloakLoginUrl = await this.getKeyCloakLoginUrl()
 
@@ -51,7 +51,7 @@ module.exports = class shikshalokamHelper {
         return new Promise(async (resolve, reject) => {
             try {
 
-                if (keycloakAuthServerUrl == "" || realm == "") throw "Keycloak Cofiguration is missing."
+                if (keycloakAuthServerUrl == "" || realm == "") throw new Error("Keycloak Cofiguration is missing.")
 
                 return resolve(keycloakAuthServerUrl + "/realms/" + realm + "/protocol/openid-connect/token");
 
@@ -66,7 +66,7 @@ module.exports = class shikshalokamHelper {
         return new Promise(async (resolve, reject) => {
             try {
 
-                if (shikshalokamBaseHost == "" || userCreationEndpoint == "") throw "User Create Cofiguration is missing."
+                if (shikshalokamBaseHost == "" || userCreationEndpoint == "") throw new Error("User Create Cofiguration is missing.")
 
                 return resolve(shikshalokamBaseHost + userCreationEndpoint);
 
@@ -81,14 +81,14 @@ module.exports = class shikshalokamHelper {
         return new Promise(async (resolve, reject) => {
             try {
 
-                if (process.env.AUTHORIZATION == "") throw "User Create Cofiguration Headers is missing."
+                if (process.env.AUTHORIZATION == "") throw new Error("User Create Cofiguration Headers is missing.")
 
                 // if(adminAuthToken == "" || refreshAdminToken) {
                 //     let adminTokenGenerationResponse = await this.generateAdminAuthToken()
                 //     if(adminTokenGenerationResponse.success == true && adminTokenGenerationResponse.accessToken) {
                 //         adminAuthToken = adminTokenGenerationResponse.accessToken
                 //     } else {
-                //         throw "Keycloak Admin Token Refresh Failed"
+                //         throw new Error("Keycloak Admin Token Refresh Failed")
                 //     }
                 // }
 
@@ -109,7 +109,7 @@ module.exports = class shikshalokamHelper {
         return new Promise(async (resolve, reject) => {
             try {
 
-                if (keyCloakAdminUserName == "" || keyCloakAdminPassword == "") throw "Invalid Keycloak Admin Credentials."
+                if (keyCloakAdminUserName == "" || keyCloakAdminPassword == "") throw new Error("Invalid Keycloak Admin Credentials.")
 
                 let keyCloakLoginUrl = await this.getKeyCloakLoginUrl()
 
@@ -127,7 +127,7 @@ module.exports = class shikshalokamHelper {
                         accessToken: adminLoginResponse.data.access_token
                     })
                 } else {
-                    throw "Keycloak Admin Login Failed."
+                    throw new Error("Keycloak Admin Login Failed.")
                 }
 
             } catch (error) {
@@ -145,7 +145,7 @@ module.exports = class shikshalokamHelper {
                     !userDetails.userName || userDetails.userName == "" ||
                     !userDetails.email || userDetails.email == "" ||
                     !userDetails.password || userDetails.password == ""
-                ) throw "Invalid User Details."
+                ) throw new Error("Invalid User Details.")
 
                 userDetails["channel"] = userCreationChannel
                 userDetails["emailVerified"] = true
@@ -210,7 +210,7 @@ module.exports = class shikshalokamHelper {
         return new Promise(async (resolve, reject) => {
             try {
 
-                if (keycloakAuthServerUrl == "" || realm == "") throw "Keycloak Cofiguration is missing."
+                if (keycloakAuthServerUrl == "" || realm == "") throw new Error("Keycloak Cofiguration is missing.")
 
                 return resolve(keycloakAuthServerUrl + "/realms/" + realm + "/protocol/openid-connect/token");
 
@@ -224,7 +224,7 @@ module.exports = class shikshalokamHelper {
         return new Promise(async (resolve, reject) => {
             try {
 
-                if (completeURL == "") throw "URL missing."
+                if (completeURL == "") throw new Error("URL missing.")
 
                 let reqObj = new Request()
 
