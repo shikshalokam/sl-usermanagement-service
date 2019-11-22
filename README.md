@@ -1,4 +1,4 @@
-# Shikshalokam School Assessment Designer APIs version: 0.0.1
+# Shikshalokam User Management Service APIs version: 0.0.1
 
 ## Environment variables:
 

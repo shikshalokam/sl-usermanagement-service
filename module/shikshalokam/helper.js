@@ -1,4 +1,4 @@
-const Request = require(GENERIC_HELPERS_PATH+'/httpRequest');
+const Request = require(GENERIC_HELPERS_PATH + '/httpRequest');
 const keycloakAuthServerUrl = (process.env.sunbird_keycloak_auth_server_url && process.env.sunbird_keycloak_auth_server_url != "") ? process.env.sunbird_keycloak_auth_server_url : ""
 const realm = (process.env.sunbird_keycloak_realm && process.env.sunbird_keycloak_realm != "") ? process.env.sunbird_keycloak_realm : "sunbird"
 const clientId = (process.env.sunbird_keycloak_client_id && process.env.sunbird_keycloak_client_id != "") ? process.env.sunbird_keycloak_client_id : "admin-cli"
@@ -16,27 +16,27 @@ module.exports = class shikshalokamHelper {
         return new Promise(async (resolve, reject) => {
             try {
 
-                if(username == "" || password == "") throw "Invalid Credentials."
+                if (username == "" || password == "") throw "Invalid Credentials."
 
                 let keyCloakLoginUrl = await this.getKeyCloakLoginUrl()
 
-                let keyCloakLoginResponse = await this.callKeyCloakService(keyCloakLoginUrl,{
-                    "client_id":clientId,
-                    "username":username, // "a1@shikshalokamdev"
-                    "password":password,
-                    "grant_type":grantType
+                let keyCloakLoginResponse = await this.callKeyCloakService(keyCloakLoginUrl, {
+                    "client_id": clientId,
+                    "username": username, // "a1@shikshalokamdev"
+                    "password": password,
+                    "grant_type": grantType
                 })
 
-                if(keyCloakLoginResponse.status == 200 && keyCloakLoginResponse.data && keyCloakLoginResponse.data.access_token && keyCloakLoginResponse.data.access_token != "") {
+                if (keyCloakLoginResponse.status == 200 && keyCloakLoginResponse.data && keyCloakLoginResponse.data.access_token && keyCloakLoginResponse.data.access_token != "") {
                     resolve({
-                        status:keyCloakLoginResponse.status,
-                        success : true,
+                        status: keyCloakLoginResponse.status,
+                        success: true,
                         tokenDetails: keyCloakLoginResponse.data
                     })
                 } else {
                     resolve({
-                        status:keyCloakLoginResponse.status,
-                        success : false,
+                        status: keyCloakLoginResponse.status,
+                        success: false,
                         error: keyCloakLoginResponse.data.error_description
                     })
                 }
@@ -51,9 +51,9 @@ module.exports = class shikshalokamHelper {
         return new Promise(async (resolve, reject) => {
             try {
 
-                if(keycloakAuthServerUrl == "" || realm == "") throw "Keycloak Cofiguration is missing."
+                if (keycloakAuthServerUrl == "" || realm == "") throw "Keycloak Cofiguration is missing."
 
-                return resolve(keycloakAuthServerUrl+"/realms/"+realm+"/protocol/openid-connect/token");      
+                return resolve(keycloakAuthServerUrl + "/realms/" + realm + "/protocol/openid-connect/token");
 
             } catch (error) {
                 return reject(error);
@@ -66,9 +66,9 @@ module.exports = class shikshalokamHelper {
         return new Promise(async (resolve, reject) => {
             try {
 
-                if(shikshalokamBaseHost == "" || userCreationEndpoint == "") throw "User Create Cofiguration is missing."
+                if (shikshalokamBaseHost == "" || userCreationEndpoint == "") throw "User Create Cofiguration is missing."
 
-                return resolve(shikshalokamBaseHost+userCreationEndpoint);      
+                return resolve(shikshalokamBaseHost + userCreationEndpoint);
 
             } catch (error) {
                 return reject(error);
@@ -81,7 +81,7 @@ module.exports = class shikshalokamHelper {
         return new Promise(async (resolve, reject) => {
             try {
 
-                if(process.env.AUTHORIZATION == "") throw "User Create Cofiguration Headers is missing."
+                if (process.env.AUTHORIZATION == "") throw "User Create Cofiguration Headers is missing."
 
                 // if(adminAuthToken == "" || refreshAdminToken) {
                 //     let adminTokenGenerationResponse = await this.generateAdminAuthToken()
@@ -93,10 +93,10 @@ module.exports = class shikshalokamHelper {
                 // }
 
                 return resolve({
-                        "content-type": "application/json",
-                        "authorization": process.env.AUTHORIZATION,
-                        // "x-authenticated-user-token": adminAuthToken
-                });      
+                    "content-type": "application/json",
+                    "authorization": process.env.AUTHORIZATION,
+                    // "x-authenticated-user-token": adminAuthToken
+                });
 
             } catch (error) {
                 return reject(error);
@@ -109,26 +109,26 @@ module.exports = class shikshalokamHelper {
         return new Promise(async (resolve, reject) => {
             try {
 
-                if(keyCloakAdminUserName == "" || keyCloakAdminPassword == "") throw "Invalid Keycloak Admin Credentials."
+                if (keyCloakAdminUserName == "" || keyCloakAdminPassword == "") throw "Invalid Keycloak Admin Credentials."
 
                 let keyCloakLoginUrl = await this.getKeyCloakLoginUrl()
 
-                let adminLoginResponse = await this.callKeyCloakService(keyCloakLoginUrl,{
-                    "client_id":clientId,
-                    "username":keyCloakAdminUserName,
-                    "password":keyCloakAdminPassword,
-                    "grant_type":grantType
+                let adminLoginResponse = await this.callKeyCloakService(keyCloakLoginUrl, {
+                    "client_id": clientId,
+                    "username": keyCloakAdminUserName,
+                    "password": keyCloakAdminPassword,
+                    "grant_type": grantType
                 })
 
-                if(adminLoginResponse.status == 200 && adminLoginResponse.data && adminLoginResponse.data.access_token) {
+                if (adminLoginResponse.status == 200 && adminLoginResponse.data && adminLoginResponse.data.access_token) {
                     return resolve({
-                        success : true,
+                        success: true,
                         status: adminLoginResponse.status,
-                        accessToken : adminLoginResponse.data.access_token
+                        accessToken: adminLoginResponse.data.access_token
                     })
                 } else {
                     throw "Keycloak Admin Login Failed."
-                }      
+                }
 
             } catch (error) {
                 return reject(error);
@@ -140,12 +140,12 @@ module.exports = class shikshalokamHelper {
         return new Promise(async (resolve, reject) => {
             try {
 
-                if(
-                    !userDetails.firstName  || userDetails.firstName == "" ||
-                    !userDetails.userName  || userDetails.userName == "" ||
-                    !userDetails.email  || userDetails.email == "" ||
-                    !userDetails.password  || userDetails.password == ""
-                    ) throw "Invalid User Details."
+                if (
+                    !userDetails.firstName || userDetails.firstName == "" ||
+                    !userDetails.userName || userDetails.userName == "" ||
+                    !userDetails.email || userDetails.email == "" ||
+                    !userDetails.password || userDetails.password == ""
+                ) throw "Invalid User Details."
 
                 userDetails["channel"] = userCreationChannel
                 userDetails["emailVerified"] = true
@@ -155,25 +155,22 @@ module.exports = class shikshalokamHelper {
                 const requestURL = await this.getUserCreationUrl()
 
                 let requestheaders = await this.getUserCreationHeaders()
-                
-                userDetails["userName"] = userDetails["userName"]
-                userDetails["email"] = userDetails["email"]
 
                 let userCreationResponse = await reqObj.post(
                     requestURL,
                     {
-                        headers : requestheaders,
-                        json : {
+                        headers: requestheaders,
+                        json: {
                             request: userDetails
                         }
                     }
                 )
 
-                if(userCreationResponse.data && userCreationResponse.data.result && userCreationResponse.data.result.userId && userCreationResponse.data.result.userId != "") {
+                if (userCreationResponse.data && userCreationResponse.data.result && userCreationResponse.data.result.userId && userCreationResponse.data.result.userId != "") {
                     return resolve({
-                        success : true,
+                        success: true,
                         status: "User successfully created.",
-                        userId : userCreationResponse.data.result.userId
+                        userId: userCreationResponse.data.result.userId
                     })
                 } else if (userCreationResponse.status == 401) {
 
@@ -182,18 +179,18 @@ module.exports = class shikshalokamHelper {
                     userCreationResponse = await reqObj.post(
                         requestURL,
                         {
-                            headers : requestheaders,
-                            json : {
+                            headers: requestheaders,
+                            json: {
                                 request: userDetails
                             }
                         }
                     )
-                    
-                    if(userCreationResponse.data && userCreationResponse.data.result && userCreationResponse.data.result.userId && userCreationResponse.data.result.userId != "") {
+
+                    if (userCreationResponse.data && userCreationResponse.data.result && userCreationResponse.data.result.userId && userCreationResponse.data.result.userId != "") {
                         return resolve({
-                            success : true,
+                            success: true,
                             status: "User successfully created.",
-                            userId : userCreationResponse.data.result.userId
+                            userId: userCreationResponse.data.result.userId
                         })
                     } else {
                         throw userCreationResponse
@@ -213,9 +210,9 @@ module.exports = class shikshalokamHelper {
         return new Promise(async (resolve, reject) => {
             try {
 
-                if(keycloakAuthServerUrl == "" || realm == "") throw "Keycloak Cofiguration is missing."
+                if (keycloakAuthServerUrl == "" || realm == "") throw "Keycloak Cofiguration is missing."
 
-                return resolve(keycloakAuthServerUrl+"/realms/"+realm+"/protocol/openid-connect/token");      
+                return resolve(keycloakAuthServerUrl + "/realms/" + realm + "/protocol/openid-connect/token");
 
             } catch (error) {
                 return reject(error);
@@ -227,7 +224,7 @@ module.exports = class shikshalokamHelper {
         return new Promise(async (resolve, reject) => {
             try {
 
-                if(completeURL == "") throw "URL missing."
+                if (completeURL == "") throw "URL missing."
 
                 let reqObj = new Request()
 

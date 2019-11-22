@@ -174,7 +174,7 @@ module.exports = class punjabSSOHelper {
 
                 if(punjabServiceDefaultPassword == "") throw "Default Password not available."
 
-                let keyCloakData = await shikshalokamHelper.getKeyCloakToken(staffID + punjabServiceDefaultMailDomain,punjabServiceDefaultPassword)
+                let keyCloakData = await shikshalokamHelper.getKeyCloakToken(staffID,punjabServiceDefaultPassword)
 
                 if(keyCloakData.success == true && keyCloakData.status == 200 && keyCloakData.tokenDetails) {
                     return resolve(keyCloakData.tokenDetails);
@@ -192,7 +192,7 @@ module.exports = class punjabSSOHelper {
 
                     if(userCreationResponse.success && userCreationResponse.userId) {
                         
-                        keyCloakData = await shikshalokamHelper.getKeyCloakToken(staffID + punjabServiceDefaultMailDomain,punjabServiceDefaultPassword)
+                        keyCloakData = await shikshalokamHelper.getKeyCloakToken(staffID,punjabServiceDefaultPassword)
 
                         if(keyCloakData.success == true && keyCloakData.status == 200 && keyCloakData.tokenDetails) {
                             return resolve(keyCloakData.tokenDetails);
