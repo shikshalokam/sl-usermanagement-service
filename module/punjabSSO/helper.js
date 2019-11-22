@@ -17,7 +17,7 @@ module.exports = class punjabSSOHelper {
         return new Promise(async (resolve, reject) => {
             try {
 
-                if(string == "") throw "String cannot be blank."
+                if(string == "") throw new Error("String cannot be blank.")
 
                 let encryptionServiceData = await this.callPunjabService(encryptionEndpoint,{"values":string})
 
@@ -40,7 +40,7 @@ module.exports = class punjabSSOHelper {
         return new Promise(async (resolve, reject) => {
             try {
 
-                if(staffID == "" || password == "") throw "Invalid credentials."
+                if(staffID == "" || password == "") throw new Error("Invalid credentials.")
 
                 let staffLoginData = await this.callPunjabService(validateStaffLoginCredentialsEndpoint,{"staffID":staffID,"password":password})
 
@@ -60,7 +60,7 @@ module.exports = class punjabSSOHelper {
                     }
                     return resolve(responseExtract[0]);
                 } else {
-                    throw staffLoginData
+                    throw new Error("Invalid credentials.")
                 }
                 
 
@@ -75,7 +75,7 @@ module.exports = class punjabSSOHelper {
         return new Promise(async (resolve, reject) => {
             try {
 
-                if(staffID == "" || mobileNo == "") throw "Invalid credentials."
+                if(staffID == "" || mobileNo == "") throw new Error("Invalid credentials.")
 
                 let staffForgotPasswordData = await this.callPunjabService(resendStaffCredentialsEndpoint,{"staffID":staffID,"registeredMobileNo":mobileNo})
 
@@ -84,7 +84,7 @@ module.exports = class punjabSSOHelper {
                 if(responseExtract != "" && responseExtract == "[{Message :Password has sent on your registered mobile number !!!}]") {
                     return resolve("Password has been sent on your registered mobile number.");
                 } else {
-                    throw staffLoginData
+                    throw staffForgotPasswordData
                 }
                 
 
@@ -98,7 +98,7 @@ module.exports = class punjabSSOHelper {
         return new Promise(async (resolve, reject) => {
             try {
 
-                if(facultyCode == "" || oldPassword == "" || password == "" || confirmPassword == "") throw "Invalid credentials."
+                if(facultyCode == "" || oldPassword == "" || password == "" || confirmPassword == "") throw new Error("Invalid credentials.")
 
                 let staffResetPasswordData = await this.callPunjabService(resetPasswordEndpoint,{"facultyCode":facultyCode,"oldPassword":oldPassword,"password":password,"confirmPassword":confirmPassword})
 
@@ -121,10 +121,10 @@ module.exports = class punjabSSOHelper {
         return new Promise(async (resolve, reject) => {
             try {
 
-                if(response && response.status && response.status == 200 && response.message && response.message == "Success" && response.data && response.data.string) {
+                if(response && response.status && response.status == 200 && response.message && response.message == "Success" && response.data && response.data.string && response.data.string._text) {
                     return resolve(response.data.string._text);
                 } else {
-                    throw response;
+                    return resolve("");
                 }
                 
 
@@ -138,7 +138,7 @@ module.exports = class punjabSSOHelper {
         return new Promise(async (resolve, reject) => {
             try {
 
-                if(punjabServiceBaseUrl == "" || punjabServiceKey == "" || punjabServiceHost == "" || endpoint == "") throw "API Credentilas missing."
+                if(punjabServiceBaseUrl == "" || punjabServiceKey == "" || punjabServiceHost == "" || endpoint == "") throw new Error("API Credentilas missing.")
 
                 let reqObj = new Request()
 
@@ -170,11 +170,11 @@ module.exports = class punjabSSOHelper {
         return new Promise(async (resolve, reject) => {
             try {
 
-                if(staffID == "") throw "StaffID cannot be blank."
+                if(staffID == "") throw new Error("taffID cannot be blank.")
 
-                if(punjabServiceDefaultPassword == "") throw "Default Password not available."
+                if(punjabServiceDefaultPassword == "") throw new Error("Default Password not available.")
 
-                let keyCloakData = await shikshalokamHelper.getKeyCloakToken(staffID + punjabServiceDefaultMailDomain,punjabServiceDefaultPassword)
+                let keyCloakData = await shikshalokamHelper.getKeyCloakToken(staffID,punjabServiceDefaultPassword)
 
                 if(keyCloakData.success == true && keyCloakData.status == 200 && keyCloakData.tokenDetails) {
                     return resolve(keyCloakData.tokenDetails);
@@ -192,7 +192,7 @@ module.exports = class punjabSSOHelper {
 
                     if(userCreationResponse.success && userCreationResponse.userId) {
                         
-                        keyCloakData = await shikshalokamHelper.getKeyCloakToken(staffID + punjabServiceDefaultMailDomain,punjabServiceDefaultPassword)
+                        keyCloakData = await shikshalokamHelper.getKeyCloakToken(staffID,punjabServiceDefaultPassword)
 
                         if(keyCloakData.success == true && keyCloakData.status == 200 && keyCloakData.tokenDetails) {
                             return resolve(keyCloakData.tokenDetails);

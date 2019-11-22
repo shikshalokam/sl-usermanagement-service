@@ -69,9 +69,8 @@ module.exports = class PunjabSSO {
       } catch (error) {
 
         return reject({
-          status: error.status || 500,
-          message: error.message || "Oops! something went wrong.",
-          errorObject: error
+          status: 200,
+          message: error.message || "Oops! something went wrong."
         })
 
       }
