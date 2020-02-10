@@ -28,6 +28,21 @@ module.exports = function () {
     }
   });
 
+  global.httpStatusCode = 
+  require(ROOT_PATH + "/generics/httpStatusCodes");
+
+  // Load all message constants
+  global.messageConstants = new Array
+  fs.readdirSync(ROOT_PATH + "/generics/message-constants")
+  .forEach(function (file) {
+    if (file.match(/\.js$/) !== null) {
+      let name = file.replace('.js', '');
+      name = gen.utils.hyphenCaseToCamelCase(name);
+      global.messageConstants[name] = 
+      require(ROOT_PATH + "/generics/message-constants/" + file);
+    }
+  });
+
   //load base v1 controllers
   fs.readdirSync(ROOT_PATH + '/controllers/v1/').forEach(function (file) {
     if (file.match(/\.js$/) !== null) {

@@ -33,6 +33,18 @@ function checkIfStringIsUrl(str) {
   return pattern.test(str);
 }
 
+ /**
+  * Convert string from hyphen case to camelCase.
+  * @function
+  * @name hyphenCaseToCamelCase
+  * @param {String} string - String in hyphen case.
+  * @returns {String} returns a camelCase string.
+*/
+
+function hyphenCaseToCamelCase(string) {
+  return string.replace(/-([a-z])/g, function (g) { return g[1].toUpperCase(); });
+}
+
 function generateRandomCharacters(numberOfChar) {
   var text = "";
   var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnpqrstuvwxyz123456789!@#%&*";
@@ -168,5 +180,6 @@ module.exports = {
   getAllQuestionId: getAllQuestionId,
   getCriteriaIdsAndWeightage: getCriteriaIdsAndWeightage,
   assessmentRoles: assessmentRoles,
-  arrayIdsTobjectIds: arrayIdsTobjectIds
+  arrayIdsTobjectIds: arrayIdsTobjectIds,
+  hyphenCaseToCamelCase : hyphenCaseToCamelCase
 };

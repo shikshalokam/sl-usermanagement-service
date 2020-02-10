@@ -78,7 +78,7 @@ module.exports = async function (req, res, next) {
     rspObj.errCode = reqMsg.TOKEN.MISSING_CODE;
     rspObj.errMsg = reqMsg.TOKEN.MISSING_MESSAGE;
     rspObj.responseCode = responseCode.unauthorized;
-    return res.status(401).send(respUtil(rspObj));
+    return res.status(httpStatusCode["unauthorized"]).send(respUtil(rspObj));
   }
 
   apiInterceptor.validateToken(token, function (err, tokenData) {
@@ -88,7 +88,7 @@ module.exports = async function (req, res, next) {
       rspObj.errMsg = reqMsg.TOKEN.INVALID_MESSAGE;
       rspObj.responseCode = responseCode.UNAUTHORIZED_ACCESS;
       tokenAuthenticationFailureMessageToSlack(req, token, "TOKEN VERIFICATION WITH KEYCLOAK FAILED")
-      return res.status(401).send(respUtil(rspObj));
+      return res.status(httpStatusCode["unauthorized"]).send(respUtil(rspObj));
     } else {
       req.rspObj.userId = tokenData.userId;
       req.rspObj.userToken = req.headers["x-authenticated-user-token"];
@@ -110,12 +110,12 @@ module.exports = async function (req, res, next) {
             rspObj.errCode = reqMsg.TOKEN.INVALID_CODE;
             rspObj.errMsg = reqMsg.TOKEN.INVALID_MESSAGE;
             rspObj.responseCode = responseCode.UNAUTHORIZED_ACCESS;
-            return res.status(401).send(respUtil(rspObj));
+            return res.status(httpStatusCode["unauthorized"]).send(respUtil(rspObj));
           }
         })
         .catch(error => {
           tokenAuthenticationFailureMessageToSlack(req, token, "TOKEN VERIFICATION - ERROR FETCHING USER DETAIL FROM LEARNER SERVICE")
-          return res.status(401).send(error);
+          return res.status(httpStatusCode["unauthorized"]).send(error);
         });
     }
   });
