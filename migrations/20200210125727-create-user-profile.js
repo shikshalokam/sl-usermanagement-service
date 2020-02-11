@@ -11,10 +11,10 @@ module.exports = {
 
       let userProfileArray = [];
       let userProfile = {
-        "firstName" : "",
-        "lastName" : "",
-        "emailId" : "",
-        "phoneNumber" : "",
+        "firstName" : null,
+        "lastName" : null,
+        "emailId" : null,
+        "phoneNumber" : null,
         "state" : null,
         "district" : null,
         "block" : null,
@@ -28,8 +28,8 @@ module.exports = {
         "verified" : false,
         "updatedBy" : false,
         "createdAt" : new Date(),
-        "updatedAt" : "",
-        "updatedBy" : ""
+        "updatedAt" : null,
+        "updatedBy" : null
       }
 
       for( 
@@ -58,7 +58,6 @@ module.exports = {
 
       await db.collection('userProfile').createIndex({ status: 1 });
       return;
-
     }
   },
 
