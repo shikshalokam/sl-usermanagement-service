@@ -1,8 +1,8 @@
 /**
- * name : user-extensions.js
+ * name : user-profile.js
  * author : Aman Jung Karki
  * Date : 15-Nov-2019
- * Description : Schema for user extension collection.
+ * Description : Schema for user Profile collection.
  */
 
 module.exports = {
@@ -23,6 +23,14 @@ module.exports = {
       updatedBy: {
         type : String,
         default : ""
+      },
+      userId : {
+        type : String,
+        required : true
+      },
+      externalId: {
+        type: String,
+        required: true
       },
       status: {
         type : String,
@@ -46,7 +54,7 @@ module.exports = {
       },
       state: {
         type : String,
-        default : null
+        required : true
       },
       district: {
         type : String,

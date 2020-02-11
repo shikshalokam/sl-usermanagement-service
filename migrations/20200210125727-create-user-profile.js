@@ -5,7 +5,7 @@ module.exports = {
 
     let userExtensionDocuments = 
     await db.collection('userExtension').find({}).project(
-      { userId : 1 }).toArray();
+      { userId : 1, externalId : 1}).toArray();
       
     if( userExtensionDocuments.length > 0 ) {
 

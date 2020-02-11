@@ -19,23 +19,25 @@ module.exports = class UserProfileHelper {
         return new Promise(async (resolve, reject) => {
             try {
 
-                let userProfileData = await database.models.userProfile.find({
+                let userProfileData = await database.models.userProfile.findOne({
                     userId : requestedData.userId
                 },{ 
                     _id : 1 
                 }).lean();
 
-                if( userProfileData._id ) {
+                if( userProfileData ) {
                     throw {
                         message : messageConstants.apiResponses.USER_EXISTS
                     };
                 }
 
                 let userProfileCreation = await database.models.userProfile.create(
-                    req.body
+                    requestedData
                 );
 
-                return resolve(userProfileCreation);
+                return resolve({
+                    result : userProfileCreation
+                });
 
             } catch (error) {
                 return reject(error);
@@ -56,7 +58,7 @@ module.exports = class UserProfileHelper {
         return new Promise(async (resolve, reject) => {
             try {
 
-                let userProfileData = await database.models.userProfile.find({
+                let userProfileData = await database.models.userProfile.findOne({
                     userId : userId
                 },{ 
                     _id : 1 
@@ -67,7 +69,7 @@ module.exports = class UserProfileHelper {
 
                 let userProfileCreatedOrUpdated;
 
-                if( !userProfileData._id ) {
+                if( !userProfileData && !userProfileData._id ) {
 
                     requestedData["userId"] = userId;
                     requestedData["createdBy"] = userId;
@@ -84,8 +86,8 @@ module.exports = class UserProfileHelper {
               
                       Object.keys(requestedData).forEach(data=>{
                         updateObject["$set"][data] = 
-                        criteriaUpdateData[data];
-                      })
+                        requestedData[data];
+                      });
               
                       updateObject["$set"]["updatedBy"] = userId;
                       updateObject["$set"]["updatedAt"] = new Date();
@@ -96,7 +98,7 @@ module.exports = class UserProfileHelper {
                       }
 
                       userProfileCreatedOrUpdated = 
-                      await database.models.criteria.findOneAndUpdate(
+                      await database.models.userProfile.findOneAndUpdate(
                           queryObject, 
                           updateObject,
                           { new : true }
@@ -131,7 +133,7 @@ module.exports = class UserProfileHelper {
     return new Promise(async (resolve, reject) => {
         try {
 
-            let userProfileData = await database.models.userProfile.find({
+            let userProfileData = await database.models.userProfile.findOne({
                 userId : userId
             },{ 
                 _id : 1 
@@ -155,7 +157,7 @@ module.exports = class UserProfileHelper {
                       status : messageConstants.common.ACTIVE
                   }
 
-                  await database.models.criteria.findOneAndUpdate(
+                  await database.models.userProfile.findOneAndUpdate(
                       queryObject, 
                       updateObject,
                       { new : true }

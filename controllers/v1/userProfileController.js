@@ -67,8 +67,8 @@ module.exports = class UserProfile extends Abstract {
    * @returns {json} Response consists of create user profile information.
    */
 
-  create(req) {
-  return new Promise(async (resolve, reject) => {
+  async create(req) {
+    return new Promise(async (resolve, reject) => {
 
     try {
 
@@ -82,8 +82,7 @@ module.exports = class UserProfile extends Abstract {
 
     } catch (error) {
       return reject({
-          status: 
-          error.status || httpStatusCode["internal_server_error"].status,
+          status: error.status || httpStatusCode["internal_server_error"].status,
 
           message: 
           error.message || httpStatusCode["internal_server_error"].message,
@@ -183,7 +182,7 @@ module.exports = class UserProfile extends Abstract {
       try {
 
         let result = await userProfileHelper.verify(
-          req.userDetails.userId
+          req.params._id
         );
 
         return resolve(result);
