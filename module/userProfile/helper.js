@@ -27,9 +27,28 @@ module.exports = class UserProfileHelper {
 
                 if( userProfileData ) {
                     throw {
-                        message : messageConstants.apiResponses.USER_EXISTS
+                        message : 
+                        messageConstants.apiResponses.USER_EXISTS
                     };
                 }
+
+                let userExtensionDocument = 
+                await database.models.userExtension.findOne(
+                    {
+                        userId : requestedData.userId
+                    },{ 
+                        externalId : 1 
+                    }
+                ).lean();
+
+                if( !userExtensionDocument ) {
+                    throw {
+                        message : 
+                        messageConstants.apiResponses.USER_EXTENSION_NOT_FOUND
+                    };
+                }
+
+                requestedData["externalId"] = userExtensionDocument.externalId;
 
                 let userProfileCreation = await database.models.userProfile.create(
                     requestedData
@@ -69,9 +88,24 @@ module.exports = class UserProfileHelper {
 
                 let userProfileCreatedOrUpdated;
 
-                if( !userProfileData && !userProfileData._id ) {
+                if( !userProfileData ) {
+
+                    let userExtensionDocument = 
+                    await database.models.userExtension.findOne({
+                        userId : userId
+                    },{
+                        externalId : 1
+                    });
+
+                    if( !userExtensionDocument ) {
+                        throw {
+                            message : 
+                            messageConstants.apiResponses.USER_EXTENSION_NOT_FOUND
+                        }
+                    }
 
                     requestedData["userId"] = userId;
+                    requestedData["externalId"] = userExtensionDocument.externalId;
                     requestedData["createdBy"] = userId;
                     
                     userProfileCreatedOrUpdated = 
@@ -126,52 +160,53 @@ module.exports = class UserProfileHelper {
    * @method
    * @name verify
    * @param  {userId}  - logged in user id.
-   * @returns {json} Response consists of verified user profile data.
+   * @returns {json} - Response consists of verified user profile data.
    */
 
-  static verify( userId ) {
-    return new Promise(async (resolve, reject) => {
-        try {
+    static verify( userId ) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                
+                let userProfileData = await database.models.userProfile.findOne({
+                    userId : userId
+                },{ 
+                    _id : 1 
+                }).lean();
+                
+                if( !userProfileData._id ) {
+                    throw {
+                        message : 
+                        messageConstants.apiResponses.USER_PROFILE_NOT_FOUND
+                    };
+                
+                } else {
+                    
+                    let updateObject = {
+                        "$set" : {
+                            verified : true
+                        }
+                    };
 
-            let userProfileData = await database.models.userProfile.findOne({
-                userId : userId
-            },{ 
-                _id : 1 
-            }).lean();
-
-            if( !userProfileData._id ) {
-                throw {
-                    message : 
-                    messageConstants.apiResponses.USER_PROFILE_NOT_FOUND
-                };
-
-            } else {
-                let updateObject = {
-                    "$set" : {
-                        verified : true
+                    let queryObject = {
+                        _id : userProfileData._id,
+                        status : messageConstants.common.ACTIVE
                     }
-                  };
 
-                  let queryObject = {
-                      _id : userProfileData._id,
-                      status : messageConstants.common.ACTIVE
-                  }
-
-                  await database.models.userProfile.findOneAndUpdate(
-                      queryObject, 
-                      updateObject,
-                      { new : true }
-                  );
-
-                  resolve({
-                      message : 
-                      messageConstants.apiResponses.USER_PROFILE_VERIFIED
-                  })
+                    await database.models.userProfile.findOneAndUpdate(
+                        queryObject, 
+                        updateObject,
+                        { new : true }
+                    );
+                    
+                    resolve({
+                        message : 
+                        messageConstants.apiResponses.USER_PROFILE_VERIFIED
+                    })
+                }
+            } catch (error) {
+                return reject(error);
             }
-        } catch (error) {
-            return reject(error);
-        }
-    })
-  }
+        })
+    }
 
 };

@@ -10,19 +10,19 @@ module.exports = {
     schema: {
       firstName: {
         type : String,
-        required : true
+        default : null
       },
       lastName: {
         type : String,
-         default : ""
+         default : null
       },
       createdBy: {
         type : String,
-        default : ""
+        default : null
       },
       updatedBy: {
         type : String,
-        default : ""
+        default : null
       },
       userId : {
         type : String,
@@ -42,46 +42,46 @@ module.exports = {
       },
       emailId: {
         type: String,
-         default : ""
+         default : null
       },
       externalId: {
         type : String,
-        default : ""
+        default : null
       },
       phoneNumber: {
         type : String,
-        default : ""
+        default : null
       },
       state: {
-        type : String,
-        required : true
+        type : "ObjectId",
+        default : null
       },
       district: {
-        type : String,
+        type : "ObjectId",
         default : null
       },
       block: {
-        type: String,
+        type: "ObjectId",
         default: null
       },
       zone: {
-        type : String,
+        type : "ObjectId",
         default : null
       },
       cluster: {
-        type : String,
+        type : "ObjectId",
         default : null
       },
       taluk: {
-        type : String,
+        type : "ObjectId",
         default : null
       },
       hub: {
-        type : String,
+        type : "ObjectId",
         default : null
       },
       school: {
-        type : String,
+        type : "ObjectId",
         default : null
       },
       verified: {

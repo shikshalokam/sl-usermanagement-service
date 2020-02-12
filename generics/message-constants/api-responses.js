@@ -12,5 +12,6 @@ module.exports = {
   "USER_PROFILE_VERIFIED" : "User profile is verified",
   "USER_EXISTS" : "User is already present",
   "USER_UPDATED" : "User updated successfully",
-  "USER_NOT_UPDATED" : "Could not update user"
+  "USER_NOT_UPDATED" : "Could not update user",
+  "USER_EXTENSION_NOT_FOUND" : "User extension not found"
 };

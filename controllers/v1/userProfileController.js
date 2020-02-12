@@ -93,7 +93,7 @@ module.exports = class UserProfile extends Abstract {
     }
 
   })
-}
+  }
 
   /**
   * @api {post} /user-management-service/api/v1/userProfile/update 
