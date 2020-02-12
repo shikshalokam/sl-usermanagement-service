@@ -209,4 +209,31 @@ module.exports = class UserProfileHelper {
         })
     }
 
+    static inAppUserProfileNotifications() {
+        return new Promise(async (resolve, reject) => {
+            try {
+                
+                let userProfileDocuments = 
+                await database.models.userProfile.find({
+                    status : messageConstants.common.ACTIVE,
+                    verified : {
+                        $ne : messageConstants.common.TRUE
+                    }
+                });
+
+                if( userProfileDocuments.length < 1 ) {
+                    throw {
+                        message : 
+                        messageConstants.apiResponses.USER_PROFILE_NOT_FOUND
+                    }
+                }
+
+
+
+            } catch(error) {
+                return reject(error);
+            }
+        });
+    }
+
 };

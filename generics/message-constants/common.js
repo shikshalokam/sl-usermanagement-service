@@ -8,5 +8,6 @@
 
 module.exports = {
   "ACTIVE" : "active",
+  "TRUE" : true,
   schema : {}
 };

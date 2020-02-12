@@ -203,4 +203,37 @@ module.exports = class UserProfile extends Abstract {
     })
  }
 
+   /**
+   * Send as in-app notifications for updating user profile information.
+   * @method
+   * @name verify
+   * @param  {Request}  req  request body.
+   * @returns {json} Response consists of verified user profile information.
+   */
+
+  inAppUserProfileNotifications(req) {
+    return new Promise(async (resolve, reject) => {
+
+      try {
+
+        let result = await userProfileHelper.inAppUserProfileNotifications();
+
+        return resolve(result);
+
+      } catch (error) {
+        return reject({
+            status: 
+            error.status || httpStatusCode["internal_server_error"].status,
+
+            message: 
+            error.message || httpStatusCode["internal_server_error"].message,
+
+            errorObject: error
+        });
+
+      }
+
+    })
+ }
+
 };
