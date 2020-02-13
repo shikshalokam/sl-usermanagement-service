@@ -74,6 +74,15 @@ module.exports = async function (req, res, next) {
     return
   }
 
+  let byPassPaths = ["userProfile/list"]
+
+  for (let pointerToByPassPath = 0; pointerToByPassPath < byPassPaths.length; pointerToByPassPath++) {
+    if (req.path.includes(byPassPaths[pointerToByPassPath]) && req.headers["internal-access-token"] === process.env.INTERNAL_ACCESS_TOKEN) {
+      next();
+      return
+    }
+  }
+
   if (!token) {
     rspObj.errCode = reqMsg.TOKEN.MISSING_CODE;
     rspObj.errMsg = reqMsg.TOKEN.MISSING_MESSAGE;
