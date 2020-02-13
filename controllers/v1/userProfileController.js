@@ -35,8 +35,8 @@ module.exports = class UserProfile extends Abstract {
     /**
   * @api {post} /user-management-service/api/v1/userProfile/create 
   * @apiVersion 1.0.0
-    * @apiName Create user profile.
-  * @apiGroup Platform User Role Extension
+  * @apiName Create user profile.
+  * @apiGroup user profile
   * @apiHeader {String} X-authenticated-user-token Authenticity token
   * @apiSampleRequest /user-management-service/api/v1/userProfile/create
   * @apiUse successBody
@@ -99,7 +99,7 @@ module.exports = class UserProfile extends Abstract {
   * @api {post} /user-management-service/api/v1/userProfile/update 
   * @apiVersion 1.0.0
   * @apiName Update user profile details
-  * @apiGroup Platform User Role Extension
+  * @apiGroup user profile
   * @apiHeader {String} X-authenticated-user-token Authenticity token
   * @apiSampleRequest /user-management-service/api/v1/userProfile/update
   * @apiUse successBody
@@ -161,7 +161,7 @@ module.exports = class UserProfile extends Abstract {
   * @api {post} /user-management-service/api/v1/userProfile/verify/:userId 
   * @apiVersion 1.0.0
   * @apiName Verify user profile details
-  * @apiGroup Platform User Role Extension
+  * @apiGroup user profile
   * @apiHeader {String} X-authenticated-user-token Authenticity token
   * @apiSampleRequest /user-management-service/api/v1/userProfile/verify/:userId
   * @apiUse successBody
@@ -201,22 +201,32 @@ module.exports = class UserProfile extends Abstract {
       }
 
     })
- }
+  }
 
    /**
-   * Send as in-app notifications for updating user profile information.
+  * @api {post} /user-management-service/api/v1/userProfile/list
+  * @apiVersion 1.0.0
+  * @apiName Send in app user profile notifications
+  * @apiGroup user profile
+  * @apiHeader {String} X-authenticated-user-token Authenticity token
+  * @apiSampleRequest /user-management-service/api/v1/userProfile/list
+  * @apiUse successBody
+  * @apiUse errorBody
+  */
+
+   /**
+   * list of user profile information.
    * @method
    * @name verify
-   * @param  {Request}  req  request body.
-   * @returns {json} Response consists of verified user profile information.
+   * @returns {json} Response consists of all user profile information.
    */
 
-  inAppUserProfileNotifications(req) {
+  list() {
     return new Promise(async (resolve, reject) => {
 
       try {
 
-        let result = await userProfileHelper.inAppUserProfileNotifications();
+        let result = await userProfileHelper.list();
 
         return resolve(result);
 
@@ -234,6 +244,52 @@ module.exports = class UserProfile extends Abstract {
       }
 
     })
- }
+  }
+
+    /**
+  * @api {post} /user-management-service/api/v1/userProfile/details
+  * @apiVersion 1.0.0
+  * @apiName Send in app user profile notifications
+  * @apiGroup user profile
+  * @apiHeader {String} X-authenticated-user-token Authenticity token
+  * @apiSampleRequest /user-management-service/api/v1/userProfile/details
+  * @apiUse successBody
+  * @apiUse errorBody
+  */
+
+   /**
+   * Send as in-app notifications for updating user profile information.
+   * @method
+   * @name verify
+   * @param  {Request}  req  request body.
+   * @returns {json} Response consists of user profile details.
+   */
+
+  details(req) {
+    return new Promise(async (resolve, reject) => {
+
+      try {
+
+        let result = await userProfileHelper.details(
+          req.params._id ? req.params._id : req.userDetails.userId
+        );
+
+        return resolve(result);
+
+      } catch (error) {
+        return reject({
+            status: 
+            error.status || httpStatusCode["internal_server_error"].status,
+
+            message: 
+            error.message || httpStatusCode["internal_server_error"].message,
+
+            errorObject: error
+        });
+
+      }
+
+    })
+  }
 
 };

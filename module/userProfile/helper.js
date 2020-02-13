@@ -159,7 +159,7 @@ module.exports = class UserProfileHelper {
    * Verify user profile.
    * @method
    * @name verify
-   * @param  {userId}  - logged in user id.
+   * @param  {userId} - logged in user id.
    * @returns {json} - Response consists of verified user profile data.
    */
 
@@ -209,31 +209,73 @@ module.exports = class UserProfileHelper {
         })
     }
 
-    static inAppUserProfileNotifications() {
+    /**
+   * Verify user profile.
+   * @method
+   * @name inAppUserProfileNotifications
+   * @returns {json} - Response consists of verified user profile data.
+   */
+
+    static list() {
         return new Promise(async (resolve, reject) => {
             try {
-                
+
                 let userProfileDocuments = 
                 await database.models.userProfile.find({
                     status : messageConstants.common.ACTIVE,
-                    verified : {
-                        $ne : messageConstants.common.TRUE
-                    }
-                });
+                    isDeleted : messageConstants.common.FALSE
+                }).lean();
 
-                if( userProfileDocuments.length < 1 ) {
+                if( userProfileDocuments && userProfileDocuments.length < 1 ) {
                     throw {
                         message : 
                         messageConstants.apiResponses.USER_PROFILE_NOT_FOUND
-                    }
+                    };
                 }
 
-
+                return resolve({
+                    result : userProfileDocuments
+                });
 
             } catch(error) {
                 return reject(error);
             }
         });
     }
+
+    /**
+   * Details user profile.
+   * @method
+   * @name details
+   * @returns {json} - Response consists of verified user profile data.
+   */
+
+  static details(userId) {
+    return new Promise(async (resolve, reject) => {
+        try {
+
+            let userProfileDocument = 
+            await database.models.userProfile.findOne({
+                userId : userId,
+                status : messageConstants.common.ACTIVE,
+                isDeleted : messageConstants.common.FALSE
+            });
+
+            if( !userProfileDocument ) {
+                throw {
+                    message : 
+                    messageConstants.apiResponses.USER_PROFILE_NOT_FOUND
+                };
+            }
+
+            return resolve({
+                result : userProfileDocument
+            });
+
+        } catch(error) {
+            return reject(error);
+        }
+    });
+  }
 
 };
