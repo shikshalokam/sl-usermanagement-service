@@ -87,6 +87,10 @@ module.exports = {
       verified: {
         type : Boolean,
         default : false
+      },
+      sentPushNotifications : {
+        type : Boolean,
+        default : false
       }
     }
 }

@@ -29,7 +29,8 @@ module.exports = {
         "updatedBy" : false,
         "createdAt" : new Date(),
         "updatedAt" : null,
-        "updatedBy" : null
+        "updatedBy" : null,
+        "sentPushNotifications" : false
       }
 
       for( 
