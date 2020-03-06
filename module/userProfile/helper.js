@@ -26,10 +26,10 @@ module.exports = class UserProfileHelper {
                 }).lean();
 
                 if( userProfileData ) {
-                    throw {
-                        message : 
-                        messageConstants.apiResponses.USER_EXISTS
-                    };
+                    return resolve({
+                        status : httpStatusCode["bad_request"].status,
+                        message : messageConstants.apiResponses.USER_EXISTS
+                    });
                 }
 
                 let userExtensionDocument = 
@@ -42,10 +42,11 @@ module.exports = class UserProfileHelper {
                 ).lean();
 
                 if( !userExtensionDocument ) {
-                    throw {
+                    return resolve({
+                        status : httpStatusCode["bad_request"].status,
                         message : 
                         messageConstants.apiResponses.USER_EXTENSION_NOT_FOUND
-                    };
+                    });
                 }
 
                 requestedData["externalId"] = userExtensionDocument.externalId;
@@ -55,6 +56,7 @@ module.exports = class UserProfileHelper {
                 );
 
                 return resolve({
+                    message : messageConstants.apiResponses.USER_PROFILE_CREATED,
                     result : userProfileCreation
                 });
 
@@ -98,10 +100,11 @@ module.exports = class UserProfileHelper {
                     });
 
                     if( !userExtensionDocument ) {
-                        throw {
+                        return resolve({
+                            status : httpStatusCode["bad_request"].status,
                             message : 
                             messageConstants.apiResponses.USER_EXTENSION_NOT_FOUND
-                        }
+                        })
                     }
 
                     requestedData["userId"] = userId;
@@ -139,15 +142,17 @@ module.exports = class UserProfileHelper {
                       );
                 }
                 
+                let message = "";
                 if( userProfileCreatedOrUpdated._id ) {
-                    return resolve({
-                        message : messageConstants.apiResponses.USER_UPDATED
-                    });
+                    message = messageConstants.apiResponses.USER_UPDATED;
                 } else {
-                    throw {
-                        message : messageConstants.apiResponses.USER_NOT_UPDATED
-                    };
+                    message =  
+                    messageConstants.apiResponses.USER_NOT_UPDATED;
                 }
+
+                return resolve({
+                    message : message
+                })
             }
             catch (error) {
                 return reject(error);
@@ -174,10 +179,11 @@ module.exports = class UserProfileHelper {
                 }).lean();
                 
                 if( !userProfileData._id ) {
-                    throw {
+                    return resolve({
+                        status : httpStatusCode["bad_request"].status,
                         message : 
                         messageConstants.apiResponses.USER_PROFILE_NOT_FOUND
-                    };
+                    });
                 
                 } else {
                     
@@ -227,13 +233,15 @@ module.exports = class UserProfileHelper {
                 }).lean();
 
                 if( userProfileDocuments && userProfileDocuments.length < 1 ) {
-                    throw {
+                    return resolve({
+                        status : httpStatusCode["bad_request"].status,
                         message : 
                         messageConstants.apiResponses.USER_PROFILE_NOT_FOUND
-                    };
+                    });
                 }
 
                 return resolve({
+                    message : messageConstants.apiResponses.USER_PROFILE_LIST_FETCHED,
                     result : userProfileDocuments
                 });
 
@@ -262,10 +270,11 @@ module.exports = class UserProfileHelper {
             });
 
             if( !userProfileDocument ) {
-                throw {
+                return resolve({
+                    status : httpStatusCode["bad_request"].status,
                     message : 
                     messageConstants.apiResponses.USER_PROFILE_NOT_FOUND
-                };
+                });
             }
 
             return resolve({
