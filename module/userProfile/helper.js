@@ -151,7 +151,7 @@ module.exports = class UserProfileHelper {
                 }
 
                 return resolve({
-                    message : messageConstants.apiResponses.USER_NOT_UPDATED
+                    message : message
                 })
             }
             catch (error) {
