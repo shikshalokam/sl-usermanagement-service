@@ -1,4 +1,6 @@
 const platformRolesHelper = require(ROOT_PATH + "/module/platformRoles/helper")
+let sunBirdService =
+    require(ROOT_PATH + "/generics/services/sunbird");
 
 module.exports = class platformUserRolesHelper {
 
@@ -183,6 +185,40 @@ module.exports = class platformUserRolesHelper {
             }
         })
 
+    }
+
+    
+    static create(request, token) {
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let response = await sunBirdService.createUser(request.body, request.userDetails.userToken);
+
+                if (response && response.responseCode == "OK") {
+
+                    let userObj = {
+                        createdBy: new Date,
+                        updatedBy: new Date,
+                        status: messageConstants.common.ACTIVE,
+                        userName: request.body.userName,
+                        userId: response.result.userId,
+                        isDeleted: false
+                    }
+
+                    delete request.body.userName;
+                    userObj["metaInformation"] = request.body;
+
+                    let db = await database.models.platformUserRolesExt.create(userObj);
+                    
+                    return resolve({ result: response.result, message: messageConstants.apiResponses.USER_CREATED });
+                } else {
+                    return resolve({ result: response });
+                }
+
+            } catch (error) {
+                return reject(error)
+            }
+        })
     }
 
 };

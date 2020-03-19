@@ -7,6 +7,7 @@ module.exports = {
     userId : String,
     username : String,
     status : String,
-    isDeleted: Boolean
+    isDeleted: Boolean,
+    metaInformation:Object
   }
 };

@@ -190,4 +190,31 @@ module.exports = class PlatformUserRoles extends Abstract {
     })
   }
 
+  /**
+  * @api {post} /user-management-service/api/v1/platformRoles/create add User
+  * @apiVersion 1.0.0
+  * @apiName create User Roles
+  * @apiGroup Platform User Role Extension
+  * @apiParam {reqeuestBody} consist of body of the request
+  * @apiSampleRequest /user-management-service/api/v1/platformRoles/create
+  * @apiUse successBody
+  * @apiUse errorBody
+  */
+ create(req) {
+  return new Promise(async (resolve, reject) => {
+
+    try {
+      let userCreate = await platformRolesHelper.create(req);
+      return resolve(userCreate);
+
+    } catch (error) {
+      return reject({
+        status: error.status || 500,
+        message: error.message || "Oops! something went wrong.",
+        errorObject: error
+      })
+    }
+  })
+}
+
 };

@@ -13,5 +13,6 @@ module.exports = {
   "USER_EXISTS" : "User is already present",
   "USER_UPDATED" : "User updated successfully",
   "USER_NOT_UPDATED" : "Could not update user",
-  "USER_EXTENSION_NOT_FOUND" : "User extension not found"
+  "USER_EXTENSION_NOT_FOUND" : "User extension not found",
+  "USER_CREATED":"User created successfully"
 };

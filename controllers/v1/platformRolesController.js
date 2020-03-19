@@ -52,9 +52,9 @@ module.exports = class PlatformRoles extends Abstract {
         let result = await platformRolesHelper.list({
           status: "active"
         }, {
-            code: 1,
-            title: 1
-          });
+          code: 1,
+          title: 1
+        });
 
         return resolve({
           message: "Platform roles fetched successfully.",
@@ -193,4 +193,7 @@ module.exports = class PlatformRoles extends Abstract {
     })
   }
 
+
+
+  
 };

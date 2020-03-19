@@ -10,5 +10,6 @@ module.exports = {
   "ACTIVE" : "active",
   "TRUE" : true,
   "FALSE" : false,
-  schema : {}
+  schema : {},
+  SUNBIRD_ORGANISATION_ID:"0125648465219829760"
 };

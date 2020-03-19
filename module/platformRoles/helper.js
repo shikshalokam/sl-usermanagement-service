@@ -1,3 +1,5 @@
+
+
 module.exports = class platformUserRolesHelper {
 
     static list(filterQueryObject, projectionQueryObject) {
@@ -100,19 +102,17 @@ module.exports = class platformUserRolesHelper {
                             userRole["_SYSTEM_ID"] = ""
                             userRole.status = (error && error.message) ? error.message : error
                         }
-
-
                         return userRole
                     })
                 )
-
                 return resolve(userRolesUploadedData);
-
             } catch (error) {
                 return reject(error)
             }
         })
 
     }
+
+    
 
 };
