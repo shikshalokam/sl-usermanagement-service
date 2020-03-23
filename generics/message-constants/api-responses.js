@@ -14,5 +14,7 @@ module.exports = {
   "USER_UPDATED" : "User updated successfully",
   "USER_NOT_UPDATED" : "Could not update user",
   "USER_EXTENSION_NOT_FOUND" : "User extension not found",
-  "USER_CREATED":"User created successfully"
+  "USER_CREATED":"User created successfully",
+  "USER_PROFILE_CREATED" : "User profile created successfully",
+  "USER_PROFILE_LIST_FETCHED" : "User profile list fetched successfully",
 };

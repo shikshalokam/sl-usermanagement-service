@@ -191,12 +191,12 @@ module.exports = class PlatformUserRoles extends Abstract {
   }
 
   /**
-  * @api {post} /user-management-service/api/v1/platformRoles/create add User
+  * @api {post} /user-management-service/api/v1/platformUserRoles/create add User
   * @apiVersion 1.0.0
   * @apiName create User Roles
   * @apiGroup Platform User Role Extension
   * @apiParam {reqeuestBody} consist of body of the request
-  * @apiSampleRequest /user-management-service/api/v1/platformRoles/create
+  * @apiSampleRequest /user-management-service/api/v1/platformUserRoles/create
   * @apiUse successBody
   * @apiUse errorBody
   */
@@ -204,7 +204,7 @@ module.exports = class PlatformUserRoles extends Abstract {
   return new Promise(async (resolve, reject) => {
 
     try {
-      let userCreate = await platformRolesHelper.create(req);
+      let userCreate = await platformUserRolesHelper.create(req);
       return resolve(userCreate);
 
     } catch (error) {

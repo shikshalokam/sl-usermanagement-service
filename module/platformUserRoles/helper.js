@@ -192,11 +192,13 @@ module.exports = class platformUserRolesHelper {
 
         return new Promise(async (resolve, reject) => {
             try {
+
                 let response = await sunBirdService.createUser(request.body, request.userDetails.userToken);
 
                 if (response && response.responseCode == "OK") {
 
                     let userObj = {
+                        channel: messageConstants.apiResponses.SUNBIRD_CHANNEL,
                         createdBy: new Date,
                         updatedBy: new Date,
                         status: messageConstants.common.ACTIVE,
