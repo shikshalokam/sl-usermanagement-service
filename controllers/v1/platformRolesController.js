@@ -26,12 +26,12 @@ module.exports = class PlatformRoles extends Abstract {
   }
 
   /**
-  * @api {get} /user-management-service/api/v1/platformRoles/list User Roles list
+  * @api {get} /user-management/api/v1/platformRoles/list User Roles list
   * @apiVersion 1.0.0
   * @apiName Platform User Roles list
   * @apiGroup Platform User Role Extension
   * @apiHeader {String} X-authenticated-user-token Authenticity token
-  * @apiSampleRequest /user-management-service/api/v1/platformRoles/list
+  * @apiSampleRequest /user-management/api/v1/platformRoles/list
   * @apiUse successBody
   * @apiUse errorBody
   * @apiParamExample {json} Response:
@@ -57,14 +57,14 @@ module.exports = class PlatformRoles extends Abstract {
         });
 
         return resolve({
-          message: "Platform roles fetched successfully.",
+          message: constants.apiResponses.PLATFORM_ROLES,
           result: result
         });
 
       } catch (error) {
 
         return reject({
-          status: error.status || 500,
+          status: error.status || httpStatusCode.internal_server_error.status,
           message: error.message || "Oops! something went wrong.",
           errorObject: error
         })
@@ -75,12 +75,12 @@ module.exports = class PlatformRoles extends Abstract {
   }
 
   /**
-  * @api {post} /user-management-service/api/v1/platformRoles/bulkCreate Bulk Create User Roles
+  * @api {post} /user-management/api/v1/platformRoles/bulkCreate Bulk Create User Roles
   * @apiVersion 1.0.0
   * @apiName Platform Bulk Create User Roles
   * @apiGroup Platform User Role Extension
   * @apiParam {File} platformRoles Mandatory platform roles file of type CSV.
-  * @apiSampleRequest /user-management-service/api/v1/platformRoles/bulkCreate
+  * @apiSampleRequest /user-management/api/v1/platformRoles/bulkCreate
   * @apiUse successBody
   * @apiUse errorBody
   */
@@ -123,7 +123,7 @@ module.exports = class PlatformRoles extends Abstract {
       } catch (error) {
 
         return reject({
-          status: error.status || 500,
+          status: error.status || httpStatusCode.internal_server_error.status,
           message: error.message || "Oops! something went wrong.",
           errorObject: error
         })
@@ -135,12 +135,12 @@ module.exports = class PlatformRoles extends Abstract {
   }
 
   /**
-  * @api {post} /user-management-service/api/v1/platformRoles/bulkUpdate Bulk Update User Roles
+  * @api {post} /user-management/api/v1/platformRoles/bulkUpdate Bulk Update User Roles
   * @apiVersion 1.0.0
   * @apiName Bulk Update User Roles
   * @apiGroup Platform User Role Extension
   * @apiParam {File} platformRoles Mandatory platform roles file of type CSV.
-  * @apiSampleRequest /user-management-service/api/v1/platformRoles/bulkUpdate
+  * @apiSampleRequest /user-management/api/v1/platformRoles/bulkUpdate
   * @apiUse successBody
   * @apiUse errorBody
   */
@@ -182,7 +182,7 @@ module.exports = class PlatformRoles extends Abstract {
       } catch (error) {
 
         return reject({
-          status: error.status || 500,
+          status: error.status || httpStatusCode.internal_server_error.status,
           message: error.message || "Oops! something went wrong.",
           errorObject: error
         })
