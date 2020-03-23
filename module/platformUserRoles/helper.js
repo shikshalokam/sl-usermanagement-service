@@ -195,6 +195,7 @@ module.exports = class platformUserRolesHelper {
 
                 let response = await sunBirdService.createUser(request.body, request.userDetails.userToken);
 
+                // messageConstants.apiResponses
                 if (response && response.responseCode == "OK") {
 
                     let userObj = {
