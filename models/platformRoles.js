@@ -6,6 +6,7 @@ module.exports = {
     createdBy : String,
     updatedBy : String,
     status : String,
-    isDeleted: Boolean
+    isDeleted: Boolean,
+    role:Object
   }
 };

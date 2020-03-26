@@ -17,4 +17,5 @@ module.exports = {
   "USER_CREATED":"User created successfully",
   "USER_PROFILE_CREATED" : "User profile created successfully",
   "USER_PROFILE_LIST_FETCHED" : "User profile list fetched successfully",
+  "FAILED_TO_CREATE_USER": "Failed to create User"
 };

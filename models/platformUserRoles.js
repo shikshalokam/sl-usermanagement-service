@@ -8,6 +8,8 @@ module.exports = {
     username : String,
     status : String,
     isDeleted: Boolean,
-    metaInformation:Object
+    metaInformation:Object,
+    organisations:Array,
+    organisationRoles:Array
   }
 };
