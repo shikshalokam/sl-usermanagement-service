@@ -199,6 +199,7 @@ module.exports = class platformUserRolesHelper {
 
                 if (response && response.responseCode == "OK") {
 
+                    
                     // let allPlatFormRoles = await database.models.platformRolesExt.find({},
                     //      {_id:1,role:1,code:1,title:1,});
 
@@ -207,6 +208,8 @@ module.exports = class platformUserRolesHelper {
                     let plaformRoles = [];
 
                     await Promise.all(request.body.roles.map(async function(roleInfo){
+
+                    
                         let rolesDocument = await database.models.platformRolesExt.findOne({ _id:roleInfo.value },
                             );
                             if(rolesDocument){
@@ -225,16 +228,17 @@ module.exports = class platformUserRolesHelper {
                             }
                     }));
                     
-                    await Promise.all(request.body.organisations.map(async function(organisation){
+                    // await Promise.all(request.body.organisations.map(async function(organisation){
                         let object ={
                             "userId": response.result.userId,
-                            "organisationId": organisation.value,
+                            "organisationId": request.body.organisations,
                             "roles": plaformRoles
                         }
+                    
 
-                        organisationsRoles.push({ organisationId:organisation.value,roles:rolesId });
+                        organisationsRoles.push({ organisationId:request.body.organisations,roles:rolesId });
                         let addUserToOrg = await sunBirdService.addUserToOrganisation(object,request.userDetails.userToken);
-                    }));
+                    // }));
 
                     let userObj = {
                         channel: messageConstants.apiResponses.SUNBIRD_CHANNEL,
@@ -260,7 +264,8 @@ module.exports = class platformUserRolesHelper {
 
                     return resolve({ result: response.result, message: messageConstants.apiResponses.USER_CREATED });
                 } else {
-                    return resolve({ result: response,message:messageConstants.apiResponses.FAILED_TO_CREATE_USER });
+
+                    return reject({ message:response });
                 }
 
             } catch (error) {
