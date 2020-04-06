@@ -228,17 +228,17 @@ module.exports = class platformUserRolesHelper {
                             }
                     }));
                     
-                    // await Promise.all(request.body.organisations.map(async function(organisation){
+                    await Promise.all(request.body.organisations.map(async function(organisation){
                         let object ={
                             "userId": response.result.userId,
-                            "organisationId": request.body.organisations,
+                            "organisationId": organisation.value,
                             "roles": plaformRoles
                         }
                     
 
-                        organisationsRoles.push({ organisationId:request.body.organisations,roles:rolesId });
+                        organisationsRoles.push({ organisationId:organisation.value,roles:rolesId });
                         let addUserToOrg = await sunBirdService.addUserToOrganisation(object,request.userDetails.userToken);
-                    // }));
+                    }));
 
                     let userObj = {
                         channel: messageConstants.apiResponses.SUNBIRD_CHANNEL,
