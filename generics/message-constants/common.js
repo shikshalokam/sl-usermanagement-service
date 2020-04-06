@@ -10,7 +10,5 @@ module.exports = {
   "ACTIVE" : "active",
   "TRUE" : true,
   "FALSE" : false,
-  schema : {},
-  SUNBIRD_ORGANISATION_ID:"0125648465219829760",
-  SUNBIRD_CHANNEL:"shikshalokamdev"
+  schema : {}
 };

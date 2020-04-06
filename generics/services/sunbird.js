@@ -42,7 +42,6 @@ var createUser = async function ( requestBody,token ) {
             "content-type": "application/json",
             "authorization" :  process.env.AUTHORIZATION,
             "x-authenticated-user-token" : token,
-            // "x-channel-id" : messageConstants.common.SUNBIRD_ORGANISATION_ID 
             },
             json : { request : jsonObject }
         };

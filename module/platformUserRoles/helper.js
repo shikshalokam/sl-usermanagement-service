@@ -241,7 +241,7 @@ module.exports = class platformUserRolesHelper {
                     }));
 
                     let userObj = {
-                        channel: messageConstants.apiResponses.SUNBIRD_CHANNEL,
+                        channel: process.env.SUNBIRD_CHANNEL,
                         status: messageConstants.common.ACTIVE,
                         username: request.body.userName,
                         userId: response.result.userId,
