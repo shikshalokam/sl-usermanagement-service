@@ -27,7 +27,7 @@ var createUser = async function ( requestBody,token ) {
         
         let jsonObject = {
             firstName:requestBody.firstName,
-            lastName:requestBody.lastname,
+            lastName:requestBody.lastName,
             phoneNumber:requestBody.phoneNumber,
             userName:requestBody.userName,
             password:requestBody.password,

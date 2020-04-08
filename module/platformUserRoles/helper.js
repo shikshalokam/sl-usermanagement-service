@@ -200,18 +200,16 @@ module.exports = class platformUserRolesHelper {
                 if (response && response.responseCode == "OK") {
 
                     
-                    // let allPlatFormRoles = await database.models.platformRolesExt.find({},
-                    //      {_id:1,role:1,code:1,title:1,});
-
                     let rolesId = [];
                     let organisationsRoles= [];
                     let plaformRoles = [];
+                    let allRoles =[];
 
                     await Promise.all(request.body.roles.map(async function(roleInfo){
 
-                    
                         let rolesDocument = await database.models.platformRolesExt.findOne({ _id:roleInfo.value },
-                            );
+                            ).lean();
+
                             if(rolesDocument){
 
                                 let roleObj = { 
@@ -220,32 +218,34 @@ module.exports = class platformUserRolesHelper {
                                     name:rolesDocument.title
                                 }
                                 rolesId.push(roleObj);
-                                if(rolesDocument.role && rolesDocument.role.platformRole &&
-                                     rolesDocument.role.platformRole==true ){
+
+                                allRoles.push({ roleId:rolesDocument._id ,code:rolesDocument.code });
+                                if(rolesDocument && rolesDocument.platformRole &&
+                                     rolesDocument.platformRole==true ){
+
+                                   
                                     plaformRoles.push(rolesDocument.code);
                                 }
 
                             }
                     }));
-                    
-                    // await Promise.all(request.body.organisations.map(async function(organisation){
-                        let object ={
+                  
+                    let object ={
                             "userId": response.result.userId,
                             "organisationId": request.body.organisations.value,
                             "roles": plaformRoles
                         }
-                    
-
+                      
                         organisationsRoles.push({ organisationId:request.body.organisations.value,roles:rolesId });
                         let addUserToOrg = await sunBirdService.addUserToOrganisation(object,request.userDetails.userToken);
-                    // }));
-
+                  
                     let userObj = {
                         channel: process.env.SUNBIRD_CHANNEL,
                         status: messageConstants.common.ACTIVE,
                         username: request.body.userName,
                         userId: response.result.userId,
                         isDeleted: false,
+                        roles:allRoles,
                         organisations:request.body.organisations,
                         organisationRoles:organisationsRoles,
                         createdAt: new Date,
