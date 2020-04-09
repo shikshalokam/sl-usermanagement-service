@@ -22,8 +22,8 @@ module.exports = class platformUserRolesHelper {
                     }
                 ).lean();
 
-                if(platformUserRolesDocument){
-                    platformUserRolesDocument.roles = platformUserRolesDocument.roles.map(role=> role.code)
+                if (platformUserRolesDocument) {
+                    platformUserRolesDocument.roles = platformUserRolesDocument.roles.map(role => role.code)
                 }
 
                 return resolve(platformUserRolesDocument);
@@ -187,71 +187,71 @@ module.exports = class platformUserRolesHelper {
 
     }
 
-    
+
     static create(request, token) {
 
         return new Promise(async (resolve, reject) => {
             try {
-                
+
                 let body = request.body;
 
                 let response = await sunBirdService.createUser(body, request.userDetails.userToken);
 
                 if (response && response.responseCode == "OK") {
 
-                    
+
                     let rolesId = [];
-                    let organisationsRoles= [];
+                    let organisationsRoles = [];
                     let plaformRoles = [];
-                    let allRoles =[];
+                    let allRoles = [];
 
-                    await Promise.all(request.body.roles.map(async function(roleInfo){
+                    await Promise.all(request.body.roles.map(async function (roleInfo) {
 
-                        let rolesDocument = await database.models.platformRolesExt.findOne({ _id:roleInfo.value },
-                            ).lean();
+                        let rolesDocument = await database.models.platformRolesExt.findOne({ _id: roleInfo.value },
+                        ).lean();
 
-                            if(rolesDocument){
+                        if (rolesDocument) {
 
-                                let roleObj = { 
-                                    roleId:rolesDocument._id,
-                                    code:rolesDocument.code,
-                                    name:rolesDocument.title
-                                }
-                                rolesId.push(roleObj);
-
-                                allRoles.push({ roleId:rolesDocument._id ,code:rolesDocument.code });
-                                if(rolesDocument && rolesDocument.platformRole &&
-                                     rolesDocument.platformRole==true ){
-
-                                   
-                                    plaformRoles.push(rolesDocument.code);
-                                }
-
+                            let roleObj = {
+                                roleId: rolesDocument._id,
+                                code: rolesDocument.code,
+                                name: rolesDocument.title
                             }
-                    }));
-                  
-                    let object ={
-                            "userId": response.result.userId,
-                            "organisationId": request.body.organisations.value,
-                            "roles": plaformRoles
+                            rolesId.push(roleObj);
+
+                            allRoles.push({ roleId: rolesDocument._id, code: rolesDocument.code });
+                            if (rolesDocument && rolesDocument.platformRole &&
+                                rolesDocument.platformRole == true) {
+
+
+                                plaformRoles.push(rolesDocument.code);
+                            }
+
                         }
-                      
-                        organisationsRoles.push({ organisationId:request.body.organisations.value,roles:rolesId });
-                        let addUserToOrg = await sunBirdService.addUserToOrganisation(object,request.userDetails.userToken);
-                  
+                    }));
+
+                    let object = {
+                        "userId": response.result.userId,
+                        "organisationId": request.body.organisation.value,
+                        "roles": plaformRoles
+                    }
+
+                    organisationsRoles.push({ organisationId: request.body.organisation.value, roles: rolesId });
+                    let addUserToOrg = await sunBirdService.addUserToOrganisation(object, request.userDetails.userToken);
+
                     let userObj = {
                         channel: process.env.SUNBIRD_CHANNEL,
                         status: messageConstants.common.ACTIVE,
                         username: request.body.userName,
                         userId: response.result.userId,
                         isDeleted: false,
-                        roles:allRoles,
-                        organisations:request.body.organisations,
-                        organisationRoles:organisationsRoles,
+                        roles: allRoles,
+                        organisations: request.body.organisations,
+                        organisationRoles: organisationsRoles,
                         createdAt: new Date,
                         updatedAt: new Date,
-                        createdBy:request.userDetails.userId,
-                        updatedBy:request.userDetails.userId
+                        createdBy: request.userDetails.userId,
+                        updatedBy: request.userDetails.userId
                     }
 
                     delete request.body.userName;
@@ -265,8 +265,33 @@ module.exports = class platformUserRolesHelper {
                     return resolve({ result: response.result, message: messageConstants.apiResponses.USER_CREATED });
                 } else {
 
-                    return reject({ message:response });
+                    return reject({ message: response });
                 }
+
+            } catch (error) {
+                return reject(error)
+            }
+        })
+    }
+
+
+    /**
+   * update.
+   * @method
+   * @name  update
+   * @param  {requestedData}  - requested body.
+   * @returns {json} Response consists of updated user details.
+   */
+    static update(requestedData, token) {
+
+        return new Promise(async (resolve, reject) => {
+
+            try {
+
+                let body = request.body;
+
+                let response = await sunBirdService.updateUser(body, token);        
+
 
             } catch (error) {
                 return reject(error)

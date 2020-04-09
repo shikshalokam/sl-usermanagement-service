@@ -105,7 +105,62 @@ var addUserToOrganisation = async function ( requestBody,token ) {
 
 
 
+/**
+  * update user
+  * @function
+  * @name updateUser
+  * @param requestBody - body data for update user.
+  * @param token - Logged in user token.
+  * @returns {Promise}
+*/
+
+var updateUser = async function ( requestBody,token ) {
+
+    const createUserUrl = 
+    process.env.sunbird_url+messageConstants.endpoints.SUNBIRD_CREATE_USER;
+
+    return new Promise(async (resolve,reject)=>{
+        
+        let jsonObject = {
+            firstName:requestBody.firstName,
+            lastName:requestBody.lastName,
+            phoneNumber:requestBody.phoneNumber,
+            userName:requestBody.userName,
+            password:requestBody.password,
+        }
+
+        if(requestBody.email){
+            jsonObject['email']=requestBody.email;
+        }
+
+        let options = {
+            "headers":{
+            "content-type": "application/json",
+            "authorization" :  process.env.AUTHORIZATION,
+            "x-authenticated-user-token" : token,
+            },
+            json : { request : jsonObject }
+        };
+        
+        request.post(createUserUrl,options,callback);
+        function callback(err,data){
+            if( err ) {
+                return reject({
+                    message : messageConstants.apiResponses.SUNBIRD_SERVICE_DOWN
+                });
+            } else {
+                let response = data.body;
+                return resolve(response);
+            }
+        }
+    })
+    
+}
+
+
+
 module.exports = {
     createUser : createUser,
-    addUserToOrganisation:addUserToOrganisation
+    addUserToOrganisation:addUserToOrganisation,
+    updateUser:updateUser
 };

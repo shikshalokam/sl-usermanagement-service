@@ -217,4 +217,32 @@ module.exports = class PlatformUserRoles extends Abstract {
   })
 }
 
+
+ /**
+  * @api {post} /user-management-service/api/v1/platformUserRoles/update
+  * @apiVersion 1.0.0
+  * @apiName update User details
+  * @apiGroup Platform User Role Extension
+  * @apiParam {reqeuestBody} consist of body of the request
+  * @apiSampleRequest /user-management-service/api/v1/platformUserRoles/update
+  * @apiUse successBody
+  * @apiUse errorBody
+  */
+ update(req) {
+  return new Promise(async (resolve, reject) => {
+
+    try {
+      let userUpdate = await platformUserRolesHelper.update(req);
+      return resolve(userUpdate);
+
+    } catch (error) {
+      return reject({
+        status: error.status || 500,
+        message: error.message || "Oops! something went wrong.",
+        errorObject: error
+      })
+    }
+  })
+}
+
 };
