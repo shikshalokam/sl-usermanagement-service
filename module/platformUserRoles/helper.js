@@ -249,7 +249,7 @@ module.exports = class platformUserRolesHelper {
                     }
                     
                     organisationsRoles.push({ organisationId: request.body.organisation.value, roles: rolesId });
-                    let addUserToOrg = await sunBirdService.addUserToOrganisation(object, token);
+                    let addUserToOrg = await sunBirdService.addUserToOrganisation(orgRequest, token);
 
                     let userObj = {
                         channel: process.env.SUNBIRD_CHANNEL,
@@ -266,6 +266,10 @@ module.exports = class platformUserRolesHelper {
                         updatedBy: request.userDetails.userId
                     }
 
+
+                    if(request.body.confirmPassword){
+                        delete request.body.confirmPassword;
+                    }
                     delete request.body.userName;
                     delete request.body.organisations;
                     delete request.body.roles;
