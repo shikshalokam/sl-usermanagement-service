@@ -1,15 +1,27 @@
 module.exports = {
   name: "platformUserRolesExt",
-  schema: {
-    roles: Array,
+  schema : {
+    roles : Array,
     createdBy : String,
     updatedBy : String,
-    userId : String,
-    username : String,
-    status : String,
-    isDeleted: Boolean,
-    metaInformation:Object,
-    organisations:Array,
-    organisationRoles:Array
+    userId : {
+      type : String,
+      required : true
+    },
+    username : {
+      type : String,
+      required : true
+    },
+    status : {
+      type : String,
+      default : "active"
+    },
+    isDeleted : {
+      type : Boolean,
+      default : false
+    },
+    metaInformation : Object,
+    organisations : Array,
+    organisationRoles : Array
   }
 };

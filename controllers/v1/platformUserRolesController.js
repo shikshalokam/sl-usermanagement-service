@@ -48,7 +48,7 @@ module.exports = class PlatformUserRoles extends Abstract {
         let queryObject = {
           userId: (req.params._id && req.params._id != "") ? req.params._id : req.userDetails.userId,
           status: "active"
-      }
+        }
 
         let platformUserRolesDocument = await platformUserRolesHelper.getProfile(queryObject);
 
@@ -193,56 +193,69 @@ module.exports = class PlatformUserRoles extends Abstract {
   /**
   * @api {post} /user-management-service/api/v1/platformUserRoles/create add User
   * @apiVersion 1.0.0
-  * @apiName create User Roles
+  * @apiName Create User 
   * @apiGroup Platform User Role Extension
   * @apiParam {reqeuestBody} consist of body of the request
-  * @apiSampleRequest /user-management-service/api/v1/platformUserRoles/create
+  * @apiSampleRequest /user-management-service/api/v1/platformUserRoles/Create
   * @apiUse successBody
   * @apiUse errorBody
+  * @apiParamExample {json} Response:
+  * 
+  * {
+  *   "message": "User created successfully",
+  *   "status": 200,
+  *    "result": [ 
+  *     {  
+  *         "response": "SUCCESS",
+  *         "userId": ""
+  *     }
+  *  ]
+  * }
   */
- create(req) {
-  return new Promise(async (resolve, reject) => {
 
-    try {
-      let userCreate = await platformUserRolesHelper.create(req);
-      return resolve(userCreate);
+  Create(req) {
+    return new Promise(async (resolve, reject) => {
 
-    } catch (error) {
-      return reject({
-        status: error.status || 500,
-        message: error.message || "Oops! something went wrong.",
-        errorObject: error
-      })
-    }
-  })
-}
+      try {
+        let userCreate = await platformUserRolesHelper.create(req);
+        return resolve(userCreate);
+
+      } catch (error) {
+        return reject({
+          status: error.status || 500,
+          message: error.message || "Oops! something went wrong.",
+          errorObject: error
+        })
+      }
+    })
+  }
 
 
- /**
-  * @api {post} /user-management-service/api/v1/platformUserRoles/update
-  * @apiVersion 1.0.0
-  * @apiName update User details
-  * @apiGroup Platform User Role Extension
-  * @apiParam {reqeuestBody} consist of body of the request
-  * @apiSampleRequest /user-management-service/api/v1/platformUserRoles/update
-  * @apiUse successBody
-  * @apiUse errorBody
-  */
- update(req) {
-  return new Promise(async (resolve, reject) => {
+  /**
+   * @api {post} /user-management-service/api/v1/platformUserRoles/update
+   * @apiVersion 1.0.0
+   * @apiName update User details
+   * @apiGroup Platform User Role Extension
+   * @apiParam {reqeuestBody} consist of body of the request
+   * @apiSampleRequest /user-management-service/api/v1/platformUserRoles/update
+   * @apiUse successBody
+   * @apiUse errorBody
+   */
+  update(req) {
+    return new Promise(async (resolve, reject) => {
 
-    try {
-      let userUpdate = await platformUserRolesHelper.update(req);
-      return resolve(userUpdate);
+      try {
+        let userUpdate = await platformUserRolesHelper.update(req);
+        return resolve(userUpdate);
 
-    } catch (error) {
-      return reject({
-        status: error.status || 500,
-        message: error.message || "Oops! something went wrong.",
-        errorObject: error
-      })
-    }
-  })
-}
+      } catch (error) {
+        return reject({
+          status: error.status || 500,
+          message: error.message || "Oops! something went wrong.",
+          errorObject: error
+        })
+      }
+    })
+  }
 
 };

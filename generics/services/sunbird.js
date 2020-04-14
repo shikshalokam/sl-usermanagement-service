@@ -18,47 +18,35 @@ const request = require('request');
   * @returns {Promise}
 */
 
-var createUser = async function ( requestBody,token ) {
+var createUser = async function (requestBody, token) {
 
-    const createUserUrl = 
-    process.env.sunbird_url+messageConstants.endpoints.SUNBIRD_CREATE_USER;
+    const createUserUrl =
+        process.env.SUNBIRD_URL + messageConstants.endpoints.SUNBIRD_CREATE_USER;
 
-    return new Promise(async (resolve,reject)=>{
-        
+    return new Promise(async (resolve, reject) => {
+
         let jsonObject = {
-            firstName:requestBody.firstName,
-            lastName:requestBody.lastName,
-            phoneNumber:requestBody.phoneNumber,
-            userName:requestBody.userName,
-            password:requestBody.password,
+            firstName: requestBody.firstName,
+            lastName: requestBody.lastName,
+            phoneNumber: requestBody.phoneNumber,
+            userName: requestBody.userName,
+            password: requestBody.password,
+            gender: requestBody.gender
         }
 
-        if(requestBody.email){
-            jsonObject['email']=requestBody.email;
+        if (requestBody.email) {
+            jsonObject['email'] = requestBody.email;
+            jsonObject['emailVerified'] = true;
+        }
+        if (requestBody.phoneNumber) {
+            jsonObject['phone'] = requestBody.phoneNumber;
+            jsonObject['phoneVerified'] = true;
         }
 
-        let options = {
-            "headers":{
-            "content-type": "application/json",
-            "authorization" :  process.env.AUTHORIZATION,
-            "x-authenticated-user-token" : token,
-            },
-            json : { request : jsonObject }
-        };
-        
-        request.post(createUserUrl,options,callback);
-        function callback(err,data){
-            if( err ) {
-                return reject({
-                    message : messageConstants.apiResponses.SUNBIRD_SERVICE_DOWN
-                });
-            } else {
-                let response = data.body;
-                return resolve(response);
-            }
-        }
+        let response = await callToSunbird(token,jsonObject,createUserUrl);
+        return resolve(response);
     })
-    
+
 }
 
 
@@ -71,36 +59,17 @@ var createUser = async function ( requestBody,token ) {
   * @returns {Promise}
 */
 
-var addUserToOrganisation = async function ( requestBody,token ) {
+var addUserToOrganisation = async function (requestBody, token) {
 
-    const adduserToOrgUrl = 
-    process.env.sunbird_url+messageConstants.endpoints.SUNBIRD_ADD_USER_TO_ORG;
+    const adduserToOrgUrl =
+        process.env.SUNBIRD_URL + messageConstants.endpoints.SUNBIRD_ADD_USER_TO_ORG;
 
-    return new Promise(async (resolve,reject)=>{
-        
-        let options = {
-            "headers":{
-            "content-type": "application/json",
-            "authorization" :  process.env.AUTHORIZATION,
-            "x-authenticated-user-token" : token,
-            },
-            json : { request : requestBody }
-        };
-        
-        request.post(adduserToOrgUrl,options,callback);
-        
-        function callback(err,data){
-            if( err ) {
-                return reject({
-                    message : messageConstants.apiResponses.SUNBIRD_SERVICE_DOWN
-                });
-            } else {
-                let response = data.body;
-                return resolve(response);
-            }
-        }
+    return new Promise(async (resolve, reject) => {
+
+        let response = await callToSunbird(token,requestBody,adduserToOrgUrl);
+        return resolve(response);
     })
-    
+
 }
 
 
@@ -114,53 +83,49 @@ var addUserToOrganisation = async function ( requestBody,token ) {
   * @returns {Promise}
 */
 
-var updateUser = async function ( requestBody,token ) {
+var updateUser = async function (requestBody, token) {
 
-    const createUserUrl = 
-    process.env.sunbird_url+messageConstants.endpoints.SUNBIRD_CREATE_USER;
 
-    return new Promise(async (resolve,reject)=>{
-        
-        let jsonObject = {
-            firstName:requestBody.firstName,
-            lastName:requestBody.lastName,
-            phoneNumber:requestBody.phoneNumber,
-            userName:requestBody.userName,
-            password:requestBody.password,
-        }
+    return new Promise(async (resolve, reject) => {
 
-        if(requestBody.email){
-            jsonObject['email']=requestBody.email;
-        }
 
+    })
+
+}
+
+
+function callToSunbird(token,requestBody,url) {
+
+    return new Promise(async (resolve, reject) => {
         let options = {
-            "headers":{
-            "content-type": "application/json",
-            "authorization" :  process.env.AUTHORIZATION,
-            "x-authenticated-user-token" : token,
+            "headers": {
+                "content-type": "application/json",
+                "authorization": process.env.AUTHORIZATION,
+                "x-authenticated-user-token": token,
             },
-            json : { request : jsonObject }
+            json: { request: requestBody }
         };
-        
-        request.post(createUserUrl,options,callback);
-        function callback(err,data){
-            if( err ) {
+
+        request.post(url, options, callback);
+
+        function callback(err, data) {
+            if (err) {
                 return reject({
-                    message : messageConstants.apiResponses.SUNBIRD_SERVICE_DOWN
+                    message: messageConstants.apiResponses.SUNBIRD_SERVICE_DOWN
                 });
             } else {
                 let response = data.body;
                 return resolve(response);
             }
         }
-    })
-    
+
+    });
 }
 
 
 
 module.exports = {
-    createUser : createUser,
-    addUserToOrganisation:addUserToOrganisation,
-    updateUser:updateUser
+    createUser: createUser,
+    addUserToOrganisation: addUserToOrganisation,
+    updateUser: updateUser
 };
