@@ -4,9 +4,20 @@ let sunBirdService =
 
 module.exports = class platformUserRolesHelper {
 
-    static getProfile(queryObject) {
+    static getProfile(queryObject, token) {
         return new Promise(async (resolve, reject) => {
             try {
+
+                let profileData = await sunBirdService.getUserProfileInfo(token, queryObject.userId);
+                let roles;
+                profileData = JSON.parse(profileData);
+                if (profileData.responseCode == "OK") {
+                    if (profileData.result &&
+                        profileData.result.response &&
+                        profileData.result.response.roles) {
+                        roles = profileData.result.response.roles
+                    }
+                }
 
                 let platformUserRolesDocument = await database.models.platformUserRolesExt.findOne(
                     queryObject,
@@ -24,6 +35,9 @@ module.exports = class platformUserRolesHelper {
 
                 if (platformUserRolesDocument) {
                     platformUserRolesDocument.roles = platformUserRolesDocument.roles.map(role => role.code)
+                    if(roles){
+                        platformUserRolesDocument.roles.push(...roles);
+                    }
                 }
 
                 return resolve(platformUserRolesDocument);
@@ -200,7 +214,7 @@ module.exports = class platformUserRolesHelper {
             try {
 
                 let body = request.body;
-                let token =request.userDetails.userToken;
+                let token = request.userDetails.userToken;
 
                 let response = await sunBirdService.createUser(body, token);
 
@@ -213,30 +227,30 @@ module.exports = class platformUserRolesHelper {
                     let allRoles = [];
 
 
-                    let rolesDocuments = await database.models.platformRolesExt.find({},{
-                        _id:1,code:1,title:1
+                    let rolesDocuments = await database.models.platformRolesExt.find({}, {
+                        _id: 1, code: 1, title: 1
                     }).lean();
-                    
+
 
                     await Promise.all(request.body.roles.map(async function (roleInfo) {
 
-                       let found =false;
-                        await Promise.all(rolesDocuments.map(roleDoc=>{
-                                if(roleDoc.code === roleInfo.value){
-                                    found =true;
-                                    let roleObj = {
-                                        roleId: roleDoc._id,
-                                        code: roleDoc.code,
-                                        name: roleDoc.title
-                                    }
-                                    rolesId.push(roleObj);
-
-                                    allRoles.push({ roleId: roleDoc._id, code: roleDoc.code });
+                        let found = false;
+                        await Promise.all(rolesDocuments.map(roleDoc => {
+                            if (roleDoc.code === roleInfo.value) {
+                                found = true;
+                                let roleObj = {
+                                    roleId: roleDoc._id,
+                                    code: roleDoc.code,
+                                    name: roleDoc.title
                                 }
+                                rolesId.push(roleObj);
+
+                                allRoles.push({ roleId: roleDoc._id, code: roleDoc.code });
+                            }
                         }));
 
-                        if(!found){
-                            if(roleInfo.value){
+                        if (!found) {
+                            if (roleInfo.value) {
                                 plaformRoles.push(roleInfo.value);
                             }
                         }
@@ -247,7 +261,7 @@ module.exports = class platformUserRolesHelper {
                         "organisationId": request.body.organisation.value,
                         "roles": plaformRoles
                     }
-                    
+
                     organisationsRoles.push({ organisationId: request.body.organisation.value, roles: rolesId });
                     let addUserToOrg = await sunBirdService.addUserToOrganisation(orgRequest, token);
 
@@ -267,13 +281,13 @@ module.exports = class platformUserRolesHelper {
                     }
 
 
-                    if(request.body.confirmPassword){
+                    if (request.body.confirmPassword) {
                         delete request.body.confirmPassword;
                     }
                     delete request.body.userName;
                     delete request.body.organisations;
                     delete request.body.roles;
-                   
+
                     delete request.body.password;
                     userObj["metaInformation"] = request.body;
                     let db = await database.models.platformUserRolesExt.create(userObj);
@@ -306,7 +320,7 @@ module.exports = class platformUserRolesHelper {
 
                 let body = request.body;
 
-                let response = await sunBirdService.updateUser(body, token);        
+                let response = await sunBirdService.updateUser(body, token);
 
 
             } catch (error) {

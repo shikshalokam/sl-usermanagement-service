@@ -50,7 +50,8 @@ module.exports = class PlatformUserRoles extends Abstract {
           status: "active"
         }
 
-        let platformUserRolesDocument = await platformUserRolesHelper.getProfile(queryObject);
+        
+        let platformUserRolesDocument = await platformUserRolesHelper.getProfile(queryObject,req.userDetails.userToken);
 
         return resolve({
           message: "Platform user profile fetched successfully.",

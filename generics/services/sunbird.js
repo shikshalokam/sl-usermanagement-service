@@ -94,6 +94,16 @@ var updateUser = async function (requestBody, token) {
 }
 
 
+/**
+  * call To Sunbird Apis. 
+  * @function
+  * @name getUserProfileInfo
+  * @param requestBody - Logged in user Id.
+  * @param token - Logged in user token.
+  * @param url - url of the api call.
+  * @returns {JSON} - user profile information.
+*/
+
 function callToSunbird(token,requestBody,url) {
 
     return new Promise(async (resolve, reject) => {
@@ -123,9 +133,51 @@ function callToSunbird(token,requestBody,url) {
 }
 
 
+/**
+  * Get the user profile information.
+  * @function
+  * @name getUserProfileInfo
+  * @param userId -  user Id of the user.
+  * @param token - Logged in user token.
+  * @returns {JSON} - user profile information.
+*/
+
+var getUserProfileInfo = function ( token,userId ) {
+   
+    const createUserUrl = 
+    process.env.SUNBIRD_URL + messageConstants.endpoints.SUNBIRD_USER_READ+"/"+userId;
+
+
+    return new Promise(async (resolve,reject)=>{
+        
+        let options = {
+            "headers":{
+            "content-type": "application/json",
+            "authorization" :  process.env.AUTHORIZATION,
+            "x-authenticated-user-token" : token
+            }
+
+        };
+        
+        request.get(createUserUrl,options,callback);
+        
+        function callback(err,data){
+            if( err ) {
+                return reject({
+                    message : constants.apiResponses.SUNBIRD_SERVICE_DOWN
+                });
+            } else {
+                return resolve(data.body);
+            }
+        }
+    })
+}
+
+
 
 module.exports = {
     createUser: createUser,
     addUserToOrganisation: addUserToOrganisation,
-    updateUser: updateUser
+    updateUser: updateUser,
+    getUserProfileInfo:getUserProfileInfo
 };
