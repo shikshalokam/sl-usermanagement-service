@@ -31,7 +31,7 @@ var createUser = async function (requestBody, token) {
             phoneNumber: requestBody.phoneNumber,
             userName: requestBody.userName,
             password: requestBody.password,
-            gender: requestBody.gender
+            gender: requestBody.gender ? requestBody.gender.value:""
         }
 
         if (requestBody.email) {

@@ -15,6 +15,7 @@ module.exports = class platformUserRolesHelper {
                     if (profileData.result &&
                         profileData.result.response &&
                         profileData.result.response.roles) {
+
                         roles = profileData.result.response.roles
                     }
                 }
@@ -265,6 +266,7 @@ module.exports = class platformUserRolesHelper {
                     organisationsRoles.push({ organisationId: request.body.organisation.value, roles: rolesId });
                     let addUserToOrg = await sunBirdService.addUserToOrganisation(orgRequest, token);
 
+                    console.log("addUserToOrg",addUserToOrg);
                     let userObj = {
                         channel: process.env.SUNBIRD_CHANNEL,
                         status: messageConstants.common.ACTIVE,
