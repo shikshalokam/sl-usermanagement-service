@@ -13,13 +13,27 @@ module.exports = class platformUserRolesHelper {
                 profileData = JSON.parse(profileData);
                 if (profileData.responseCode == "OK") {
                     if (profileData.result &&
-                        profileData.result.response &&
-                        profileData.result.response.roles) {
+                        profileData.result.response
+                        ) {
 
-                        roles = profileData.result.response.roles
+                            if(profileData.result.response.roles){
+                                roles = profileData.result.response.roles;
+                            }
+
+                            await Promise.all(profileData.result.response.organisations.map(orgInfo=>{
+                                if(orgInfo.roles){
+                                    roles.push(...orgInfo.roles);
+                                }
+                            }))
+                            
+                        
                     }
                 }
-
+             
+                if(roles){
+                    roles =Array.from(new Set(roles));
+                }
+             
                 let platformUserRolesDocument = await database.models.platformUserRolesExt.findOne(
                     queryObject,
                     {
@@ -266,7 +280,7 @@ module.exports = class platformUserRolesHelper {
                     organisationsRoles.push({ organisationId: request.body.organisation.value, roles: rolesId });
                     let addUserToOrg = await sunBirdService.addUserToOrganisation(orgRequest, token);
 
-                    console.log("addUserToOrg",addUserToOrg);
+                    console.log(plaformRoles,"addUserToOrg",addUserToOrg);
                     let userObj = {
                         channel: process.env.SUNBIRD_CHANNEL,
                         status: messageConstants.common.ACTIVE,
