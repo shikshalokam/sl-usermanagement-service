@@ -223,16 +223,17 @@ module.exports = class platformUserRolesHelper {
    * @param  {request, token}  - requested body and token.
    * @returns {json} Response consists of created user details.
    */
-    static create(request, token) {
+    static create(request, token,userId) {
 
         return new Promise(async (resolve, reject) => {
             try {
 
-                let body = request.body;
-                let token = request.userDetails.userToken;
-
+                let body = request;
+           
+                let adminToken =token;
                 let response = await sunBirdService.createUser(body, token);
 
+                
                 if (response && response.responseCode == "OK") {
 
 
@@ -247,7 +248,7 @@ module.exports = class platformUserRolesHelper {
                     }).lean();
 
 
-                    await Promise.all(request.body.roles.map(async function (roleInfo) {
+                    await Promise.all(request.roles.map(async function (roleInfo) {
 
                         let found = false;
                         await Promise.all(rolesDocuments.map(roleDoc => {
@@ -273,39 +274,39 @@ module.exports = class platformUserRolesHelper {
 
                     let orgRequest = {
                         "userId": response.result.userId,
-                        "organisationId": request.body.organisation.value,
+                        "organisationId": request.organisation.value,
                         "roles": plaformRoles
                     }
+                 
+                    organisationsRoles.push({ organisationId: request.organisation.value, roles: rolesId });
+                    let addUserToOrg = await sunBirdService.addUserToOrganisation(orgRequest, adminToken);
 
-                    organisationsRoles.push({ organisationId: request.body.organisation.value, roles: rolesId });
-                    let addUserToOrg = await sunBirdService.addUserToOrganisation(orgRequest, token);
-
-                    console.log(plaformRoles,"addUserToOrg",addUserToOrg);
+                    console.log(orgRequest,"addUserToOrg",addUserToOrg);
                     let userObj = {
                         channel: process.env.SUNBIRD_CHANNEL,
                         status: messageConstants.common.ACTIVE,
-                        username: request.body.userName,
+                        username: request.userName,
                         userId: response.result.userId,
                         isDeleted: false,
                         roles: allRoles,
-                        organisations: request.body.organisation,
+                        organisations: request.organisation,
                         organisationRoles: organisationsRoles,
                         createdAt: new Date,
                         updatedAt: new Date,
-                        createdBy: request.userDetails.userId,
-                        updatedBy: request.userDetails.userId
+                        createdBy:userId,
+                        updatedBy: userId
                     }
 
 
-                    if (request.body.confirmPassword) {
-                        delete request.body.confirmPassword;
+                    if (request.confirmPassword) {
+                        delete request.confirmPassword;
                     }
-                    delete request.body.userName;
-                    delete request.body.organisations;
-                    delete request.body.roles;
+                    delete request.userName;
+                    delete request.organisations;
+                    delete request.roles;
 
-                    delete request.body.password;
-                    userObj["metaInformation"] = request.body;
+                    delete request.password;
+                    userObj["metaInformation"] = request;
                     let db = await database.models.platformUserRolesExt.create(userObj);
 
                     return resolve({ result: response.result, message: messageConstants.apiResponses.USER_CREATED });
@@ -334,9 +335,10 @@ module.exports = class platformUserRolesHelper {
 
             try {
 
-                let body = request.body;
+                let response = await sunBirdService.updateUser(requestedData, token);
 
-                let response = await sunBirdService.updateUser(body, token);
+                console.log("response",response);
+                resolve({ result: response });
 
 
             } catch (error) {

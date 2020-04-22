@@ -88,6 +88,13 @@ var updateUser = async function (requestBody, token) {
 
     return new Promise(async (resolve, reject) => {
 
+        const updateUserApiUrl =
+        process.env.SUNBIRD_URL + messageConstants.endpoints.SUNBIRD_UPDATE_USER;
+
+        console.log("requestBody",requestBody);
+
+        let response = await callToSunbird(token,requestBody,updateUserApiUrl,"PATCH");
+        return resolve(response);
 
     })
 
@@ -104,19 +111,26 @@ var updateUser = async function (requestBody, token) {
   * @returns {JSON} - user profile information.
 */
 
-function callToSunbird(token,requestBody,url) {
+function callToSunbird(token,requestBody,url,requestType="") {
 
     return new Promise(async (resolve, reject) => {
         let options = {
             "headers": {
                 "content-type": "application/json",
                 "authorization": process.env.AUTHORIZATION,
-                "x-authenticated-user-token": token,
+                "x-authenticated-user-token": token
             },
             json: { request: requestBody }
+
+
         };
 
-        request.post(url, options, callback);
+        if(requestType=="PATCH"){
+            request.patch(url, options, callback);
+        }else{
+            request.post(url, options, callback);
+        }
+        
 
         function callback(err, data) {
             if (err) {
@@ -174,10 +188,41 @@ var getUserProfileInfo = function ( token,userId ) {
 }
 
 
+/**
+  * To block the user
+  * @function
+  * @name blockUser
+  * @param userId -  user Id of the user.
+  * @param token - Logged in user token.
+  * @returns {JSON} - api response.
+*/
+
+var blockUser = function ( userId, token ) {
+   
+    const blockUserAPI = 
+    process.env.SUNBIRD_URL + messageConstants.endpoints.SUNBIRD_BLOCK_USER;
+
+
+    return new Promise(async (resolve,reject)=>{
+
+        let requestBody = {
+            userId:userId
+        }
+        
+        let response = await callToSunbird(token,requestBody,blockUserAPI);
+        return resolve(response);
+
+    })
+}
+
+
+
+
 
 module.exports = {
     createUser: createUser,
     addUserToOrganisation: addUserToOrganisation,
     updateUser: updateUser,
-    getUserProfileInfo:getUserProfileInfo
+    getUserProfileInfo:getUserProfileInfo,
+    blockUser:blockUser
 };

@@ -218,7 +218,9 @@ module.exports = class PlatformUserRoles extends Abstract {
     return new Promise(async (resolve, reject) => {
 
       try {
-        let userCreate = await platformUserRolesHelper.create(req);
+
+        
+        let userCreate = await platformUserRolesHelper.create(req.body,req.userDetails.userToken,req.userDetails.userId);
         return resolve(userCreate);
 
       } catch (error) {
@@ -245,8 +247,9 @@ module.exports = class PlatformUserRoles extends Abstract {
   update(req) {
     return new Promise(async (resolve, reject) => {
 
+      // console.log("req.body",req.body);
       try {
-        let userUpdate = await platformUserRolesHelper.update(req);
+        let userUpdate = await platformUserRolesHelper.update(req.body,req.userDetails.userToken);
         return resolve(userUpdate);
 
       } catch (error) {
@@ -258,5 +261,7 @@ module.exports = class PlatformUserRoles extends Abstract {
       }
     })
   }
+
+
 
 };
