@@ -73,7 +73,7 @@ module.exports = class UserExtension extends Abstract {
     return new Promise(async (resolve, reject) => {
 
       try {
-        let userCreate = await userExtensionHelper.create(req.body,req.userDetails.userToken);
+        let userCreate = await userExtensionHelper.create(req.body,req.userDetails.userToken,req.userDetails.userId);
         return resolve(userCreate);
 
       } catch (error) {
@@ -102,8 +102,8 @@ module.exports = class UserExtension extends Abstract {
 
       try {
 
-        let userUpdate = await userExtensionHelper.block(req.body.userId, req.userDetails.userToken);
-        return resolve(userUpdate);
+        let userBlockInfo = await userExtensionHelper.block(req.body.userId, req.userDetails.userToken);
+        return resolve(userBlockInfo);
 
       } catch (error) {
         return reject({
@@ -114,7 +114,5 @@ module.exports = class UserExtension extends Abstract {
       }
     })
   }
-
-   
 
 }

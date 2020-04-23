@@ -12,10 +12,6 @@ module.exports = {
         type: String,
         required: true
       },
-      username:{
-        type: String,
-        required: true 
-      },
       userId: {
         type: String,
         required: true
@@ -38,9 +34,9 @@ module.exports = {
         default: false
       },
       devices : Array,
-      userProfileScreenVisitedTrack:{
-        type:Object,
-        default:null
-      }
+      metaInformation : Object,
+      organisations : Array,
+      organisationRoles : Array
+     
     }
   }
