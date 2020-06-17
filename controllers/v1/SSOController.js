@@ -86,7 +86,7 @@ module.exports = class SSO {
 
 
                 return resolve({
-                    message: "Login credentials verified successfully",
+                    message: constants.apiResponses.LOGIN_VERIFED,
                     result: ssoLoginResponse
                 });
 

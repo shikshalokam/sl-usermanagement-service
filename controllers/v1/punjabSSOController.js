@@ -62,7 +62,7 @@ module.exports = class PunjabSSO {
         loginResponse["tokenDetails"] = await punjabSSOHelper.getKeyCloakAuthToken(loginResponse.staffID,loginResponse);
         
         return resolve({
-          message: "Login credentials verified successfully.",
+          message:  constants.apiResponses.LOGIN_VERIFED,
           result: loginResponse
         });
 
@@ -119,7 +119,7 @@ module.exports = class PunjabSSO {
         let forgotPasswordResponse = await punjabSSOHelper.resendUserCredentials(encryptedStaffID, encryptedMobileNo);
 
         return resolve({
-          message: "Password has been sent on your registered mobile number."
+          message: constants.apiResponses.PASSWORD_SENT,
         });
 
       } catch (error) {
@@ -182,7 +182,7 @@ module.exports = class PunjabSSO {
           let resetPasswordResponse = await punjabSSOHelper.resetUserCredentials(encryptedFacultyCode, encryptedOldPassword, encryptedNewPassword, encryptedConfirmPassword);
 
           return resolve({
-            message: "Password reset successful."
+            message: constants.apiResponses.PASSWORD_RESET,
           });
 
         } catch (error) {
@@ -231,7 +231,7 @@ module.exports = class PunjabSSO {
           let result = await punjabSSOHelper.encrypt(req.body.string);
 
           return resolve({
-            message: "String encryption completed successfully.",
+            message: constants.apiResponses.ENCRYPTED,
             result: {string:result}
           });
 
