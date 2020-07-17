@@ -106,29 +106,22 @@ module.exports = class UserExtensionHelper {
                         let rolesId = [];
                         let organisationsRoles = [];
                         let plaformRoles = [];
-                        // let allRoles = [];
-
                         let rolesDocuments = await platformRolesHelper.list({ }, {
-                            _id: 1, code: 1, title: 1
+                            code: 1
                         });
-                       
                         plaformRoles.push(constants.common.PUBLIC_ROLE);
                         await Promise.all(request.roles.map(async function (roleInfo) {
 
-                            let found = false;
-                            await Promise.all(rolesDocuments.map(roleDoc => {
-                                if (roleDoc.code === roleInfo.value) {
-                                    found = true;
-                                    let roleObj = {
-                                        roleId: roleDoc._id,
-                                        code: roleDoc.code,
-                                        name: roleDoc.title
-                                    }
-                                    rolesId.push(roleObj);
-                                    // allRoles.push({ roleId: roleDoc._id, code: roleDoc.code });
-                                }
-                            }));
-                            if (!found) {
+                            let roleObj = {
+                                code: roleInfo.value,
+                                name: roleInfo.label
+                            }
+                            rolesId.push(roleObj);
+                            let found = rolesDocuments.filter(customRoles=>{
+                                return customRoles.code==roleInfo.value;
+                            });
+                           
+                            if (found && found.length == 0) {
                                 if (roleInfo.value) {
                                     plaformRoles.push(roleInfo.value);
                                 }
