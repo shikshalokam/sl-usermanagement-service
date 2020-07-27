@@ -3,6 +3,7 @@ const keycloakAuthServerUrl = (process.env.sunbird_keycloak_auth_server_url && p
 const realm = (process.env.sunbird_keycloak_realm && process.env.sunbird_keycloak_realm != "") ? process.env.sunbird_keycloak_realm : "sunbird"
 const clientId = (process.env.sunbird_keycloak_client_id && process.env.sunbird_keycloak_client_id != "") ? process.env.sunbird_keycloak_client_id : "admin-cli"
 const grantType = (process.env.sunbird_keycloak_grant_type && process.env.sunbird_keycloak_grant_type != "") ? process.env.sunbird_keycloak_grant_type : "password"
+const keycloakSessionScope = (process.env.sunbird_keycloak_session_scope && process.env.sunbird_keycloak_session_scope != "") ? process.env.sunbird_keycloak_session_scope : "offline_access"
 const userCreationChannel = (process.env.sunbird_keycloak_default_user_creation_channel && process.env.sunbird_keycloak_default_user_creation_channel != "") ? process.env.sunbird_keycloak_default_user_creation_channel : "SHIKSHALOKAM"
 const userCreationEndpoint = "/api/user/v1/create"
 // let adminAuthToken = ""
@@ -24,7 +25,8 @@ module.exports = class shikshalokamHelper {
                     "client_id": clientId,
                     "username": username, // "a1@shikshalokamdev"
                     "password": password,
-                    "grant_type": grantType
+                    "grant_type": grantType,
+                    "scope" : keycloakSessionScope
                 })
 
                 if (keyCloakLoginResponse.status == 200 && keyCloakLoginResponse.data && keyCloakLoginResponse.data.access_token && keyCloakLoginResponse.data.access_token != "") {
