@@ -74,7 +74,7 @@ const addUserToOrganisation = async function (requestBody, token) {
         const adduserToOrgUrl =
         process.env.SUNBIRD_URL + constants.apiEndpoints.SUNBIRD_ADD_USER_TO_ORG;
 
-        let response = await callToSunbird("POST",adduserToOrgUrl,token,requestBody);
+        let response = await callToSunbird("POST",adduserToOrgUrl,token,requestBody,"organisation_api");
         return resolve(response);
     })
 
@@ -116,16 +116,23 @@ const updateUser = async function (requestBody, token) {
   * @returns {JSON} - user profile information.
 */
 
-function callToSunbird(requestType,url,token,requestBody ="") {
+function callToSunbird(requestType,url,token,requestBody ="",auth="") {
 
     return new Promise(async (resolve, reject) => {
+
+        let authorizationCode = auth = process.env.AUTHORIZATION;
+        if(auth=="organisation_api"){
+            authorizationCode = process.env.SUNBIRD_API_AUTHORIZATION
+        }
+
         let options = {
             "headers": {
                 "content-type": "application/json",
-                "authorization": process.env.SUNBIRD_API_AUTHORIZATION,
+                "authorization": authorizationCode,
                 "x-authenticated-user-token": token
             }
         };
+        
 
         if (requestType != "GET") {
             options['json'] = { request: requestBody };
