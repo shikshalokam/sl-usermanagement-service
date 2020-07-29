@@ -120,7 +120,7 @@ function callToSunbird(requestType,url,token,requestBody ="",auth="") {
 
     return new Promise(async (resolve, reject) => {
 
-        let authorizationCode = auth = process.env.AUTHORIZATION;
+        let authorizationCode = process.env.AUTHORIZATION;
         if(auth=="organisation_api"){
             authorizationCode = process.env.SUNBIRD_API_AUTHORIZATION
         }
