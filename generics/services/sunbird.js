@@ -122,7 +122,7 @@ function callToSunbird(requestType,url,token,requestBody ="") {
         let options = {
             "headers": {
                 "content-type": "application/json",
-                "authorization": process.env.AUTHORIZATION,
+                "authorization": process.env.SUNBIRD_API_AUTHORIZATION,
                 "x-authenticated-user-token": token
             }
         };
