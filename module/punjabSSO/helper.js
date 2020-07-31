@@ -200,7 +200,7 @@ module.exports = class punjabSSOHelper {
 
                     if(userCreationResponse.success && userCreationResponse.userId) {
                         
-                        await gen.utils.sleep(2000)
+                        await gen.utils.sleep(2000); // Wait for 2 seconds for new credentials to reflect in keycloak.
                         
                         keyCloakData = await shikshalokamHelper.getKeyCloakToken(staffID,punjabServiceDefaultPassword)
 
