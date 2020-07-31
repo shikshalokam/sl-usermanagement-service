@@ -167,6 +167,12 @@ function arrayIdsTobjectIds(ids) {
   return ids.map(id => ObjectId(id));
 }
 
+function sleep(ms) {
+  return new Promise(resolve => {
+    setTimeout(resolve, ms);
+  });
+}
+
 module.exports = {
   camelCaseToTitleCase: camelCaseToTitleCase,
   lowerCase: lowerCase,
@@ -181,5 +187,6 @@ module.exports = {
   getCriteriaIdsAndWeightage: getCriteriaIdsAndWeightage,
   assessmentRoles: assessmentRoles,
   arrayIdsTobjectIds: arrayIdsTobjectIds,
-  hyphenCaseToCamelCase : hyphenCaseToCamelCase
+  hyphenCaseToCamelCase : hyphenCaseToCamelCase,
+  sleep : sleep
 };

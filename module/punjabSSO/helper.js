@@ -200,6 +200,8 @@ module.exports = class punjabSSOHelper {
 
                     if(userCreationResponse.success && userCreationResponse.userId) {
                         
+                        await gen.utils.sleep(2000)
+                        
                         keyCloakData = await shikshalokamHelper.getKeyCloakToken(staffID,punjabServiceDefaultPassword)
 
                         if(keyCloakData.success == true && keyCloakData.status == 200 && keyCloakData.tokenDetails) {
