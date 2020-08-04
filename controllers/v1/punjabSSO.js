@@ -119,7 +119,7 @@ module.exports = class PunjabSSO {
         let forgotPasswordResponse = await punjabSSOHelper.resendUserCredentials(encryptedStaffID, encryptedMobileNo);
 
         return resolve({
-          message: CONSTANTS.apiResponses.PASSWORD_SENT,
+          message: forgotPasswordResponse
         });
 
       } catch (error) {
@@ -182,7 +182,7 @@ module.exports = class PunjabSSO {
           let resetPasswordResponse = await punjabSSOHelper.resetUserCredentials(encryptedFacultyCode, encryptedOldPassword, encryptedNewPassword, encryptedConfirmPassword);
 
           return resolve({
-            message: CONSTANTS.apiResponses.PASSWORD_RESET,
+            message: resetPasswordResponse 
           });
 
         } catch (error) {

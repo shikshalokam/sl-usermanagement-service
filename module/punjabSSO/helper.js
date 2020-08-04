@@ -81,8 +81,12 @@ module.exports = class punjabSSOHelper {
 
                 let responseExtract = await this.validateWetherResponseIsSuccess(staffForgotPasswordData)
                 
-                if(responseExtract != "" && responseExtract == "[{Message :Password has sent on your registered mobile number !!!}]") {
-                    return resolve("Password has been sent on your registered mobile number.");
+                if(responseExtract != "") {
+                    if(responseExtract == "[{Message :Password has sent on your registered mobile number !!!}]") {
+                        return resolve("Password has been sent on your registered mobile number.");
+                    } else {
+                        return resolve(responseExtract.replace('[{Message :', '').replace("}]",""));
+                    }
                 } else {
                     throw staffForgotPasswordData
                 }
@@ -104,8 +108,12 @@ module.exports = class punjabSSOHelper {
 
                 let responseExtract = await this.validateWetherResponseIsSuccess(staffResetPasswordData)
                 
-                if(responseExtract != "" && responseExtract == "[{Message :Your password has chanced !!!}]") {
-                    return resolve("Password reset successful.");
+                if(responseExtract != "") { 
+                    if(responseExtract == "[{Message :Your password has chanced !!!}]") {
+                        return resolve("Password reset successful.");
+                    } else {
+                        return resolve(responseExtract.replace('[{Message :', '').replace("}]",""));
+                    }
                 } else {
                     throw staffResetPasswordData
                 }
@@ -191,6 +199,8 @@ module.exports = class punjabSSOHelper {
                     })
 
                     if(userCreationResponse.success && userCreationResponse.userId) {
+                        
+                        await gen.utils.sleep(2000); // Wait for 2 seconds for new credentials to reflect in keycloak.
                         
                         keyCloakData = await shikshalokamHelper.getKeyCloakToken(staffID,punjabServiceDefaultPassword)
 
