@@ -1,4 +1,4 @@
-const platformRolesHelper = require(ROOT_PATH + "/module/platformRoles/helper");
+const platformRolesHelper = require(MODULES_BASE_PATH + "/platformRoles/helper");
 
 module.exports = class platformUserRolesHelper {
 

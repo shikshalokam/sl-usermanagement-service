@@ -1,4 +1,4 @@
-const Request = require(GENERIC_HELPERS_PATH+'/httpRequest');
+const Request = require(GENERIC_HELPERS_PATH+'/http-request');
 const punjabServiceBaseUrl = (process.env.PUNJAB_SERVICE_BASE_URL && process.env.PUNJAB_SERVICE_BASE_URL != "") ? process.env.PUNJAB_SERVICE_BASE_URL : ""
 const punjabServiceKey = (process.env.PUNJAB_SERVICE_KEY && process.env.PUNJAB_SERVICE_KEY != "") ? process.env.PUNJAB_SERVICE_KEY : ""
 const punjabServiceHost = (process.env.PUNJAB_SERVICE_HOST && process.env.PUNJAB_SERVICE_HOST != "") ? process.env.PUNJAB_SERVICE_HOST : ""
@@ -7,7 +7,7 @@ const encryptionEndpoint = "encryptedMethod"
 const validateStaffLoginCredentialsEndpoint = "staffLogin"
 const resendStaffCredentialsEndpoint = "forgetPassword"
 const resetPasswordEndpoint = "resetPassword"
-const shikshalokamHelper = require(ROOT_PATH + "/module/shikshalokam/helper")
+const shikshalokamHelper = require(MODULES_BASE_PATH + "/shikshalokam/helper")
 const punjabServiceDefaultPassword = (process.env.PUNJAB_SERVICE_DEFAULT_PASSWORD && process.env.PUNJAB_SERVICE_DEFAULT_PASSWORD != "") ? process.env.PUNJAB_SERVICE_DEFAULT_PASSWORD : ""
 const punjabServiceDefaultMailDomain = (process.env.PUNJAB_SERVICE_DEFAULT_MAIL_DOMAIN && process.env.PUNJAB_SERVICE_DEFAULT_MAIL_DOMAIN != "") ? process.env.PUNJAB_SERVICE_DEFAULT_MAIL_DOMAIN : "@punjab.sl"
 

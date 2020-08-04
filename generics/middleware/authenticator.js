@@ -1,23 +1,13 @@
-const jwtDecode = require('jwt-decode');
-let slackClient = require("../helpers/slackCommunications");
-var ApiInterceptor = require("./lib/apiInterceptor");
-var messageUtil = require("./lib/messageUtil");
-var responseCode = require("../httpStatusCodes");
+/**
+ * name : middleware/authenticator.js
+ * author : Aman Karki
+ * Date : 20-July-2020
+ * Description : Keycloak authentication.
+ */
 
-var shikshalokam = require("../helpers/shikshalokam");
+// dependencies
+const sunbirdHelper = require(GENERIC_SERVICES_PATH+"/sunbird");
 
-var reqMsg = messageUtil.REQUEST;
-var keyCloakConfig = {
-  authServerUrl: process.env.sunbird_keycloak_auth_server_url,
-  realm: process.env.sunbird_keycloak_realm,
-  clientId: process.env.sunbird_keycloak_client_id,
-  public: process.env.sunbird_keycloak_public
-};
-
-var cacheConfig = {
-  store: process.env.sunbird_cache_store,
-  ttl: process.env.sunbird_cache_ttl
-};
 
 var respUtil = function (resp) {
   return {
@@ -27,14 +17,6 @@ var respUtil = function (resp) {
   };
 };
 
-var tokenAuthenticationFailureMessageToSlack = function (req, token, msg) {
-  let jwtInfomration = jwtDecode(token)
-  jwtInfomration["x-authenticated-user-token"] = token
-  const tokenByPassAllowedLog = { method: req.method, url: req.url, headers: req.headers, body: req.body, errorMsg: msg, customFields: jwtInfomration }
-  slackClient.sendExceptionLogMessage(tokenByPassAllowedLog)
-}
-
-var apiInterceptor = new ApiInterceptor(keyCloakConfig, cacheConfig);
 var removedHeaders = [
   "host",
   "origin",
@@ -51,15 +33,7 @@ var removedHeaders = [
   "connection"
 ];
 
-async function getAllRoles(obj) {
-  let roles = await obj.roles;
-  await _.forEach(obj.organisations, async value => {
-    roles = await roles.concat(value.roles);
-  });
-  return roles;
-}
-
-module.exports = async function (req, res, next) {
+module.exports = async function (req, res, next, token = "") {
 
   removedHeaders.forEach(function (e) {
     delete req.headers[e];
@@ -69,63 +43,110 @@ module.exports = async function (req, res, next) {
   if (!req.rspObj) req.rspObj = {};
   var rspObj = req.rspObj;
 
-  if (req.path.includes("punjabSSO") || req.path.includes("SSO")) {
+
+
+  // Allow search endpoints for non-logged in users.
+  let guestAccess = false;
+  let guestAccessPaths = [];
+  await Promise.all(guestAccessPaths.map(async function (path) {
+    if (req.path.includes(path)) {
+      guestAccess = true;
+    }
+  }));
+  
+  if(guestAccess==true){
     next();
-    return
+    return;
   }
 
-  let byPassPaths = ["userProfile/list"]
+  let internalAccessApiPaths = [];
+  let performInternalAccessTokenCheck = false;
+  await Promise.all(internalAccessApiPaths.map(async function (path) {
+    if (req.path.includes(path)) {
+      performInternalAccessTokenCheck = true;
+    }
+  }));
 
-  for (let pointerToByPassPath = 0; pointerToByPassPath < byPassPaths.length; pointerToByPassPath++) {
-    if (req.path.includes(byPassPaths[pointerToByPassPath]) && req.headers["internal-access-token"] === process.env.INTERNAL_ACCESS_TOKEN) {
+  if (performInternalAccessTokenCheck) {
+    if (req.headers["internal-access-token"] == process.env.INTERNAL_ACCESS_TOKEN) {
       next();
-      return
+      return;
+    } else {
+      rspObj.errCode = CONSTANTS.apiResponses.TOKEN_MISSING_CODE;
+      rspObj.errMsg = CONSTANTS.apiResponses.TOKEN_MISSING_MESSAGE;
+      rspObj.responseCode = HTTP_STATUS_CODE['unauthorized'].status;
+      return res.status(HTTP_STATUS_CODE["unauthorized"].status).send(respUtil(rspObj));
     }
   }
+
+
+  let tokenOrInternalAccessTokenRequiredPaths = [];
+  let tokenOrInternalAccessTokenRequired = false;
+  await Promise.all(tokenOrInternalAccessTokenRequiredPaths.map(async function (path) {
+    if (req.path.includes(path)) {
+      tokenOrInternalAccessTokenRequired = true;
+    }
+  }));
+
+  if (tokenOrInternalAccessTokenRequired) {
+    if (req.headers["internal-access-token"] == process.env.INTERNAL_ACCESS_TOKEN || token) {
+      next();
+      return;
+    } else {
+      rspObj.errCode = CONSTANTS.apiResponses.MISSING_TOKEN_OR_INTERNAL_ACCESS_TOKEN_CODE;
+      rspObj.errMsg = CONSTANTS.apiResponses.MISSING_TOKEN_OR_INTERNAL_ACCESS_TOKEN_MESSAGE;
+      rspObj.responseCode = HTTP_STATUS_CODE["unauthorized"].status;
+      return res.status(HTTP_STATUS_CODE["unauthorized"].status).send(respUtil(rspObj));
+    }
+  }
+
+  let securedApiPaths = [];
+  let tokenAndInternalAccessTokenRequired = false;
+  await Promise.all(securedApiPaths.map(async function (path) {
+    if (req.path.includes(path)) {
+      tokenAndInternalAccessTokenRequired = true;
+    }
+  }));
+
+  if (tokenAndInternalAccessTokenRequired) {
+    if (req.headers["internal-access-token"] == process.env.INTERNAL_ACCESS_TOKEN && token) {
+      next();
+      return;
+    } else {
+      rspObj.errCode = CONSTANTS.apiResponses.MISSING_TOKEN_AND_INTERNAL_ACCESS_TOKEN_CODE;
+      rspObj.errMsg = CONSTANTS.apiResponses.MISSING_TOKEN_AND_INTERNAL_ACCESS_TOKEN_MESSAGE;
+      rspObj.responseCode = HTTP_STATUS_CODE['unauthorized'].status;
+      return res.status(HTTP_STATUS_CODE["unauthorized"].status).send(respUtil(rspObj));
+    }
+  }
+
 
   if (!token) {
-    rspObj.errCode = reqMsg.TOKEN.MISSING_CODE;
-    rspObj.errMsg = reqMsg.TOKEN.MISSING_MESSAGE;
-    rspObj.responseCode = responseCode.unauthorized;
-    return res.status(httpStatusCode["unauthorized"]).send(respUtil(rspObj));
+    rspObj.errCode = CONSTANTS.apiResponses.TOKEN_MISSING_CODE;
+    rspObj.errMsg = CONSTANTS.apiResponses.TOKEN_MISSING_MESSAGE;
+    rspObj.responseCode = HTTP_STATUS_CODE["unauthorized"].status;
+    return res.status(HTTP_STATUS_CODE["unauthorized"].status).send(respUtil(rspObj));
   }
 
-  apiInterceptor.validateToken(token, function (err, tokenData) {
+  sunbirdHelper
+    .verifyToken(token)
+    .then(async userDetails => {
+      if (userDetails.result.isValid == true) {
+        req.userDetails = {};
+        req.userDetails = userDetails.result;
+        req.userDetails['userToken'] = token;
+        req.userDetails['userId'] = userDetails.result.userInformation.userId;
 
-    if (err) {
-      rspObj.errCode = reqMsg.TOKEN.INVALID_CODE;
-      rspObj.errMsg = reqMsg.TOKEN.INVALID_MESSAGE;
-      rspObj.responseCode = responseCode.UNAUTHORIZED_ACCESS;
-      tokenAuthenticationFailureMessageToSlack(req, token, "TOKEN VERIFICATION WITH KEYCLOAK FAILED")
-      return res.status(httpStatusCode["unauthorized"]).send(respUtil(rspObj));
-    } else {
-      req.rspObj.userId = tokenData.userId;
-      req.rspObj.userToken = req.headers["x-authenticated-user-token"];
-      delete req.headers["x-authenticated-userid"];
-      delete req.headers["x-authenticated-user-token"];
-      // rspObj.telemetryData.actor = utilsService.getTelemetryActorData(req);
-      req.headers["x-authenticated-userid"] = tokenData.userId;
-      req.rspObj = rspObj;
-      shikshalokam
-        .userInfo(token, tokenData.userId)
-        .then(async userDetails => {
-          if (userDetails.responseCode == "OK") {
-            req.userDetails = userDetails.result.response;
-            req.userDetails.userToken = req.rspObj.userToken
-            req.userDetails.allRoles = await getAllRoles(req.userDetails);
-            next();
-          } else {
-            tokenAuthenticationFailureMessageToSlack(req, token, "TOKEN VERIFICATION - FAILED TO GET USER DETAIL FROM LEARNER SERVICE")
-            rspObj.errCode = reqMsg.TOKEN.INVALID_CODE;
-            rspObj.errMsg = reqMsg.TOKEN.INVALID_MESSAGE;
-            rspObj.responseCode = responseCode.UNAUTHORIZED_ACCESS;
-            return res.status(httpStatusCode["unauthorized"]).send(respUtil(rspObj));
-          }
-        })
-        .catch(error => {
-          tokenAuthenticationFailureMessageToSlack(req, token, "TOKEN VERIFICATION - ERROR FETCHING USER DETAIL FROM LEARNER SERVICE")
-          return res.status(httpStatusCode["unauthorized"]).send(error);
-        });
-    }
-  });
+        next();
+      } else {
+        rspObj.errCode = CONSTANTS.apiResponses.TOKEN_INVALID_CODE;
+        rspObj.errMsg = CONSTANTS.apiResponses.TOKEN_INVALID_MESSAGE;
+        rspObj.responseCode = HTTP_STATUS_CODE["unauthorized"].status;
+        return res.status(HTTP_STATUS_CODE["unauthorized"].status).send(respUtil(rspObj));
+      }
+
+    }).catch(error => {
+      return res.status(HTTP_STATUS_CODE["unauthorized"].status).send(error);
+    });
+
 };

@@ -11,6 +11,5 @@ module.exports = {
   "INACTIVE": "inactive",
   "TRUE": true,
   "FALSE": false,
-  "RESPONSE_OK": "OK",
-  "PUBLIC_ROLE": "PUBLIC"
+   "PUBLIC_ROLE": "PUBLIC"
 };

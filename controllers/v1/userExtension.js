@@ -10,7 +10,7 @@
  * dependencies
  * 
  */
-const userExtensionHelper = require(ROOT_PATH + "/module/userExtension/helper");
+const userExtensionHelper = require(MODULES_BASE_PATH + "/userExtension/helper");
 
 
 
@@ -24,7 +24,7 @@ const userExtensionHelper = require(ROOT_PATH + "/module/userExtension/helper");
 module.exports = class UserExtension extends Abstract {
 
     constructor() {
-        super(userExtensionSchema);
+        super("userExtension");
    
     }
 
@@ -80,18 +80,17 @@ module.exports = class UserExtension extends Abstract {
     return new Promise(async (resolve, reject) => {
 
       try {
-
         let userId =  (req.params._id && req.params._id != "") ? req.params._id : req.userDetails.userId;
         let platformUserRolesDocument = await userExtensionHelper.getProfile(userId,req.userDetails.userToken);
         return resolve({
-          message: constants.apiResponses.USER_PROFILE,
+          message: CONSTANTS.apiResponses.USER_PROFILE,
           result: platformUserRolesDocument
         });
 
       } catch (error) {
 
         return reject({
-          status: error.status || httpStatusCode.internal_server_error.status,
+          status: error.status || HTTP_STATUS_CODE.internal_server_error.status,
           message: error.message || "Oops! something went wrong.",
           errorObject: error
         })
@@ -102,7 +101,7 @@ module.exports = class UserExtension extends Abstract {
 
 
     /**
-  * @api {post} /user-management/api/v1/userExtension/create add User
+  * @api {post} /user-management/api/v1/userExtension/create
   * @apiVersion 1.0.0
   * @apiName Create User 
   * @apiGroup User Extension
@@ -155,7 +154,7 @@ module.exports = class UserExtension extends Abstract {
 
       } catch (error) {
         return reject({
-          status: error.status || httpStatusCode.internal_server_error.status,
+          status: error.status || HTTP_STATUS_CODE.internal_server_error.status,
           message: error.message || "Oops! something went wrong.",
           errorObject: error
         })
@@ -195,7 +194,7 @@ module.exports = class UserExtension extends Abstract {
 
       } catch (error) {
         return reject({
-          status: error.status || httpStatusCode.internal_server_error.status,
+          status: error.status || HTTP_STATUS_CODE.internal_server_error.status,
           message: error.message || "Oops! something went wrong.",
           errorObject: error
         })
@@ -233,7 +232,7 @@ module.exports = class UserExtension extends Abstract {
 
       } catch (error) {
         return reject({
-          status: error.status || httpStatusCode.internal_server_error.status,
+          status: error.status || HTTP_STATUS_CODE.internal_server_error.status,
           message: error.message || "Oops! something went wrong.",
           errorObject: error
         })

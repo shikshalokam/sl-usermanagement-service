@@ -21,8 +21,7 @@ const request = require('request');
 const createUser = async function (userInputData, token) {
     return new Promise(async (resolve, reject) => {
 
-        const createUserUrl =
-        process.env.SUNBIRD_URL + constants.apiEndpoints.SUNBIRD_CREATE_USER;
+        const createUserUrl = CONSTANTS.endpoints.SUNBIRD_CREATE_USER;
         
         let createUser = {
             firstName: userInputData.firstName,
@@ -71,39 +70,13 @@ const createUser = async function (userInputData, token) {
 const addUserToOrganisation = async function (requestBody, token) {
     return new Promise(async (resolve, reject) => {
 
-        const adduserToOrgUrl =
-        process.env.SUNBIRD_URL + constants.apiEndpoints.SUNBIRD_ADD_USER_TO_ORG;
+        const adduserToOrgUrl = CONSTANTS.endpoints.SUNBIRD_ADD_USER_TO_ORG;
 
-        let response = await callToSunbird("POST",adduserToOrgUrl,token,requestBody,"organisation_api");
+        let response = await callToSunbird("POST",adduserToOrgUrl,token,requestBody);
         return resolve(response);
     })
 
 }
-
-
-
-/**
-  * update user
-  * @function
-  * @name updateUser
-  * @param requestBody - body data for update user.
-  * @param token - Logged in user token.
-  * @returns {json} - Response consists of updated user details
-*/
-
-const updateUser = async function (requestBody, token) {
-    return new Promise(async (resolve, reject) => {
-
-        const updateUserApiUrl =
-            process.env.SUNBIRD_URL + constants.apiEndpoints.SUNBIRD_UPDATE_USER;
-
-        let response = await callToSunbird("PATCH",updateUserApiUrl,token,requestBody);
-        return resolve(response);
-
-    })
-
-}
-
 
 /**
   * Call to sunbird api's. 
@@ -116,26 +89,28 @@ const updateUser = async function (requestBody, token) {
   * @returns {JSON} - user profile information.
 */
 
-function callToSunbird(requestType,url,token,requestBody ="",auth="") {
+function callToSunbird(requestType,url,token="",requestBody ="") {
 
     return new Promise(async (resolve, reject) => {
 
         let authorizationCode = process.env.AUTHORIZATION;
-        if(auth=="organisation_api"){
-            authorizationCode = process.env.SUNBIRD_API_AUTHORIZATION
-        }
-
+       
         let options = {
             "headers": {
                 "content-type": "application/json",
-                "authorization": authorizationCode,
-                "x-authenticated-user-token": token
+                "internal-access-token": process.env.INTERNAL_ACCESS_TOKEN
             }
         };
-        
+        if(token){
+            options['headers']["X-authenticated-user-token"] = token;
+        }
+      
 
+        url = process.env.SUNBIRD_SERIVCE_HOST + process.env.SUNBIRD_SERIVCE_BASE_URL + url;
+
+       
         if (requestType != "GET") {
-            options['json'] = { request: requestBody };
+            options['json'] =  requestBody;
         }
 
         if (requestType == "PATCH") {
@@ -145,11 +120,10 @@ function callToSunbird(requestType,url,token,requestBody ="",auth="") {
         } else {
             request.post(url, options, callback);
         }
-
         function callback(err, data) {
             if (err) {
                 return reject({
-                    message: constants.apiResponses.SUNBIRD_SERVICE_DOWN
+                    message: CONSTANTS.apiResponses.SUNBIRD_SERVICE_DOWN
                 });
             } else {
                 let response = data.body;
@@ -173,9 +147,7 @@ function callToSunbird(requestType,url,token,requestBody ="",auth="") {
 const getUserProfile = function (token, userId) {
     return new Promise(async (resolve, reject) => {
 
-        const getProfileApiUrl =
-        process.env.SUNBIRD_URL + constants.apiEndpoints.SUNBIRD_USER_READ + "/" + userId;
-
+        const getProfileApiUrl = CONSTANTS.endpoints.SUNBIRD_USER_READ + "/" + userId;
         let response = await callToSunbird("GET",getProfileApiUrl,token);
         return resolve(response);
         
@@ -195,7 +167,7 @@ const getUserProfile = function (token, userId) {
 const inactivate = function (userId, token) {
     return new Promise(async (resolve, reject) => {
 
-        let inActivateUserAPI = process.env.SUNBIRD_URL + constants.apiEndpoints.SUNBIRD_BLOCK_USER;
+        let inActivateUserAPI = CONSTANTS.endpoints.SUNBIRD_BLOCK_USER;
 
         let requestBody = {
             userId: userId
@@ -218,7 +190,7 @@ const inactivate = function (userId, token) {
 const activate = function (userId, token) {
     return new Promise(async (resolve, reject) => {
 
-        let activateUserAPI = process.env.SUNBIRD_URL + constants.apiEndpoints.SUNBIRD_UNBLOCK_USER;
+        let activateUserAPI = CONSTANTS.endpoints.SUNBIRD_UNBLOCK_USER;
         let requestBody = {
             userId: userId
         }
@@ -227,7 +199,29 @@ const activate = function (userId, token) {
 
     })
 }
+/**
+  * to Varify token is valid or not
+  * @function
+  * @name verifyToken
+  * @param token - user token for verification 
+  * @returns {JSON} - consist of token verification details
+*/
+const verifyToken = function (token) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const verifyTokenEndpoint = CONSTANTS.endpoints.VERIFY_TOKEN;
 
+            let requestBody = {
+                token: token
+            }
+            let response = await callToSunbird("POST", verifyTokenEndpoint, "",requestBody);
+            return resolve(response);
+        } catch (error) {
+
+            reject({ message: CONSTANTS.apiResponses.SUNBIRD_SERVICE_DOWN });
+        }
+    })
+}
 
 
 
@@ -235,8 +229,8 @@ const activate = function (userId, token) {
 module.exports = {
     createUser: createUser,
     addUserToOrganisation: addUserToOrganisation,
-    updateUser: updateUser,
     getUserProfile: getUserProfile,
     activate: activate,
-    inactivate: inactivate
+    inactivate: inactivate,
+    verifyToken: verifyToken
 };

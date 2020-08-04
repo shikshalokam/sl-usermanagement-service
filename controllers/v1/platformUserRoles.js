@@ -1,10 +1,10 @@
 const csv = require("csvtojson");
-const platformUserRolesHelper = require(ROOT_PATH + "/module/platformUserRoles/helper")
-const FileStream = require(ROOT_PATH + "/generics/fileStream");
+const platformUserRolesHelper = require(MODULES_BASE_PATH + "/platformUserRoles/helper")
+const FileStream = require(GENERICS_FILES_PATH + "/file-stream");
 
 module.exports = class PlatformUserRoles extends Abstract {
   constructor() {
-    super(platformUserRolesSchema);
+    super("platformUserRolesExt");
   }
 
   static get name() {
@@ -61,7 +61,7 @@ module.exports = class PlatformUserRoles extends Abstract {
       } catch (error) {
 
         return reject({
-          status: error.status || httpStatusCode.internal_server_error.status,
+          status: error.status || HTTP_STATUS_CODE.internal_server_error.status,
           message: error.message || "Oops! something went wrong.",
           errorObject: error
         })
@@ -121,7 +121,7 @@ module.exports = class PlatformUserRoles extends Abstract {
       } catch (error) {
 
         return reject({
-          status: error.status || httpStatusCode.internal_server_error.status,
+          status: error.status || HTTP_STATUS_CODE.internal_server_error.status,
           message: error.message || "Oops! something went wrong.",
           errorObject: error
         })

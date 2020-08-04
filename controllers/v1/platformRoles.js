@@ -1,6 +1,6 @@
 const csv = require("csvtojson");
-const platformRolesHelper = require(ROOT_PATH + "/module/platformRoles/helper")
-const FileStream = require(ROOT_PATH + "/generics/fileStream");
+const platformRolesHelper = require(MODULES_BASE_PATH + "/platformRoles/helper")
+const FileStream = require(GENERICS_FILES_PATH + "/file-stream");
 
 module.exports = class PlatformRoles extends Abstract {
 
@@ -18,7 +18,7 @@ module.exports = class PlatformRoles extends Abstract {
 
 
   constructor() {
-    super(platformRolesSchema);
+    super("platformRolesExt");
   }
 
   static get name() {
@@ -57,14 +57,14 @@ module.exports = class PlatformRoles extends Abstract {
         });
 
         return resolve({
-          message: constants.apiResponses.PLATFORM_ROLES,
+          message: CONSTANTS.apiResponses.PLATFORM_ROLES,
           result: result
         });
 
       } catch (error) {
 
         return reject({
-          status: error.status || httpStatusCode.internal_server_error.status,
+          status: error.status || HTTP_STATUS_CODE.internal_server_error.status,
           message: error.message || "Oops! something went wrong.",
           errorObject: error
         })
@@ -123,7 +123,7 @@ module.exports = class PlatformRoles extends Abstract {
       } catch (error) {
 
         return reject({
-          status: error.status || httpStatusCode.internal_server_error.status,
+          status: error.status || HTTP_STATUS_CODE.internal_server_error.status,
           message: error.message || "Oops! something went wrong.",
           errorObject: error
         })
@@ -182,7 +182,7 @@ module.exports = class PlatformRoles extends Abstract {
       } catch (error) {
 
         return reject({
-          status: error.status || httpStatusCode.internal_server_error.status,
+          status: error.status || HTTP_STATUS_CODE.internal_server_error.status,
           message: error.message || "Oops! something went wrong.",
           errorObject: error
         })

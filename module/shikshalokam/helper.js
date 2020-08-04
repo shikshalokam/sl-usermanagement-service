@@ -1,4 +1,4 @@
-const Request = require(GENERIC_HELPERS_PATH + '/httpRequest');
+const Request = require(GENERIC_HELPERS_PATH + '/http-request');
 const keycloakAuthServerUrl = (process.env.sunbird_keycloak_auth_server_url && process.env.sunbird_keycloak_auth_server_url != "") ? process.env.sunbird_keycloak_auth_server_url : ""
 const realm = (process.env.sunbird_keycloak_realm && process.env.sunbird_keycloak_realm != "") ? process.env.sunbird_keycloak_realm : "sunbird"
 const clientId = (process.env.sunbird_keycloak_client_id && process.env.sunbird_keycloak_client_id != "") ? process.env.sunbird_keycloak_client_id : "admin-cli"

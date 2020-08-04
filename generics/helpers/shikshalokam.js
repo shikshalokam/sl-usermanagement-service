@@ -1,5 +1,5 @@
 var http = require("https");
-const Request = require('./httpRequest');
+const Request = require('./http-request');
 const jwtDecode = require('jwt-decode');
 
 var getUserInfo = function (token, userId) {

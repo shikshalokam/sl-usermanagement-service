@@ -1,7 +1,7 @@
 let sunbirdService =
-    require(ROOT_PATH + "/generics/services/sunbird");
+    require(GENERIC_SERVICES_PATH + "/sunbird");
 
-let platformRolesHelper = require(ROOT_PATH + "/module/platformRoles/helper");
+let platformRolesHelper = require(MODULES_BASE_PATH + "/platformRoles/helper");
 
 /**
 * user related information be here.
@@ -26,18 +26,15 @@ module.exports = class UserExtensionHelper {
 
                 let queryObject = {
                     userId: userId,
-                    status: constants.common.ACTIVE
+                    status: CONSTANTS.common.ACTIVE
                 }
                 let profileData = await sunbirdService.getUserProfile(token, userId);
                 let roles;
                 profileData = JSON.parse(profileData);
-
-                if (profileData.responseCode != constants.common.RESPONSE_OK) {
+               
+                if (profileData.status != HTTP_STATUS_CODE.ok.status) {
                     
-                    reject({
-                        status: httpStatusCode.bad_request.status,
-                        message: constants.apiResponses.USER_PROFILE_NOT_FOUND
-                      })
+                    throw new Error(CONSTANTS.apiResponses.USER_PROFILE_NOT_FOUND);
                 }
 
                 if (profileData.result &&
@@ -81,7 +78,11 @@ module.exports = class UserExtensionHelper {
                 return resolve(userExtDocument);
 
             } catch (error) {
-                return reject(error);
+                return reject({
+                    success: false,
+                    message: error.message ? error.message : HTTP_STATUS_CODE["internal_server_error"].message,
+                    data: false
+                });
             }
         })
 
@@ -101,7 +102,8 @@ module.exports = class UserExtensionHelper {
         return new Promise(async (resolve, reject) => {
             try {
                     let response = await sunbirdService.createUser(request, token);
-                    if (response && response.responseCode == constants.common.RESPONSE_OK) {
+                  
+                    if (response && response.status == HTTP_STATUS_CODE.ok.status) {
 
                         let rolesId = [];
                         let organisationsRoles = [];
@@ -109,7 +111,7 @@ module.exports = class UserExtensionHelper {
                         let rolesDocuments = await platformRolesHelper.list({ }, {
                             code: 1
                         });
-                        plaformRoles.push(constants.common.PUBLIC_ROLE);
+                        plaformRoles.push(CONSTANTS.common.PUBLIC_ROLE);
                         await Promise.all(request.roles.map(async function (roleInfo) {
 
                             let roleObj = {
@@ -139,7 +141,7 @@ module.exports = class UserExtensionHelper {
 
                         let userObj = {
                             channel: process.env.SUNBIRD_CHANNEL,
-                            status: constants.common.ACTIVE,
+                            status: CONSTANTS.common.ACTIVE,
                             externalId: request.userName,
                             userId: response.result.userId,
                             isDeleted: false,
@@ -163,15 +165,19 @@ module.exports = class UserExtensionHelper {
 
                         userObj["metaInformation"] = metaInformation;
                         let db = await database.models.userExtension.create(userObj);
-
-                        return resolve({ result: response.result, message: constants.apiResponses.USER_CREATED });
+              
+                        return resolve({ result: response.result, message: CONSTANTS.apiResponses.USER_CREATED });
                     } else {
 
-                        return reject({ message: response.params.errmsg });
+                        throw new Error(response.message);
                     }
                 
             } catch (error) {
-                return reject(error)
+                return reject({
+                    success: false,
+                    message: error.message ? error.message : HTTP_STATUS_CODE["internal_server_error"].message,
+                    data: false
+                });
             }
         })
     }
@@ -189,17 +195,21 @@ module.exports = class UserExtensionHelper {
             try {
 
                 let response = await sunbirdService.activate(userId, token);
-                if (response && response.responseCode == constants.common.RESPONSE_OK) {
+                if (response && response.status == HTTP_STATUS_CODE.ok.status) {
 
-                    let status = constants.common.ACTIVE;
+                    let status = CONSTANTS.common.ACTIVE;
                     let updateStatus = await database.models.userExtension.findOneAndUpdate({ userId: userId }, { $set: { status: status } });
-                    let message = constants.apiResponses.USER_UNBLOCKED;
+                    let message = CONSTANTS.apiResponses.USER_UNBLOCKED;
                     resolve({ result: response.result, message: message });
                 } else {
-                    reject({ message: response.params.errmsg });
+                    throw new Error(response.message);
                 }
             } catch (error) {
-                return reject(error)
+                return reject({
+                    success: false,
+                    message: error.message ? error.message : HTTP_STATUS_CODE["internal_server_error"].message,
+                    data: false
+                });
             }
         });
     }
@@ -217,18 +227,22 @@ module.exports = class UserExtensionHelper {
             try {
 
                 let response = await sunbirdService.inactivate(userId, token);
-                if (response && response.responseCode == constants.common.RESPONSE_OK) {
+                if (response && response.status == HTTP_STATUS_CODE.ok.status) {
 
-                    let status = constants.common.INACTIVE;
+                    let status = CONSTANTS.common.INACTIVE;
                     let updateStatus = await database.models.userExtension.findOneAndUpdate({ userId: userId }, { $set: { status: status } });
 
-                    let message = constants.apiResponses.USER_BLOCKED;
+                    let message = CONSTANTS.apiResponses.USER_BLOCKED;
                     resolve({ result: response.result, message: message });
                 } else {
-                    reject({ message: response.params.errmsg });
+                    throw new Error(response.message );
                 }
             } catch (error) {
-                return reject(error)
+                return reject({
+                    success: false,
+                    message: error.message ? error.message : HTTP_STATUS_CODE["internal_server_error"].message,
+                    data: false
+                });
             }
         });
     }
