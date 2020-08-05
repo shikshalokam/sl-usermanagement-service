@@ -47,7 +47,7 @@ module.exports = async function (req, res, next, token = "") {
 
   // Allow search endpoints for non-logged in users.
   let guestAccess = false;
-  let guestAccessPaths = [];
+  let guestAccessPaths = ["punjabSSO/staffLogin","punjabSSO/forgotPassword"];
   await Promise.all(guestAccessPaths.map(async function (path) {
     if (req.path.includes(path)) {
       guestAccess = true;
