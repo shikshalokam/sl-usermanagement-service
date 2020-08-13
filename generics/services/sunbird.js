@@ -70,9 +70,9 @@ const createUser = async function (userInputData, token) {
 const addUserToOrganisation = async function (requestBody, token) {
     return new Promise(async (resolve, reject) => {
 
-        const adduserToOrgUrl = CONSTANTS.endpoints.SUNBIRD_ADD_USER_TO_ORG;
+        const addUserToOrgAPIEndpoint = CONSTANTS.endpoints.SUNBIRD_ADD_USER_TO_ORG;
 
-        let response = await callToSunbird("POST",adduserToOrgUrl,token,requestBody);
+        let response = await callToSunbird("POST",addUserToOrgAPIEndpoint,token,requestBody);
         return resolve(response);
     })
 
