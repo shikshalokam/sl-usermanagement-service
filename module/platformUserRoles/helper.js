@@ -40,7 +40,7 @@ module.exports = class platformUserRolesHelper {
 
                 for (let csvRowNumber = 0; csvRowNumber < userRolesCSVData.length; csvRowNumber++) {
 
-                    userRole = gen.utils.valueParser(userRolesCSVData[csvRowNumber]);
+                    userRole = UTILS.valueParser(userRolesCSVData[csvRowNumber]);
                     userRole["_SYSTEM_ID"] = ""
 
                     try {
