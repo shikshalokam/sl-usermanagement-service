@@ -1,3 +1,5 @@
+
+
 module.exports = class platformUserRolesHelper {
 
     static list(filterQueryObject, projectionQueryObject) {
@@ -26,7 +28,7 @@ module.exports = class platformUserRolesHelper {
 
                         try {
 
-                            userRole = gen.utils.valueParser(userRole)
+                            userRole = UTILS.valueParser(userRole)
 
                             let newRole = await database.models.platformRolesExt.create(
                                 _.merge({
@@ -77,7 +79,7 @@ module.exports = class platformUserRolesHelper {
 
                         try {
 
-                            userRole = gen.utils.valueParser(userRole)
+                            userRole = UTILS.valueParser(userRole)
 
                             let updateRole = await database.models.platformRolesExt.findOneAndUpdate(
                                 {
@@ -100,19 +102,17 @@ module.exports = class platformUserRolesHelper {
                             userRole["_SYSTEM_ID"] = ""
                             userRole.status = (error && error.message) ? error.message : error
                         }
-
-
                         return userRole
                     })
                 )
-
                 return resolve(userRolesUploadedData);
-
             } catch (error) {
                 return reject(error)
             }
         })
 
     }
+
+    
 
 };

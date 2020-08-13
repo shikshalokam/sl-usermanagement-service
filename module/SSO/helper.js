@@ -1,4 +1,4 @@
-const punjabSSOHelper = require(ROOT_PATH + "/module/punjabSSO/helper")
+const punjabSSOHelper = require(MODULES_BASE_PATH + "/punjabSSO/helper")
 const PUNJAB_STATE_CODE = "punjab"
 
 module.exports = class SSOHelper {
