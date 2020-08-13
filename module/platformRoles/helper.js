@@ -28,7 +28,7 @@ module.exports = class platformUserRolesHelper {
 
                         try {
 
-                            userRole = gen.utils.valueParser(userRole)
+                            userRole = UTILS.valueParser(userRole)
 
                             let newRole = await database.models.platformRolesExt.create(
                                 _.merge({
@@ -79,7 +79,7 @@ module.exports = class platformUserRolesHelper {
 
                         try {
 
-                            userRole = gen.utils.valueParser(userRole)
+                            userRole = UTILS.valueParser(userRole)
 
                             let updateRole = await database.models.platformRolesExt.findOneAndUpdate(
                                 {

@@ -1,4 +1,4 @@
-let ssoHelpers = require(ROOT_PATH + "/module/SSO/helper");
+let ssoHelpers = require(MODULES_BASE_PATH + "/SSO/helper");
 
 module.exports = class SSO {
 
@@ -86,7 +86,7 @@ module.exports = class SSO {
 
 
                 return resolve({
-                    message: constants.apiResponses.LOGIN_VERIFED,
+                    message: CONSTANTS.apiResponses.LOGIN_VERIFED,
                     result: ssoLoginResponse
                 });
 

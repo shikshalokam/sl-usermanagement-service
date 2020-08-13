@@ -1,4 +1,4 @@
-const punjabSSOHelper = require(ROOT_PATH + "/module/punjabSSO/helper")
+const punjabSSOHelper = require(MODULES_BASE_PATH + "/punjabSSO/helper")
 
 module.exports = class PunjabSSO {
   
@@ -62,7 +62,7 @@ module.exports = class PunjabSSO {
         loginResponse["tokenDetails"] = await punjabSSOHelper.getKeyCloakAuthToken(loginResponse.staffID,loginResponse);
         
         return resolve({
-          message:  constants.apiResponses.LOGIN_VERIFED,
+          message:  CONSTANTS.apiResponses.LOGIN_VERIFED,
           result: loginResponse
         });
 
@@ -231,7 +231,7 @@ module.exports = class PunjabSSO {
           let result = await punjabSSOHelper.encrypt(req.body.string);
 
           return resolve({
-            message: constants.apiResponses.ENCRYPTED,
+            message: CONSTANTS.apiResponses.ENCRYPTED,
             result: {string:result}
           });
 
