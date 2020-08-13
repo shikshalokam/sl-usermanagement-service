@@ -26,13 +26,11 @@ module.exports = function () {
   global.UTILS = require(GENERIC_HELPERS_PATH + "/utils");
   require("./connections");
 
-  global.ENABLE_CONSOLE_LOGGING = process.env.ENABLE_CONSOLE_LOGGING || "OFF";
-  global.ENABLE_FILE_LOGGING = process.env.ENABLE_FILE_LOGGING || "OFF";
+  global.ENABLE_CONSOLE_LOGGING = process.env.ENABLE_CONSOLE_LOGGING;
+  global.ENABLE_FILE_LOGGING = process.env.ENABLE_FILE_LOGGING;
 
   global.HTTP_STATUS_CODE = 
   require(GENERICS_FILES_PATH + "/http-status-codes");
-
-  global.REQUEST_TIMEOUT_FOR_REPORTS = process.env.REQUEST_TIMEOUT_FOR_REPORTS;
 
   // Load database models.
   global.models = requireAll({
