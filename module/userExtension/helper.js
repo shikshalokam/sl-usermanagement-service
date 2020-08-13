@@ -194,7 +194,7 @@ module.exports = class UserExtensionHelper {
         return new Promise(async (resolve, reject) => {
             try {
 
-                let response = await sunbirdService.activate(userId, token);
+                let response = await sunbirdService.activateUser(userId, token);
                 if (response && response.status == HTTP_STATUS_CODE.ok.status) {
 
                     let status = CONSTANTS.common.ACTIVE;
@@ -226,7 +226,7 @@ module.exports = class UserExtensionHelper {
         return new Promise(async (resolve, reject) => {
             try {
 
-                let response = await sunbirdService.inactivate(userId, token);
+                let response = await sunbirdService.inactivateUser(userId, token);
                 if (response && response.status == HTTP_STATUS_CODE.ok.status) {
 
                     let status = CONSTANTS.common.INACTIVE;

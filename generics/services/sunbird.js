@@ -89,19 +89,18 @@ const addUserToOrganisation = async function (requestBody, token) {
   * @returns {JSON} - user profile information.
 */
 
-function callToSunbird(requestType,url,token="",requestBody ="") {
+function callToSunbird(requestType, url, token = "",requestBody ="") {
 
     return new Promise(async (resolve, reject) => {
 
-        let authorizationCode = process.env.AUTHORIZATION;
-       
         let options = {
             "headers": {
                 "content-type": "application/json",
                 "internal-access-token": process.env.INTERNAL_ACCESS_TOKEN
             }
         };
-        if(token){
+
+        if(token != "") {
             options['headers']["X-authenticated-user-token"] = token;
         }
       
@@ -156,15 +155,15 @@ const getUserProfile = function (token, userId) {
 
 
 /**
-  * To inactivate the user
+  * To inactivate a user
   * @function
-  * @name inactivate
-  * @param userId -  user Id of the user.
+  * @name inactivateUser
+  * @param userId -  keycloak user Id.
   * @param token - Logged in user token.
   * @returns {JSON} - response consist of success or failure of the api.
 */
 
-const inactivate = function (userId, token) {
+const inactivateUser = function (userId, token) {
     return new Promise(async (resolve, reject) => {
 
         let inActivateUserAPI = CONSTANTS.endpoints.SUNBIRD_BLOCK_USER;
@@ -179,15 +178,15 @@ const inactivate = function (userId, token) {
 }
 
 /**
-  * To activate the user
+  * To activate a user
   * @function
-  * @name activate
-  * @param userId -  user Id of the user.
+  * @name activateUser
+  * @param userId -  keycloak user Id.
   * @param token - Logged in user token.
   * @returns {JSON} - response consist of success or failure of the api.
 */
 
-const activate = function (userId, token) {
+const activateUser = function (userId, token) {
     return new Promise(async (resolve, reject) => {
 
         let activateUserAPI = CONSTANTS.endpoints.SUNBIRD_UNBLOCK_USER;
@@ -200,7 +199,7 @@ const activate = function (userId, token) {
     })
 }
 /**
-  * to Varify token is valid or not
+  * To check user token is valid or not
   * @function
   * @name verifyToken
   * @param token - user token for verification 
@@ -230,7 +229,7 @@ module.exports = {
     createUser: createUser,
     addUserToOrganisation: addUserToOrganisation,
     getUserProfile: getUserProfile,
-    activate: activate,
-    inactivate: inactivate,
+    activateUser: activateUser,
+    inactivateUser: inactivateUser,
     verifyToken: verifyToken
 };
