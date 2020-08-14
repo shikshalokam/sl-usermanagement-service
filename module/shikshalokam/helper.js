@@ -1,4 +1,4 @@
-const Request = require(GENERIC_HELPERS_PATH + '/httpRequest');
+const Request = require(GENERIC_HELPERS_PATH + '/http-request');
 const keycloakAuthServerUrl = (process.env.sunbird_keycloak_auth_server_url && process.env.sunbird_keycloak_auth_server_url != "") ? process.env.sunbird_keycloak_auth_server_url : ""
 const realm = (process.env.sunbird_keycloak_realm && process.env.sunbird_keycloak_realm != "") ? process.env.sunbird_keycloak_realm : "sunbird"
 const clientId = (process.env.sunbird_keycloak_client_id && process.env.sunbird_keycloak_client_id != "") ? process.env.sunbird_keycloak_client_id : "admin-cli"
@@ -9,7 +9,7 @@ const userCreationEndpoint = "/api/user/v1/create"
 // let adminAuthToken = ""
 // const keyCloakAdminUserName = (process.env.sunbird_keycloak_admin_username && process.env.sunbird_keycloak_admin_username != "") ? process.env.sunbird_keycloak_admin_username : ""
 // const keyCloakAdminPassword = (process.env.sunbird_keycloak_admin_password && process.env.sunbird_keycloak_admin_password != "") ? process.env.sunbird_keycloak_admin_password : ""
-const shikshalokamBaseHost = (process.env.SHIKSHALOKAM_BASE_HOST && process.env.SHIKSHALOKAM_BASE_HOST != "") ? process.env.SHIKSHALOKAM_BASE_HOST : ""
+const shikshalokamBaseHost = (process.env.SUNBIRD_URL && process.env.SUNBIRD_URL != "") ? process.env.SUNBIRD_URL : ""
 
 module.exports = class shikshalokamHelper {
 
