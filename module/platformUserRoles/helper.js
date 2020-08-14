@@ -1,37 +1,6 @@
-const platformRolesHelper = require(ROOT_PATH + "/module/platformRoles/helper")
+const platformRolesHelper = require(MODULES_BASE_PATH + "/platformRoles/helper");
 
 module.exports = class platformUserRolesHelper {
-
-    static getProfile(queryObject) {
-        return new Promise(async (resolve, reject) => {
-            try {
-
-                let platformUserRolesDocument = await database.models.platformUserRolesExt.findOne(
-                    queryObject,
-                    {
-                        updatedBy: 0,
-                        createdBy: 0,
-                        createdAt: 0,
-                        updatedAt: 0,
-                        status: 0,
-                        deleted: 0,
-                        userId: 0,
-                        "__v": 0
-                    }
-                ).lean();
-
-                if(platformUserRolesDocument){
-                    platformUserRolesDocument.roles = platformUserRolesDocument.roles.map(role=> role.code)
-                }
-
-                return resolve(platformUserRolesDocument);
-
-            } catch (error) {
-                return reject(error);
-            }
-        })
-
-    }
 
     static bulkCreateOrUpdate(userRolesCSVData, userDetails) {
 
@@ -71,7 +40,7 @@ module.exports = class platformUserRolesHelper {
 
                 for (let csvRowNumber = 0; csvRowNumber < userRolesCSVData.length; csvRowNumber++) {
 
-                    userRole = gen.utils.valueParser(userRolesCSVData[csvRowNumber]);
+                    userRole = UTILS.valueParser(userRolesCSVData[csvRowNumber]);
                     userRole["_SYSTEM_ID"] = ""
 
                     try {
@@ -184,5 +153,7 @@ module.exports = class platformUserRolesHelper {
         })
 
     }
+
+  
 
 };
