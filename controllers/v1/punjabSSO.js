@@ -52,15 +52,12 @@ module.exports = class PunjabSSO {
     return new Promise(async (resolve, reject) => {
 
       try {
-        console.log("loginResponse");
-
         const encryptedStaffID = await punjabSSOHelper.encrypt(req.body.staffID);
 
         const encryptedPassword = await punjabSSOHelper.encrypt(req.body.password);
 
         let loginResponse = await punjabSSOHelper.validateStaffLoginCredentials(encryptedStaffID, encryptedPassword);
 
-        console.log("loginResponse",loginResponse);
         loginResponse["tokenDetails"] = await punjabSSOHelper.getKeyCloakAuthToken(loginResponse.staffID,loginResponse);
         
         return resolve({

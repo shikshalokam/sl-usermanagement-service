@@ -103,9 +103,7 @@ function callToSunbird(requestType, url, token = "",requestBody ="") {
         if(token != "") {
             options['headers']["X-authenticated-user-token"] = token;
         }
-      
-        console.log('options',options);
-
+    
         url = process.env.SUNBIRD_SERIVCE_HOST + process.env.SUNBIRD_SERIVCE_BASE_URL + url;
 
        

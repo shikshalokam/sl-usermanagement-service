@@ -186,11 +186,11 @@ module.exports = class punjabSSOHelper {
 
                 let keyCloakData = await sunbirdService.getKeyCloakToken(staffID,punjabServiceDefaultPassword)
                
-                if(keyCloakData.status == 200 && keyCloakData.result) {
+                if(keyCloakData.status == HTTP_STATUS_CODE.ok.status && keyCloakData.result) {
                     return resolve(keyCloakData.result);
                 }
 
-                if(keyCloakData.success == false && keyCloakData.status == 401) {
+                if(keyCloakData.status != HTTP_STATUS_CODE.ok.status) {
                     
                     let userCreationResponse = await sunbirdService.createUser({
                         "firstName": staffDetails.staffName,
@@ -200,13 +200,13 @@ module.exports = class punjabSSOHelper {
                         "password":punjabServiceDefaultPassword
                     });
                    
-                    if(userCreationResponse.status == 200 && userCreationResponse.result && userCreationResponse.result.userId) {
+                    if(userCreationResponse.status == HTTP_STATUS_CODE.ok.status && userCreationResponse.result && userCreationResponse.result.userId) {
                         
                         await UTILS.sleep(2000); // Wait for 2 seconds for new credentials to reflect in keycloak.
                         
                         keyCloakData = await sunbirdService.getKeyCloakToken(staffID,punjabServiceDefaultPassword)
 
-                        if(keyCloakData.status == 200 && keyCloakData.result) {
+                        if(keyCloakData.status == HTTP_STATUS_CODE.ok.status && keyCloakData.result) {
                             return resolve(keyCloakData.result);
                         } else {
                             throw keyCloakData.message
