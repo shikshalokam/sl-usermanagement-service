@@ -56,10 +56,13 @@ module.exports = class PunjabSSO {
 
         const encryptedPassword = await punjabSSOHelper.encrypt(req.body.password);
 
-        let loginResponse = await punjabSSOHelper.validateStaffLoginCredentials(encryptedStaffID, encryptedPassword);
-
-        loginResponse["tokenDetails"] = await punjabSSOHelper.getKeyCloakAuthToken(loginResponse.staffID,loginResponse);
+        let loginResponse = await punjabSSOHelper.validateStaffLoginCredentials(encryptedStaffID.data, encryptedPassword.data);
+       
+        loginResponse = loginResponse.data;
         
+        const keycloakData = await punjabSSOHelper.getKeyCloakAuthToken(loginResponse.staffID,loginResponse);
+        loginResponse["tokenDetails"] = keycloakData.data;
+
         return resolve({
           message:  CONSTANTS.apiResponses.LOGIN_VERIFED,
           result: loginResponse
@@ -115,10 +118,10 @@ module.exports = class PunjabSSO {
 
         const encryptedMobileNo = await punjabSSOHelper.encrypt(req.body.registeredMobileNo);
 
-        let forgotPasswordResponse = await punjabSSOHelper.resendUserCredentials(encryptedStaffID, encryptedMobileNo);
+        let forgotPasswordResponse = await punjabSSOHelper.resendUserCredentials(encryptedStaffID.data, encryptedMobileNo.data);
 
         return resolve({
-          message: forgotPasswordResponse
+          message: forgotPasswordResponse.data
         });
 
       } catch (error) {
@@ -178,10 +181,10 @@ module.exports = class PunjabSSO {
 
           const encryptedConfirmPassword = await punjabSSOHelper.encrypt(req.body.confirmPassword);
 
-          let resetPasswordResponse = await punjabSSOHelper.resetUserCredentials(encryptedFacultyCode, encryptedOldPassword, encryptedNewPassword, encryptedConfirmPassword);
+          let resetPasswordResponse = await punjabSSOHelper.resetUserCredentials(encryptedFacultyCode.data, encryptedOldPassword.data, encryptedNewPassword.data, encryptedConfirmPassword.data);
 
           return resolve({
-            message: resetPasswordResponse 
+            message: resetPasswordResponse.data 
           });
 
         } catch (error) {
@@ -231,7 +234,7 @@ module.exports = class PunjabSSO {
 
           return resolve({
             message: CONSTANTS.apiResponses.ENCRYPTED,
-            result: {string:result}
+            result: {string:result.data }
           });
 
         } catch (error) {

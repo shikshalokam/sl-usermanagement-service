@@ -1,3 +1,5 @@
+const { createUser } = require("../../generics/services/sunbird");
+
 const Request = require(GENERIC_HELPERS_PATH+'/http-request');
 const punjabServiceBaseUrl = (process.env.PUNJAB_SERVICE_BASE_URL && process.env.PUNJAB_SERVICE_BASE_URL != "") ? process.env.PUNJAB_SERVICE_BASE_URL : ""
 const punjabServiceKey = (process.env.PUNJAB_SERVICE_KEY && process.env.PUNJAB_SERVICE_KEY != "") ? process.env.PUNJAB_SERVICE_KEY : ""
@@ -25,14 +27,18 @@ module.exports = class punjabSSOHelper {
 
                 let responseExtract = await this.validateWetherResponseIsSuccess(encryptionServiceData)
 
-                if(responseExtract != "") {
-                    return resolve(responseExtract);
+                if(responseExtract.data && responseExtract.data != "") {
+                    return resolve({data:responseExtract.data,success:true });
                 } else {
-                    throw encryptionServiceData
+                    throw new Error(encryptionServiceData);
                 }
 
             } catch (error) {
-                return reject(error);
+                return reject({
+                    data:false,
+                    success:false,
+                    message:error.message
+                });
             }
         })
     }
@@ -48,10 +54,12 @@ module.exports = class punjabSSOHelper {
                
                 let responseExtract = await this.validateWetherResponseIsSuccess(staffLoginData)
 
-                if(responseExtract != "") {
+                if(responseExtract.data && responseExtract.data != "") {
                     try {
-                        responseExtract = JSON.parse(responseExtract)
+                        responseExtract = JSON.parse(responseExtract.data)
                     } catch (error) {
+                        responseExtract = responseExtract.data;
+
                         if(_.includes(responseExtract.toLowerCase(), 'message')) {
                             const invalidCharacters = new Array('[',']',':','message','Message','{','}')
                             invalidCharacters.forEach(charToReplace => {
@@ -60,14 +68,18 @@ module.exports = class punjabSSOHelper {
                             throw new Error(_.trim(responseExtract))
                         }
                     }
-                    return resolve(responseExtract[0]);
+                    return resolve({ data: responseExtract[0],success:true });
                 } else {
                     throw new Error("Invalid credentials.")
                 }
                 
 
             } catch (error) {
-                return reject(error);
+                return reject({
+                    data:false,
+                    success:false,
+                    message:error.message
+                });
             }
         })
     }
@@ -83,19 +95,24 @@ module.exports = class punjabSSOHelper {
 
                 let responseExtract = await this.validateWetherResponseIsSuccess(staffForgotPasswordData)
                 
-                if(responseExtract != "") {
+                if(responseExtract.data && responseExtract.data != "") {
+                    responseExtract = responseExtract.data;
                     if(responseExtract == "[{Message :Password has sent on your registered mobile number !!!}]") {
-                        return resolve("Password has been sent on your registered mobile number.");
+                        return resolve({ data:"Password has been sent on your registered mobile number.",success:true });
                     } else {
-                        return resolve(responseExtract.replace('[{Message :', '').replace("}]",""));
+                        return resolve({  data: responseExtract.replace('[{Message :', '').replace("}]",""), success:true });
                     }
                 } else {
-                    throw staffForgotPasswordData
+                    throw new Error(staffForgotPasswordData);
                 }
                 
 
             } catch (error) {
-                return reject(error);
+                return reject({
+                    data:false,
+                    success:false,
+                    message:error.message
+                });
             }
         })
     }
@@ -110,19 +127,24 @@ module.exports = class punjabSSOHelper {
 
                 let responseExtract = await this.validateWetherResponseIsSuccess(staffResetPasswordData)
                 
-                if(responseExtract != "") { 
+                if(responseExtract.data && responseExtract.data != "") { 
+                    responseExtract = responseExtract.data;
                     if(responseExtract == "[{Message :Your password has chanced !!!}]") {
-                        return resolve("Password reset successful.");
+                        return resolve({ data:"Password reset successful.",success:true});
                     } else {
-                        return resolve(responseExtract.replace('[{Message :', '').replace("}]",""));
+                        return resolve({ data:responseExtract.replace('[{Message :', '').replace("}]",""),success:true });
                     }
                 } else {
-                    throw staffResetPasswordData
+                    throw new Error(staffResetPasswordData)
                 }
                 
 
             } catch (error) {
-                return reject(error);
+                return reject({
+                    data:false,
+                    success:false,
+                    message:error.message
+                });
             }
         })
     }
@@ -132,14 +154,18 @@ module.exports = class punjabSSOHelper {
             try {
 
                 if(response && response.status && response.status == 200 && response.message && response.message == "Success" && response.data && response.data.string && response.data.string._text) {
-                    return resolve(response.data.string._text);
+                    return resolve({ data:response.data.string._text,success:true });
                 } else {
-                    return resolve("");
+                    return resolve({ data:"",success:false });
                 }
                 
 
             } catch (error) {
-                return reject(error);
+                return reject({
+                    data:false,
+                    success:false,
+                    message:error.message
+                });
             }
         })
     }
@@ -170,7 +196,11 @@ module.exports = class punjabSSOHelper {
                 return resolve(response)
 
             } catch (error) {
-                return reject(error);
+                return reject({
+                    data:false,
+                    success:false,
+                    message:error.message
+                });
             }
         })
     }
@@ -180,14 +210,14 @@ module.exports = class punjabSSOHelper {
         return new Promise(async (resolve, reject) => {
             try {
 
-                if(staffID == "") throw new Error("taffID cannot be blank.")
+                if(staffID == "") throw new Error("staffID cannot be blank.")
 
                 if(punjabServiceDefaultPassword == "") throw new Error("Default Password not available.")
 
-                let keyCloakData = await sunbirdService.getKeyCloakToken(staffID,punjabServiceDefaultPassword)
+                let keyCloakData = await sunbirdService.getKeycloakToken(staffID,punjabServiceDefaultPassword)
                
                 if(keyCloakData.status == HTTP_STATUS_CODE.ok.status && keyCloakData.result) {
-                    return resolve(keyCloakData.result);
+                    return resolve({ data: keyCloakData.result,success:true });
                 }
 
                 if(keyCloakData.status != HTTP_STATUS_CODE.ok.status) {
@@ -204,10 +234,11 @@ module.exports = class punjabSSOHelper {
                         
                         await UTILS.sleep(2000); // Wait for 2 seconds for new credentials to reflect in keycloak.
                         
-                        keyCloakData = await sunbirdService.getKeyCloakToken(staffID,punjabServiceDefaultPassword)
+                        keyCloakData = await sunbirdService.getKeycloakToken(staffID,punjabServiceDefaultPassword)
 
                         if(keyCloakData.status == HTTP_STATUS_CODE.ok.status && keyCloakData.result) {
-                            return resolve(keyCloakData.result);
+                            
+                            return resolve({ data : keyCloakData.result,success:true });
                         } else {
                             throw keyCloakData.message
                         }
@@ -221,7 +252,11 @@ module.exports = class punjabSSOHelper {
                 }
 
             } catch (error) {
-                return reject(error);
+                return reject({
+                    data:false,
+                    success:false,
+                    message:error.message
+                });
             }
         })
     }

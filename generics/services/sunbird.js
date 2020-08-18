@@ -224,20 +224,20 @@ const verifyToken = function (token) {
 /**
   * To get keycloak token for the user
   * @function
-  * @name getKeyCloakToken
+  * @name getKeycloakToken
   * @param token - user token for verification 
   * @returns {JSON} - consist of token verification details
 */
-const getKeyCloakToken = function (username,password) {
+const getKeycloakToken = function (username,password) {
     return new Promise(async (resolve, reject) => {
         try {
-            const keyCloakTokenAPI = CONSTANTS.endpoints.GET_KEYCLOAK_TOKEN;
+            const keycloakTokenAPI = CONSTANTS.endpoints.GET_KEYCLOAK_TOKEN;
 
             let requestBody = {
                 username: username,
                 password:password
             }
-            let response = await callToSunbird("POST", keyCloakTokenAPI, "",requestBody);
+            let response = await callToSunbird("POST", keycloakTokenAPI, "",requestBody);
             return resolve(response);
         } catch (error) {
 
@@ -258,5 +258,5 @@ module.exports = {
     activateUser: activateUser,
     inactivateUser: inactivateUser,
     verifyToken: verifyToken,
-    getKeyCloakToken: getKeyCloakToken
+    getKeycloakToken: getKeycloakToken
 };
