@@ -12,5 +12,5 @@ module.exports = {
     SUNBIRD_BLOCK_USER: "api/v1/users/inactivate",
     SUNBIRD_UNBLOCK_USER: "api/v1/users/activate",
     VERIFY_TOKEN: "api/v1/token/verify",
-    GET_KEYCLOAK_TOKEN: "api/v1/keycloak/getToken"
+    GET_KEYCLOAK_TOKEN: "api/v1/keycloak/generateToken"
 }
