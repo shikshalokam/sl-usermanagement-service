@@ -18,7 +18,7 @@ const request = require('request');
   * @returns {json} response consist of created user details
 */
 
-const createUser = async function (userInputData, token) {
+const createUser = async function (userInputData, token="") {
     return new Promise(async (resolve, reject) => {
 
         const createUserUrl = CONSTANTS.endpoints.SUNBIRD_CREATE_USER;
@@ -104,6 +104,7 @@ function callToSunbird(requestType, url, token = "",requestBody ="") {
             options['headers']["X-authenticated-user-token"] = token;
         }
       
+        console.log('options',options);
 
         url = process.env.SUNBIRD_SERIVCE_HOST + process.env.SUNBIRD_SERIVCE_BASE_URL + url;
 
@@ -222,6 +223,33 @@ const verifyToken = function (token) {
     })
 }
 
+/**
+  * To get keycloak token for the user
+  * @function
+  * @name getKeyCloakToken
+  * @param token - user token for verification 
+  * @returns {JSON} - consist of token verification details
+*/
+const getKeyCloakToken = function (username,password) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const keyCloakTokenAPI = CONSTANTS.endpoints.GET_KEYCLOAK_TOKEN;
+
+            let requestBody = {
+                username: username,
+                password:password
+            }
+            let response = await callToSunbird("POST", keyCloakTokenAPI, "",requestBody);
+            return resolve(response);
+        } catch (error) {
+
+            reject({ message: CONSTANTS.apiResponses.SUNBIRD_SERVICE_DOWN });
+        }
+    })
+}
+
+
+
 
 
 
@@ -231,5 +259,6 @@ module.exports = {
     getUserProfile: getUserProfile,
     activateUser: activateUser,
     inactivateUser: inactivateUser,
-    verifyToken: verifyToken
+    verifyToken: verifyToken,
+    getKeyCloakToken: getKeyCloakToken
 };

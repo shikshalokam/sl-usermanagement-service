@@ -3,13 +3,15 @@ const punjabServiceBaseUrl = (process.env.PUNJAB_SERVICE_BASE_URL && process.env
 const punjabServiceKey = (process.env.PUNJAB_SERVICE_KEY && process.env.PUNJAB_SERVICE_KEY != "") ? process.env.PUNJAB_SERVICE_KEY : ""
 const punjabServiceHost = (process.env.PUNJAB_SERVICE_HOST && process.env.PUNJAB_SERVICE_HOST != "") ? process.env.PUNJAB_SERVICE_HOST : ""
 const encryptionEndpoint = "encryptedMethod"
-// const decryptionEndpoint = "decryptedMethod"
+
 const validateStaffLoginCredentialsEndpoint = "staffLogin"
 const resendStaffCredentialsEndpoint = "forgetPassword"
 const resetPasswordEndpoint = "resetPassword"
-const shikshalokamHelper = require(MODULES_BASE_PATH + "/shikshalokam/helper")
+
 const punjabServiceDefaultPassword = (process.env.PUNJAB_SERVICE_DEFAULT_PASSWORD && process.env.PUNJAB_SERVICE_DEFAULT_PASSWORD != "") ? process.env.PUNJAB_SERVICE_DEFAULT_PASSWORD : ""
 const punjabServiceDefaultMailDomain = (process.env.PUNJAB_SERVICE_DEFAULT_MAIL_DOMAIN && process.env.PUNJAB_SERVICE_DEFAULT_MAIL_DOMAIN != "") ? process.env.PUNJAB_SERVICE_DEFAULT_MAIL_DOMAIN : "@punjab.sl"
+
+let sunbirdService = require(GENERIC_SERVICES_PATH + "/sunbird");
 
 module.exports = class punjabSSOHelper {
 
@@ -43,7 +45,7 @@ module.exports = class punjabSSOHelper {
                 if(staffID == "" || password == "") throw new Error("Invalid credentials.")
 
                 let staffLoginData = await this.callPunjabService(validateStaffLoginCredentialsEndpoint,{"staffID":staffID,"password":password})
-
+               
                 let responseExtract = await this.validateWetherResponseIsSuccess(staffLoginData)
 
                 if(responseExtract != "") {
@@ -182,40 +184,40 @@ module.exports = class punjabSSOHelper {
 
                 if(punjabServiceDefaultPassword == "") throw new Error("Default Password not available.")
 
-                let keyCloakData = await shikshalokamHelper.getKeyCloakToken(staffID,punjabServiceDefaultPassword)
-
-                if(keyCloakData.success == true && keyCloakData.status == 200 && keyCloakData.tokenDetails) {
-                    return resolve(keyCloakData.tokenDetails);
+                let keyCloakData = await sunbirdService.getKeyCloakToken(staffID,punjabServiceDefaultPassword)
+               
+                if(keyCloakData.status == 200 && keyCloakData.result) {
+                    return resolve(keyCloakData.result);
                 }
 
                 if(keyCloakData.success == false && keyCloakData.status == 401) {
                     
-                    let userCreationResponse =  await shikshalokamHelper.createUser({
+                    let userCreationResponse = await sunbirdService.createUser({
                         "firstName": staffDetails.staffName,
                         "lastName": "",
                         "userName": staffID,
                         "email": staffID + punjabServiceDefaultMailDomain,
                         "password":punjabServiceDefaultPassword
-                    })
-
-                    if(userCreationResponse.success && userCreationResponse.userId) {
+                    });
+                   
+                    if(userCreationResponse.status == 200 && userCreationResponse.result && userCreationResponse.result.userId) {
                         
                         await UTILS.sleep(2000); // Wait for 2 seconds for new credentials to reflect in keycloak.
                         
-                        keyCloakData = await shikshalokamHelper.getKeyCloakToken(staffID,punjabServiceDefaultPassword)
+                        keyCloakData = await sunbirdService.getKeyCloakToken(staffID,punjabServiceDefaultPassword)
 
-                        if(keyCloakData.success == true && keyCloakData.status == 200 && keyCloakData.tokenDetails) {
-                            return resolve(keyCloakData.tokenDetails);
+                        if(keyCloakData.status == 200 && keyCloakData.result) {
+                            return resolve(keyCloakData.result);
                         } else {
-                            throw keyCloakData
+                            throw keyCloakData.message
                         }
 
                     } else {
-                        throw userCreationResponse
+                        throw userCreationResponse.message
                     }
 
                 } else {
-                    throw keyCloakData
+                    throw keyCloakData.message
                 }
 
             } catch (error) {
