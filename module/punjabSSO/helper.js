@@ -25,9 +25,10 @@ module.exports = class punjabSSOHelper {
 
                 const encryptionServiceResponse = await this.callPunjabService(encryptionEndpoint,{"values":string})
 
+               
                 if(!encryptionServiceResponse.data) throw new Error(encryptionServiceResponse.message);
 
-                const responseExtract = await this.validateWetherResponseIsSuccess(encryptionServiceResponse.da)
+                const responseExtract = await this.validateWetherResponseIsSuccess(encryptionServiceResponse.data)
 
                 if(responseExtract.data && responseExtract.data != "") {
                     return resolve({ data:responseExtract.data,success:true,message:"Data encrypted succesfully." });
@@ -202,7 +203,7 @@ module.exports = class punjabSSOHelper {
                     punjabServiceBaseUrl+"/"+endpoint,
                     options
                 )
-
+                     
                 return resolve({
                     success: true,
                     message : "Punjab MIS API call completed successfully.",
