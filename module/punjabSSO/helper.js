@@ -23,12 +23,12 @@ module.exports = class punjabSSOHelper {
 
                 if(string == "") throw new Error("String cannot be blank.")
 
-                let encryptionServiceData = await this.callPunjabService(encryptionEndpoint,{"values":string})
+                const encryptionServiceData = await this.callPunjabService(encryptionEndpoint,{"values":string})
 
-                let responseExtract = await this.validateWetherResponseIsSuccess(encryptionServiceData)
+                const responseExtract = await this.validateWetherResponseIsSuccess(encryptionServiceData)
 
                 if(responseExtract.data && responseExtract.data != "") {
-                    return resolve({data:responseExtract.data,success:true });
+                    return resolve({ data:responseExtract.data,success:true,message:"Data encrypted succesfully." });
                 } else {
                     throw new Error(encryptionServiceData);
                 }
@@ -50,7 +50,7 @@ module.exports = class punjabSSOHelper {
 
                 if(staffID == "" || password == "") throw new Error("Invalid credentials.")
 
-                let staffLoginData = await this.callPunjabService(validateStaffLoginCredentialsEndpoint,{"staffID":staffID,"password":password})
+                const staffLoginData = await this.callPunjabService(validateStaffLoginCredentialsEndpoint,{"staffID":staffID,"password":password})
                
                 let responseExtract = await this.validateWetherResponseIsSuccess(staffLoginData)
 
@@ -68,7 +68,7 @@ module.exports = class punjabSSOHelper {
                             throw new Error(_.trim(responseExtract))
                         }
                     }
-                    return resolve({ data: responseExtract[0],success:true });
+                    return resolve({ data: responseExtract[0],success:true,message:responseExtract[0] });
                 } else {
                     throw new Error("Invalid credentials.")
                 }
@@ -91,16 +91,17 @@ module.exports = class punjabSSOHelper {
 
                 if(staffID == "" || mobileNo == "") throw new Error("Invalid credentials.")
 
-                let staffForgotPasswordData = await this.callPunjabService(resendStaffCredentialsEndpoint,{"staffID":staffID,"registeredMobileNo":mobileNo})
+                const staffForgotPasswordData = await this.callPunjabService(resendStaffCredentialsEndpoint,{"staffID":staffID,"registeredMobileNo":mobileNo})
 
                 let responseExtract = await this.validateWetherResponseIsSuccess(staffForgotPasswordData)
                 
                 if(responseExtract.data && responseExtract.data != "") {
                     responseExtract = responseExtract.data;
                     if(responseExtract == "[{Message :Password has sent on your registered mobile number !!!}]") {
-                        return resolve({ data:"Password has been sent on your registered mobile number.",success:true });
+                        const message = "Password has been sent on your registered mobile number.";
+                        return resolve({ data:message,success:true,message:message });
                     } else {
-                        return resolve({  data: responseExtract.replace('[{Message :', '').replace("}]",""), success:true });
+                        return resolve({  data: responseExtract.replace('[{Message :', '').replace("}]",""), success:true,message:responseExtract.replace('[{Message :', '').replace("}]","") });
                     }
                 } else {
                     throw new Error(staffForgotPasswordData);
@@ -123,16 +124,17 @@ module.exports = class punjabSSOHelper {
 
                 if(facultyCode == "" || oldPassword == "" || password == "" || confirmPassword == "") throw new Error("Invalid credentials.")
 
-                let staffResetPasswordData = await this.callPunjabService(resetPasswordEndpoint,{"facultyCode":facultyCode,"oldPassword":oldPassword,"password":password,"confirmPassword":confirmPassword})
+                const staffResetPasswordData = await this.callPunjabService(resetPasswordEndpoint,{"facultyCode":facultyCode,"oldPassword":oldPassword,"password":password,"confirmPassword":confirmPassword})
 
                 let responseExtract = await this.validateWetherResponseIsSuccess(staffResetPasswordData)
                 
                 if(responseExtract.data && responseExtract.data != "") { 
                     responseExtract = responseExtract.data;
                     if(responseExtract == "[{Message :Your password has chanced !!!}]") {
-                        return resolve({ data:"Password reset successful.",success:true});
+                        const message = "Password reset successful.";
+                        return resolve({ data:message,success:true, message: message });
                     } else {
-                        return resolve({ data:responseExtract.replace('[{Message :', '').replace("}]",""),success:true });
+                        return resolve({ data:responseExtract.replace('[{Message :', '').replace("}]",""),success:true,message:responseExtract.replace('[{Message :', '').replace("}]","") });
                     }
                 } else {
                     throw new Error(staffResetPasswordData)
@@ -154,9 +156,9 @@ module.exports = class punjabSSOHelper {
             try {
 
                 if(response && response.status && response.status == 200 && response.message && response.message == "Success" && response.data && response.data.string && response.data.string._text) {
-                    return resolve({ data:response.data.string._text,success:true });
+                    return resolve({ data:response.data.string._text,success:true,message:response.data.string._text });
                 } else {
-                    return resolve({ data:"",success:false });
+                    return resolve({ data:"",success:false,message:"" });
                 }
                 
 
@@ -214,15 +216,15 @@ module.exports = class punjabSSOHelper {
 
                 if(punjabServiceDefaultPassword == "") throw new Error("Default Password not available.")
 
-                let keyCloakData = await sunbirdService.getKeycloakToken(staffID,punjabServiceDefaultPassword)
+                const keyCloakData = await sunbirdService.getKeycloakToken(staffID,punjabServiceDefaultPassword)
                
                 if(keyCloakData.status == HTTP_STATUS_CODE.ok.status && keyCloakData.result) {
-                    return resolve({ data: keyCloakData.result,success:true });
+                    return resolve({ data: keyCloakData.result,success:true,message:keyCloakData.message });
                 }
 
                 if(keyCloakData.status != HTTP_STATUS_CODE.ok.status) {
                     
-                    let userCreationResponse = await sunbirdService.createUser({
+                    const userCreationResponse = await sunbirdService.createUser({
                         "firstName": staffDetails.staffName,
                         "lastName": "",
                         "userName": staffID,
@@ -238,7 +240,7 @@ module.exports = class punjabSSOHelper {
 
                         if(keyCloakData.status == HTTP_STATUS_CODE.ok.status && keyCloakData.result) {
                             
-                            return resolve({ data : keyCloakData.result,success:true });
+                            return resolve({ data : keyCloakData.result,success:true,message:keyCloakData.message });
                         } else {
                             throw keyCloakData.message
                         }

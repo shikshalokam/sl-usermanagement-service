@@ -56,26 +56,38 @@ module.exports = class PunjabSSO {
 
         const encryptedPassword = await punjabSSOHelper.encrypt(req.body.password);
 
-        let loginResponse = await punjabSSOHelper.validateStaffLoginCredentials(encryptedStaffID.data, encryptedPassword.data);
+        if(encryptedStaffID.data && encryptedPassword.data){
+
+          let loginResponse = await punjabSSOHelper.validateStaffLoginCredentials(encryptedStaffID.data, encryptedPassword.data);
        
-        loginResponse = loginResponse.data;
-        
-        const keycloakData = await punjabSSOHelper.getKeyCloakAuthToken(loginResponse.staffID,loginResponse);
-        loginResponse["tokenDetails"] = keycloakData.data;
-
-        return resolve({
-          message:  CONSTANTS.apiResponses.LOGIN_VERIFED,
-          result: loginResponse
-        });
-
-      } catch (error) {
-
+          loginResponse = loginResponse.data;
+          
+          const keycloakData = await punjabSSOHelper.getKeyCloakAuthToken(loginResponse.staffID,loginResponse);
+          loginResponse["tokenDetails"] = keycloakData.data;
+  
+          return resolve({
+            message:  CONSTANTS.apiResponses.LOGIN_VERIFED,
+            result: loginResponse
+          });
+  
+       
+      }else{
         return reject({
           status: 200,
-          message: error.message || "Oops! something went wrong."
+          message: encryptedStaffID.message || "Oops! something went wrong."
         })
 
       }
+
+    } catch (error) {
+  
+      return reject({
+        status: 200,
+        message: error.message || "Oops! something went wrong."
+      })
+
+    }
+
 
 
     })
