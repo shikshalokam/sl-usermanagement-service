@@ -196,7 +196,9 @@ module.exports = class punjabSSOHelper {
                 }
                 
                 options.headers = {
-                    "Host": punjabServiceHost
+                    "Host": punjabServiceHost,
+                    "Connection": 'keep-alive'
+
                 }
 
                 let response = await reqObj.post(
