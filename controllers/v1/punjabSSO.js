@@ -55,25 +55,33 @@ module.exports = class PunjabSSO {
 
         const encryptedStaffID = await punjabSSOHelper.encrypt(req.body.staffID);
 
+        if(!encryptedStaffID.data) throw new Error(encryptedStaffID.message);
+
         const encryptedPassword = await punjabSSOHelper.encrypt(req.body.password);
 
-        let loginResponse = await punjabSSOHelper.validateStaffLoginCredentials(encryptedStaffID, encryptedPassword);
+        if(!encryptedPassword.data) throw new Error(encryptedPassword.message);
 
-        loginResponse["tokenDetails"] = await punjabSSOHelper.getKeyCloakAuthToken(loginResponse.staffID,loginResponse);
+        let loginResponse = await punjabSSOHelper.validateStaffLoginCredentials(encryptedStaffID.data, encryptedPassword.data);
+      
+        loginResponse = loginResponse.data;
         
+        const keycloakData = await punjabSSOHelper.getKeyCloakAuthToken(loginResponse.staffID,loginResponse);
+        loginResponse["tokenDetails"] = keycloakData.data;
+
         return resolve({
           message:  CONSTANTS.apiResponses.LOGIN_VERIFED,
           result: loginResponse
         });
+  
+    } catch (error) {
+  
+      return reject({
+        status: 200,
+        message: error.message || "Oops! something went wrong."
+      })
 
-      } catch (error) {
+    }
 
-        return reject({
-          status: 200,
-          message: error.message || "Oops! something went wrong."
-        })
-
-      }
 
 
     })
@@ -114,12 +122,17 @@ module.exports = class PunjabSSO {
 
         const encryptedStaffID = await punjabSSOHelper.encrypt(req.body.staffID);
 
+        if(!encryptedStaffID.data) throw new Error(encryptedStaffID.message);
+
         const encryptedMobileNo = await punjabSSOHelper.encrypt(req.body.registeredMobileNo);
 
-        let forgotPasswordResponse = await punjabSSOHelper.resendUserCredentials(encryptedStaffID, encryptedMobileNo);
+        if(!encryptedMobileNo.data) throw new Error(encryptedMobileNo.message);
+
+
+        let forgotPasswordResponse = await punjabSSOHelper.resendUserCredentials(encryptedStaffID.data, encryptedMobileNo.data);
 
         return resolve({
-          message: forgotPasswordResponse
+          message: forgotPasswordResponse.data
         });
 
       } catch (error) {
@@ -173,16 +186,24 @@ module.exports = class PunjabSSO {
 
           const encryptedFacultyCode = await punjabSSOHelper.encrypt(req.body.facultyCode);
 
+          if(!encryptedFacultyCode.data) throw new Error(encryptedFacultyCode.message);
+
           const encryptedOldPassword = await punjabSSOHelper.encrypt(req.body.oldPassword);
+
+          if(!encryptedOldPassword.data) throw new Error(encryptedOldPassword.message);
 
           const encryptedNewPassword = await punjabSSOHelper.encrypt(req.body.password);
 
+          if(!encryptedNewPassword.data) throw new Error(encryptedNewPassword.message);
+
           const encryptedConfirmPassword = await punjabSSOHelper.encrypt(req.body.confirmPassword);
 
-          let resetPasswordResponse = await punjabSSOHelper.resetUserCredentials(encryptedFacultyCode, encryptedOldPassword, encryptedNewPassword, encryptedConfirmPassword);
+          if(!encryptedConfirmPassword.data) throw new Error(encryptedConfirmPassword.message);
+
+          let resetPasswordResponse = await punjabSSOHelper.resetUserCredentials(encryptedFacultyCode.data, encryptedOldPassword.data, encryptedNewPassword.data, encryptedConfirmPassword.data);
 
           return resolve({
-            message: resetPasswordResponse 
+            message: resetPasswordResponse.data 
           });
 
         } catch (error) {
@@ -232,7 +253,7 @@ module.exports = class PunjabSSO {
 
           return resolve({
             message: CONSTANTS.apiResponses.ENCRYPTED,
-            result: {string:result}
+            result: {string:result.data}
           });
 
         } catch (error) {

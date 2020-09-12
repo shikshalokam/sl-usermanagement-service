@@ -1,15 +1,19 @@
+const { createUser } = require("../../generics/services/sunbird");
+
 const Request = require(GENERIC_HELPERS_PATH+'/http-request');
 const punjabServiceBaseUrl = (process.env.PUNJAB_SERVICE_BASE_URL && process.env.PUNJAB_SERVICE_BASE_URL != "") ? process.env.PUNJAB_SERVICE_BASE_URL : ""
 const punjabServiceKey = (process.env.PUNJAB_SERVICE_KEY && process.env.PUNJAB_SERVICE_KEY != "") ? process.env.PUNJAB_SERVICE_KEY : ""
 const punjabServiceHost = (process.env.PUNJAB_SERVICE_HOST && process.env.PUNJAB_SERVICE_HOST != "") ? process.env.PUNJAB_SERVICE_HOST : ""
 const encryptionEndpoint = "encryptedMethod"
-// const decryptionEndpoint = "decryptedMethod"
+
 const validateStaffLoginCredentialsEndpoint = "staffLogin"
 const resendStaffCredentialsEndpoint = "forgetPassword"
 const resetPasswordEndpoint = "resetPassword"
-const shikshalokamHelper = require(MODULES_BASE_PATH + "/shikshalokam/helper")
+
 const punjabServiceDefaultPassword = (process.env.PUNJAB_SERVICE_DEFAULT_PASSWORD && process.env.PUNJAB_SERVICE_DEFAULT_PASSWORD != "") ? process.env.PUNJAB_SERVICE_DEFAULT_PASSWORD : ""
 const punjabServiceDefaultMailDomain = (process.env.PUNJAB_SERVICE_DEFAULT_MAIL_DOMAIN && process.env.PUNJAB_SERVICE_DEFAULT_MAIL_DOMAIN != "") ? process.env.PUNJAB_SERVICE_DEFAULT_MAIL_DOMAIN : "@punjab.sl"
+
+let sunbirdService = require(GENERIC_SERVICES_PATH + "/sunbird");
 
 module.exports = class punjabSSOHelper {
 
@@ -19,18 +23,25 @@ module.exports = class punjabSSOHelper {
 
                 if(string == "") throw new Error("String cannot be blank.")
 
-                let encryptionServiceData = await this.callPunjabService(encryptionEndpoint,{"values":string})
+                const encryptionServiceResponse = await this.callPunjabService(encryptionEndpoint,{"values":string})
 
-                let responseExtract = await this.validateWetherResponseIsSuccess(encryptionServiceData)
+               
+                if(!encryptionServiceResponse.data) throw new Error(encryptionServiceResponse.message);
 
-                if(responseExtract != "") {
-                    return resolve(responseExtract);
+                const responseExtract = await this.validateWetherResponseIsSuccess(encryptionServiceResponse.data)
+
+                if(responseExtract.data && responseExtract.data != "") {
+                    return resolve({ data:responseExtract.data,success:true,message:"Data encrypted succesfully." });
                 } else {
-                    throw encryptionServiceData
+                    throw new Error(encryptionServiceResponse.message);
                 }
 
             } catch (error) {
-                return reject(error);
+                return reject({
+                    data:false,
+                    success:false,
+                    message:error.message
+                });
             }
         })
     }
@@ -42,14 +53,18 @@ module.exports = class punjabSSOHelper {
 
                 if(staffID == "" || password == "") throw new Error("Invalid credentials.")
 
-                let staffLoginData = await this.callPunjabService(validateStaffLoginCredentialsEndpoint,{"staffID":staffID,"password":password})
+                const staffLoginAPIResponse = await this.callPunjabService(validateStaffLoginCredentialsEndpoint,{"staffID":staffID,"password":password});
 
-                let responseExtract = await this.validateWetherResponseIsSuccess(staffLoginData)
+                if(!staffLoginAPIResponse.data) throw new Error(staffLoginAPIResponse.message);
+               
+                let responseExtract = await this.validateWetherResponseIsSuccess(staffLoginAPIResponse.data)
 
-                if(responseExtract != "") {
+                if(responseExtract.data && responseExtract.data != "") {
                     try {
-                        responseExtract = JSON.parse(responseExtract)
+                        responseExtract = JSON.parse(responseExtract.data)
                     } catch (error) {
+                        responseExtract = responseExtract.data;
+
                         if(_.includes(responseExtract.toLowerCase(), 'message')) {
                             const invalidCharacters = new Array('[',']',':','message','Message','{','}')
                             invalidCharacters.forEach(charToReplace => {
@@ -58,14 +73,18 @@ module.exports = class punjabSSOHelper {
                             throw new Error(_.trim(responseExtract))
                         }
                     }
-                    return resolve(responseExtract[0]);
+                    return resolve({ data: responseExtract[0],success:true,message:responseExtract[0] });
                 } else {
                     throw new Error("Invalid credentials.")
                 }
                 
 
             } catch (error) {
-                return reject(error);
+                return reject({
+                    data:false,
+                    success:false,
+                    message:error.message
+                });
             }
         })
     }
@@ -77,23 +96,31 @@ module.exports = class punjabSSOHelper {
 
                 if(staffID == "" || mobileNo == "") throw new Error("Invalid credentials.")
 
-                let staffForgotPasswordData = await this.callPunjabService(resendStaffCredentialsEndpoint,{"staffID":staffID,"registeredMobileNo":mobileNo})
+                const staffForgotPasswordAPIResponse = await this.callPunjabService(resendStaffCredentialsEndpoint,{"staffID":staffID,"registeredMobileNo":mobileNo})
 
-                let responseExtract = await this.validateWetherResponseIsSuccess(staffForgotPasswordData)
+                if(!staffForgotPasswordAPIResponse.data) throw new Error(staffForgotPasswordAPIResponse.message);
+
+                let responseExtract = await this.validateWetherResponseIsSuccess(staffForgotPasswordAPIResponse.data)
                 
-                if(responseExtract != "") {
+                if(responseExtract.data && responseExtract.data != "") {
+                    responseExtract = responseExtract.data;
                     if(responseExtract == "[{Message :Password has sent on your registered mobile number !!!}]") {
-                        return resolve("Password has been sent on your registered mobile number.");
+                        const message = "Password has been sent on your registered mobile number.";
+                        return resolve({ data:message,success:true,message:message });
                     } else {
-                        return resolve(responseExtract.replace('[{Message :', '').replace("}]",""));
+                        return resolve({  data: responseExtract.replace('[{Message :', '').replace("}]",""), success:true,message:responseExtract.replace('[{Message :', '').replace("}]","") });
                     }
                 } else {
-                    throw staffForgotPasswordData
+                    throw new Error(staffForgotPasswordAPIResponse.message);
                 }
                 
 
             } catch (error) {
-                return reject(error);
+                return reject({
+                    data:false,
+                    success:false,
+                    message:error.message
+                });
             }
         })
     }
@@ -104,23 +131,31 @@ module.exports = class punjabSSOHelper {
 
                 if(facultyCode == "" || oldPassword == "" || password == "" || confirmPassword == "") throw new Error("Invalid credentials.")
 
-                let staffResetPasswordData = await this.callPunjabService(resetPasswordEndpoint,{"facultyCode":facultyCode,"oldPassword":oldPassword,"password":password,"confirmPassword":confirmPassword})
+                const staffResetPasswordAPIResponse = await this.callPunjabService(resetPasswordEndpoint,{"facultyCode":facultyCode,"oldPassword":oldPassword,"password":password,"confirmPassword":confirmPassword})
 
-                let responseExtract = await this.validateWetherResponseIsSuccess(staffResetPasswordData)
+                if(!staffResetPasswordAPIResponse.data) throw new Error(staffResetPasswordAPIResponse.message);
+
+                let responseExtract = await this.validateWetherResponseIsSuccess(staffResetPasswordAPIResponse.data)
                 
-                if(responseExtract != "") { 
+                if(responseExtract.data && responseExtract.data != "") { 
+                    responseExtract = responseExtract.data;
                     if(responseExtract == "[{Message :Your password has chanced !!!}]") {
-                        return resolve("Password reset successful.");
+                        const message = "Password reset successful.";
+                        return resolve({ data:message,success:true, message: message });
                     } else {
-                        return resolve(responseExtract.replace('[{Message :', '').replace("}]",""));
+                        return resolve({ data:responseExtract.replace('[{Message :', '').replace("}]",""),success:true,message:responseExtract.replace('[{Message :', '').replace("}]","") });
                     }
                 } else {
-                    throw staffResetPasswordData
+                    throw new Error(staffResetPasswordAPIResponse.message)
                 }
                 
 
             } catch (error) {
-                return reject(error);
+                return reject({
+                    data:false,
+                    success:false,
+                    message:error.message
+                });
             }
         })
     }
@@ -130,14 +165,18 @@ module.exports = class punjabSSOHelper {
             try {
 
                 if(response && response.status && response.status == 200 && response.message && response.message == "Success" && response.data && response.data.string && response.data.string._text) {
-                    return resolve(response.data.string._text);
+                    return resolve({ data:response.data.string._text,success:true,message:response.data.string._text });
                 } else {
-                    return resolve("");
+                    return resolve({ data:"",success:false,message:"" });
                 }
                 
 
             } catch (error) {
-                return reject(error);
+                return reject({
+                    data:false,
+                    success:false,
+                    message:error.message
+                });
             }
         })
     }
@@ -157,18 +196,28 @@ module.exports = class punjabSSOHelper {
                 }
                 
                 options.headers = {
-                    "Host": punjabServiceHost
+                    "Host": punjabServiceHost,
+                    "Connection": 'keep-alive'
+
                 }
 
                 let response = await reqObj.post(
                     punjabServiceBaseUrl+"/"+endpoint,
                     options
                 )
-
-                return resolve(response)
+                     
+                return resolve({
+                    success: true,
+                    message : "Punjab MIS API call completed successfully.",
+                    data : response
+                })
 
             } catch (error) {
-                return reject(error);
+                return reject({
+                    data:false,
+                    success:false,
+                    message:error.message
+                });
             }
         })
     }
@@ -178,48 +227,53 @@ module.exports = class punjabSSOHelper {
         return new Promise(async (resolve, reject) => {
             try {
 
-                if(staffID == "") throw new Error("taffID cannot be blank.")
+                if(staffID == "") throw new Error("staffID cannot be blank.")
 
                 if(punjabServiceDefaultPassword == "") throw new Error("Default Password not available.")
 
-                let keyCloakData = await shikshalokamHelper.getKeyCloakToken(staffID,punjabServiceDefaultPassword)
-
-                if(keyCloakData.success == true && keyCloakData.status == 200 && keyCloakData.tokenDetails) {
-                    return resolve(keyCloakData.tokenDetails);
+                const keyCloakData = await sunbirdService.getKeycloakToken(staffID,punjabServiceDefaultPassword)
+               
+                if(keyCloakData.status == HTTP_STATUS_CODE.ok.status && keyCloakData.result) {
+                    return resolve({ data: keyCloakData.result,success:true,message:keyCloakData.message });
                 }
 
-                if(keyCloakData.success == false && keyCloakData.status == 401) {
+                if(keyCloakData.status != HTTP_STATUS_CODE.ok.status) {
                     
-                    let userCreationResponse =  await shikshalokamHelper.createUser({
+                    const userCreationResponse = await sunbirdService.createUser({
                         "firstName": staffDetails.staffName,
                         "lastName": "",
                         "userName": staffID,
                         "email": staffID + punjabServiceDefaultMailDomain,
                         "password":punjabServiceDefaultPassword
-                    })
-
-                    if(userCreationResponse.success && userCreationResponse.userId) {
+                    });
+                   
+                    if(userCreationResponse.status == HTTP_STATUS_CODE.ok.status && userCreationResponse.result && userCreationResponse.result.userId) {
                         
                         await UTILS.sleep(2000); // Wait for 2 seconds for new credentials to reflect in keycloak.
                         
-                        keyCloakData = await shikshalokamHelper.getKeyCloakToken(staffID,punjabServiceDefaultPassword)
+                        keyCloakData = await sunbirdService.getKeycloakToken(staffID,punjabServiceDefaultPassword)
 
-                        if(keyCloakData.success == true && keyCloakData.status == 200 && keyCloakData.tokenDetails) {
-                            return resolve(keyCloakData.tokenDetails);
+                        if(keyCloakData.status == HTTP_STATUS_CODE.ok.status && keyCloakData.result) {
+                            
+                            return resolve({ data : keyCloakData.result,success:true,message:keyCloakData.message });
                         } else {
-                            throw keyCloakData
+                            throw new Error(keyCloakData.message)
                         }
 
                     } else {
-                        throw userCreationResponse
+                        throw new Error(userCreationResponse.message)
                     }
 
                 } else {
-                    throw keyCloakData
+                    throw new Error(keyCloakData.message)
                 }
 
             } catch (error) {
-                return reject(error);
+                return reject({
+                    data:false,
+                    success:false,
+                    message:error.message
+                });
             }
         })
     }
