@@ -13,9 +13,6 @@ module.exports = (req) => {
         activate: function () {
             req.checkBody('userId').exists().withMessage("required userId");
         },
-        getProfile: function() {
-            req.checkParams('_id').exists().withMessage("required user id");
-        },
         inactivate: function() {
             req.checkBody('userId').exists().withMessage("required userId");
         }

@@ -226,16 +226,23 @@ const verifyToken = function (token) {
   * @function
   * @name getKeycloakToken
   * @param token - user token for verification 
+  * @param userName - login user name
+  * @param password - login password
+  * @param clientId - sunbird client id
   * @returns {JSON} - consist of token verification details
 */
-const getKeycloakToken = function (username,password) {
+const getKeycloakToken = function (username,password,client_id="") {
     return new Promise(async (resolve, reject) => {
         try {
             const keycloakTokenAPI = CONSTANTS.endpoints.GET_KEYCLOAK_TOKEN;
 
+
             let requestBody = {
                 username: username,
                 password:password
+            }
+            if(client_id){
+                requestBody['client_id'] = client_id;
             }
             let response = await callToSunbird("POST", keycloakTokenAPI, "",requestBody);
             return resolve(response);
