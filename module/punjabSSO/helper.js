@@ -231,7 +231,7 @@ module.exports = class punjabSSOHelper {
 
                 if(punjabServiceDefaultPassword == "") throw new Error("Default Password not available.")
 
-                const keyCloakData = await sunbirdService.getKeycloakToken(staffID,punjabServiceDefaultPassword)
+                const keyCloakData = await sunbirdService.getKeycloakToken(staffID,punjabServiceDefaultPassword,process.env.DARPAN_APP_KEYCLOAK_CLIENT)
                
                 if(keyCloakData.status == HTTP_STATUS_CODE.ok.status && keyCloakData.result) {
                     return resolve({ data: keyCloakData.result,success:true,message:keyCloakData.message });
@@ -251,7 +251,7 @@ module.exports = class punjabSSOHelper {
                         
                         await UTILS.sleep(2000); // Wait for 2 seconds for new credentials to reflect in keycloak.
                         
-                        keyCloakData = await sunbirdService.getKeycloakToken(staffID,punjabServiceDefaultPassword)
+                        keyCloakData = await sunbirdService.getKeycloakToken(staffID,punjabServiceDefaultPassword,process.env.DARPAN_APP_KEYCLOAK_CLIENT)
 
                         if(keyCloakData.status == HTTP_STATUS_CODE.ok.status && keyCloakData.result) {
                             
