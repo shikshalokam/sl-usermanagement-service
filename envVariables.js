@@ -54,6 +54,11 @@ let enviromentVariables = {
     "message" : "Required sunbird service base url",
     "optional" : false
   },
+  "DARPAN_APP_KEYCLOAK_CLIENT" : {
+    "message" : "Required Darpan app keyclock client",
+    "optional" : true,
+    "default" : "sl-ionic-connect"
+  },
   "MIGRATION_COLLECTION" : {
     "message" : "Required migrations collection name",
     "optional" : false
