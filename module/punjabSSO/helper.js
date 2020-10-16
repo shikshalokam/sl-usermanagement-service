@@ -202,10 +202,14 @@ module.exports = class punjabSSOHelper {
 
                 }
 
+                process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
+
                 let response = await reqObj.post(
                     punjabServiceBaseUrl+"/"+endpoint,
                     options
                 )
+
+                process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '1';
                      
                 return resolve({
                     success: true,

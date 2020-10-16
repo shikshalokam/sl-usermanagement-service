@@ -36,8 +36,6 @@ var Request = class Request {
         return new Promise(function (resolve, reject) {
             var req;
 
-            process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
-
             var httpModule = (options.type == "http") ? http : https;
             req = httpModule.request(options, function (res) {
                 res.setEncoding('utf8');
