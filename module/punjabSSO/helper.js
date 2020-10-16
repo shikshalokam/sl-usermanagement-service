@@ -73,6 +73,7 @@ module.exports = class punjabSSOHelper {
                             throw new Error(_.trim(responseExtract))
                         }
                     }
+
                     return resolve({ data: responseExtract[0],success:true,message:responseExtract[0] });
                 } else {
                     throw new Error("Invalid credentials.")
@@ -191,7 +192,7 @@ module.exports = class punjabSSOHelper {
 
                 data["key"] = punjabServiceKey
                 let options = {
-                    type : "http",
+                    type : "https",
                     form: data
                 }
                 
@@ -269,6 +270,7 @@ module.exports = class punjabSSOHelper {
                 }
 
             } catch (error) {
+
                 return reject({
                     data:false,
                     success:false,
