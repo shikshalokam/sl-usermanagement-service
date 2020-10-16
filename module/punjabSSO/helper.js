@@ -73,6 +73,7 @@ module.exports = class punjabSSOHelper {
                             throw new Error(_.trim(responseExtract))
                         }
                     }
+
                     return resolve({ data: responseExtract[0],success:true,message:responseExtract[0] });
                 } else {
                     throw new Error("Invalid credentials.")
@@ -191,7 +192,7 @@ module.exports = class punjabSSOHelper {
 
                 data["key"] = punjabServiceKey
                 let options = {
-                    type : "http",
+                    type : "https",
                     form: data
                 }
                 
@@ -201,10 +202,14 @@ module.exports = class punjabSSOHelper {
 
                 }
 
+                process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
+
                 let response = await reqObj.post(
                     punjabServiceBaseUrl+"/"+endpoint,
                     options
                 )
+
+                process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '1';
                      
                 return resolve({
                     success: true,
@@ -231,7 +236,7 @@ module.exports = class punjabSSOHelper {
 
                 if(punjabServiceDefaultPassword == "") throw new Error("Default Password not available.")
 
-                const keyCloakData = await sunbirdService.getKeycloakToken(staffID,punjabServiceDefaultPassword)
+                const keyCloakData = await sunbirdService.getKeycloakToken(staffID,punjabServiceDefaultPassword,process.env.DARPAN_APP_KEYCLOAK_CLIENT)
                
                 if(keyCloakData.status == HTTP_STATUS_CODE.ok.status && keyCloakData.result) {
                     return resolve({ data: keyCloakData.result,success:true,message:keyCloakData.message });
@@ -251,7 +256,7 @@ module.exports = class punjabSSOHelper {
                         
                         await UTILS.sleep(2000); // Wait for 2 seconds for new credentials to reflect in keycloak.
                         
-                        keyCloakData = await sunbirdService.getKeycloakToken(staffID,punjabServiceDefaultPassword)
+                        keyCloakData = await sunbirdService.getKeycloakToken(staffID,punjabServiceDefaultPassword,process.env.DARPAN_APP_KEYCLOAK_CLIENT)
 
                         if(keyCloakData.status == HTTP_STATUS_CODE.ok.status && keyCloakData.result) {
                             
@@ -269,6 +274,7 @@ module.exports = class punjabSSOHelper {
                 }
 
             } catch (error) {
+
                 return reject({
                     data:false,
                     success:false,
