@@ -35,5 +35,6 @@ module.exports = {
   MISSING_TOKEN_AND_INTERNAL_ACCESS_TOKEN_CODE: "ERR_REQUEST_FIELDS_MISSING",
   MISSING_TOKEN_AND_INTERNAL_ACCESS_TOKEN_MESSAGE: "Token and Internal access token both are required field",
   MISSING_TOKEN_OR_INTERNAL_ACCESS_TOKEN_CODE: "ERR_REQUEST_ANY_ONE_FIELD_MISSING",
-  MISSING_TOKEN_OR_INTERNAL_ACCESS_TOKEN_MESSAGE: "Token or Internal access token either one is required"
+  MISSING_TOKEN_OR_INTERNAL_ACCESS_TOKEN_MESSAGE: "Token or Internal access token either one is required",
+  KENDRA_SERVICE_DOWN: "Kendra service is down"
 };

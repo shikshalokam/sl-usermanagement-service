@@ -12,5 +12,6 @@ module.exports = {
     SUNBIRD_BLOCK_USER: "api/v1/users/inactivate",
     SUNBIRD_UNBLOCK_USER: "api/v1/users/activate",
     VERIFY_TOKEN: "api/v1/token/verify",
-    GET_KEYCLOAK_TOKEN: "api/v1/keycloak/generateToken"
+    GET_KEYCLOAK_TOKEN: "api/v1/keycloak/generateToken",
+    ADD_TO_ACTIVITY_LOG : "api/v1/activity-logs/create" // Kendra service
 }

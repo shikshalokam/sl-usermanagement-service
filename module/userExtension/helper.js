@@ -2,6 +2,7 @@ let sunbirdService =
     require(GENERIC_SERVICES_PATH + "/sunbird");
 
 let platformRolesHelper = require(MODULES_BASE_PATH + "/platformRoles/helper");
+const kendraService = require(PROJECT_ROOT_DIRECTORY + "/generics/services/kendra");
 
 /**
 * user related information be here.
@@ -165,7 +166,10 @@ module.exports = class UserExtensionHelper {
 
                         userObj["metaInformation"] = metaInformation;
                         let db = await database.models.userExtension.create(userObj);
-              
+                        if(db != ""){
+                            let addToActivityLog = await kendraService.addToActivityLog("user-create","PANJAB_MIS",db._id,db);
+                        }
+                        
                         return resolve({ result: response.result, message: CONSTANTS.apiResponses.USER_CREATED });
                     } else {
 
