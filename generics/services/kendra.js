@@ -24,14 +24,12 @@ const kendraServiceBaseURL = process.env.KENDRA_APPLICATION_ENDPOINT + "/";
 const addToActivityLog = function (type,userId,docId,data) {
 
     let addToActivityUrl = kendraServiceBaseURL + CONSTANTS.endpoints.ADD_TO_ACTIVITY_LOG + "?type=" + type + "&userId=" + userId + "&docId=" + docId ;
-    console.log(addToActivityUrl,"addToActivityUrl")
     return new Promise((resolve, reject) => {
         try {
 
             const kendraCallBack = function (err, response) {
                 if (err) {
                     return reject({
-                        status : httpStatusCode.bad_request.status,
                         message : CONSTANTS.apiResponses.KENDRA_SERVICE_DOWN
                     })
                 } else {
