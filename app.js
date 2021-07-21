@@ -23,6 +23,9 @@ if (!environmentData.success) {
 const express = require("express");
 const app = express();
 
+// Health check
+require("./healthCheck")(app);
+
 //required modules
 const fileUpload = require("express-fileupload");
 const bodyParser = require("body-parser");
