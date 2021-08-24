@@ -24,7 +24,7 @@ module.exports = class punjabSSOHelper {
                 if(string == "") throw new Error("String cannot be blank.")
 
                 const encryptionServiceResponse = await this.callPunjabService(encryptionEndpoint,{"values":string})
-
+                console.log(encryptionServiceResponse)
                
                 if(!encryptionServiceResponse.data) throw new Error(encryptionServiceResponse.message);
 
