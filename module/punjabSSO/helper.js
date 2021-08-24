@@ -23,12 +23,16 @@ module.exports = class punjabSSOHelper {
 
                 if(string == "") throw new Error("String cannot be blank.")
 
-                const encryptionServiceResponse = await this.callPunjabService(encryptionEndpoint,{"values":string})
+                console.log("---- logs starts here ------");
 
+                const encryptionServiceResponse = await this.callPunjabService(encryptionEndpoint,{"values":string})
+                console.log("-encryption service response-",encryptionServiceResponse);
                
                 if(!encryptionServiceResponse.data) throw new Error(encryptionServiceResponse.message);
 
                 const responseExtract = await this.validateWetherResponseIsSuccess(encryptionServiceResponse.data)
+
+                console.log("-responseExtract-",responseExtract);
 
                 if(responseExtract.data && responseExtract.data != "") {
                     return resolve({ data:responseExtract.data,success:true,message:"Data encrypted succesfully." });
@@ -37,6 +41,7 @@ module.exports = class punjabSSOHelper {
                 }
 
             } catch (error) {
+                console.log("-error-",error);
                 return reject({
                     data:false,
                     success:false,
