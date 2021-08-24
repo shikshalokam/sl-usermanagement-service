@@ -204,10 +204,17 @@ module.exports = class punjabSSOHelper {
 
                 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
 
+                console.log("--- logs starts in success ------------")
+                console.log("url",punjabServiceBaseUrl+"/"+endpoint);
+                console.log("options",options);
+
                 let response = await reqObj.post(
                     punjabServiceBaseUrl+"/"+endpoint,
                     options
                 )
+
+                console.log("response",response);
+                console.log("--- logs ends. In success ------------")
 
                 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '1';
                      
@@ -218,6 +225,9 @@ module.exports = class punjabSSOHelper {
                 })
 
             } catch (error) {
+                console.log("error",error);
+                console.log("--- logs ends. In error ------------");
+
                 return reject({
                     data:false,
                     success:false,
