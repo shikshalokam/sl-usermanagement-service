@@ -218,33 +218,61 @@ module.exports = class punjabSSOHelper {
                 ];
 
                 let result = {};
+                let totalResponse = [];
+                
 
-                await Promise.all(urls.map(async url => {
-                    console.log("--- processing url ---",url);
+                async.map(urls,async function (url,callback) {
                     let response = await reqObj.post(url,options);
+                    console.log("--- processing url ---",url);
+                    console.log("--- response ----",response);
 
-                    if (response.message === "Success" && Object.values(result).length === 0) {
-                        console.log("response",response);
-                        result = {
+                    if (response.message === "Success") {
+                        process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '1';
+                        console.log("--- logs end in success ---")
+                        return resolve({
                             success: true,
                             message : "Punjab MIS API call completed successfully.",
                             data : response
-                        };
+                        });
+                    } else {
+                        if (totalResponse.length === 2) {
+                            console.log("--- logs end in error ---")
+                            return resolve({
+                                data:false,
+                                success:false,
+                                message:"Error hitting Punjab MIS"
+                            });
+                        }
+                        totalResponse.push(false);
                     }
-                }))
+                    if (err) return callback(err);
+                })
 
-                process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '1';
-                if (Object.values(result).length === 0) {
-                    return resolve({
-                        data:false,
-                        success:false,
-                        message:"Error hitting Punjab MIS"
-                    });
+                // await Promise.all(urls.map(async url => {
+                //     console.log("--- processing url ---",url);
+                //     let response = await reqObj.post(url,options);
 
-                } 
+                //     if (response.message === "Success" && Object.values(result).length === 0) {
+                //         console.log("response",response);
+                //         result = {
+                //             success: true,
+                //             message : "Punjab MIS API call completed successfully.",
+                //             data : response
+                //         };
+                //     }
+                // }))
 
-                console.log("--- logs ends. In Success ------------");
-                return resolve(result);
+                // process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '1';
+                // if (Object.values(result).length === 0) {
+                //     return resolve({
+                //         data:false,
+                //         success:false,
+                //         message:"Error hitting Punjab MIS"
+                //     });
+
+                // } 
+
+                // return resolve(result);
 
 
             } catch (error) {
