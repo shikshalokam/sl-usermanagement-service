@@ -220,6 +220,7 @@ module.exports = class punjabSSOHelper {
                 let result = {};
 
                 await Promise.all(urls.map(async url => {
+                    console.log("--- processing url ---",url);
                     let response = await reqObj.post(url,options);
 
                     if (response.message === "Success" && Object.values(result).length === 0) {
