@@ -14,6 +14,7 @@ const punjabServiceDefaultPassword = (process.env.PUNJAB_SERVICE_DEFAULT_PASSWOR
 const punjabServiceDefaultMailDomain = (process.env.PUNJAB_SERVICE_DEFAULT_MAIL_DOMAIN && process.env.PUNJAB_SERVICE_DEFAULT_MAIL_DOMAIN != "") ? process.env.PUNJAB_SERVICE_DEFAULT_MAIL_DOMAIN : "@punjab.sl"
 
 let sunbirdService = require(GENERIC_SERVICES_PATH + "/sunbird");
+const request = require('request');
 
 module.exports = class punjabSSOHelper {
 
@@ -208,26 +209,42 @@ module.exports = class punjabSSOHelper {
                 }
 
                 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
+                let punjabUrl = punjabServiceBaseUrl+"/"+endpoint
 
-                console.log("--- logs starts in success ------------")
-                console.log("url",punjabServiceBaseUrl+"/"+endpoint);
-                console.log("options",options);
+                const urls= [
+                    punjabUrl,
+                    punjabUrl,
+                    punjabUrl
+                ];
 
-                let response = await reqObj.post(
-                    punjabServiceBaseUrl+"/"+endpoint,
-                    options
-                )
+                let result = {};
 
-                console.log("response",response);
-                console.log("--- logs ends. In success ------------")
+                await Promise.all(urls.map(async url => {
+                    let response = await reqObj.post(url,options);
+
+                    if (response.message === "Success" && Object.values(result).length === 0) {
+                        console.log("response",response);
+                        result = {
+                            success: true,
+                            message : "Punjab MIS API call completed successfully.",
+                            data : response
+                        };
+                    }
+                }))
 
                 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '1';
-                     
-                return resolve({
-                    success: true,
-                    message : "Punjab MIS API call completed successfully.",
-                    data : response
-                })
+                if (Object.values(result).length === 0) {
+                    return resolve({
+                        data:false,
+                        success:false,
+                        message:"Error hitting Punjab MIS"
+                    });
+
+                } 
+
+                console.log("--- logs ends. In Success ------------");
+                return resolve(result);
+
 
             } catch (error) {
                 console.log("error",error);
